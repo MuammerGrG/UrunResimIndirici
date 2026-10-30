@@ -1,0 +1,64 @@
+# UrunResimIndirici.py içindeki SURUM değişince GitHub exe'yi derler ve
+# "Releases" kısmında yeni sürüm olarak yayınlar. Programdaki "Güncelle" butonu oradan indirir.
+name: Derle ve Yayinla
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  windows-exe:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Surumu oku
+        id: surum
+        shell: pwsh
+        run: |
+          $m = Select-String -Path UrunResimIndirici.py -Pattern '^SURUM = "(.+)"' | Select-Object -First 1
+          $s = $m.Matches[0].Groups[1].Value
+          Write-Host "Surum: $s"
+          "surum=$s" >> $env:GITHUB_OUTPUT
+
+      - name: Bu surum zaten yayinlandi mi
+        id: kontrol
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view "v${{ steps.surum.outputs.surum }}" *> $null
+          if ($LASTEXITCODE -eq 0) {
+            Write-Host "v${{ steps.surum.outputs.surum }} zaten var, derleme atlaniyor (SURUM'u artir)."
+            "var=1" >> $env:GITHUB_OUTPUT
+          } else {
+            "var=0" >> $env:GITHUB_OUTPUT
+          }
+          exit 0
+
+      - uses: actions/setup-python@v5
+        if: steps.kontrol.outputs.var == '0'
+        with:
+          python-version: "3.12"
+
+      - name: Kutuphaneler
+        if: steps.kontrol.outputs.var == '0'
+        run: python -m pip install ddgs pillow requests pyinstaller
+
+      - name: EXE derle
+        if: steps.kontrol.outputs.var == '0'
+        run: python -m PyInstaller --noconfirm --onefile --windowed --name UrunResimIndirici --collect-all ddgs UrunResimIndirici.py
+
+      - name: Yayinla
+        if: steps.kontrol.outputs.var == '0'
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $v = "v${{ steps.surum.outputs.surum }}"
+          $not = git log -1 --pretty=%B
+          gh release create $v dist/UrunResimIndirici.exe --title $v --notes "$not" --latest

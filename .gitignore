@@ -1,0 +1,15 @@
+# Kişisel / firmaya özel dosyalar GitHub'a gitmesin
+ayarlar.json
+Urun_Resimleri/
+Firmalar/
+eski_surum/
+*.sql
+
+# Derleme çıktıları
+*.exe
+*.part
+build/
+dist/
+*.spec
+__pycache__/
+_guncelle_tmp.cmd

@@ -1,0 +1,58 @@
+ÜRÜN RESİM İNDİRİCİ + SİPARİŞMATİK SQL
+======================================
+
+İLK KURULUM (bir kez, ~5 dakika)
+  1) github.com'a gir (hesap: MuammerGrG) → sağ üstte "+" → "New repository"
+       Repository name:  UrunResimIndirici      (tam olarak bu isim)
+       Public seç  →  "Create repository"
+  2) Açılan sayfada "uploading an existing file" bağlantısına tıkla.
+     Bu zip'i aç, İÇİNDEKİ HER ŞEYİ (.github klasörü dahil) sayfaya sürükle
+     → en altta "Commit changes".
+  3) Üstte "Actions" sekmesine gir. "Derle ve Yayinla" çalışır, ~3-4 dk sonra yeşil tik.
+  4) Depo ana sayfasında sağda "Releases" → v1.8 → UrunResimIndirici.exe'yi indir.
+     Bir klasöre koy (ör. C:\UrunResimIndirici) ve çalıştır. Python gerekmez.
+  (Eski klasördeki ayarlar.json'u yeni klasöre kopyalarsan SQL yolu ve Gemini anahtarı da gelir.)
+
+GÜNCELLEME
+  Program açılışta GitHub'daki yeni sürümü kendisi kontrol eder, varsa sorar.
+  Elle: programda "Güncelle" butonu ya da GUNCELLE.bat.
+  Ayarlar, resimler, firmalar korunur; eski exe "eski_surum" klasörüne yedeklenir.
+
+YENİ SÜRÜM YAYINLAMAK (Claude yeni UrunResimIndirici.py gönderdiğinde)
+  Depoda "Add file" → "Upload files" → yeni UrunResimIndirici.py'yi sürükle → Commit.
+  GitHub ~3-4 dk'da derler; sonra programda "Güncelle". Başlıkta yeni sürüm numarası görünür.
+  (Derleme sadece SURUM numarası değişince yeni sürüm yayınlar.)
+
+YEREL DERLEME (GitHub olmadan, isteğe bağlı)
+  EXE_YAP.bat → Python ile bu bilgisayarda exe derler.
+
+YENİ MÜŞTERİ
+  1) Firma adını yazmana gerek yok: SQL dosyasındaki firma adı (ör. KESE MANAV) kullanılır.
+  2) Ürünleri ver — üç yol var:
+     a) Listeyi yapıştır (fiyatlı olabilir: "Domates 45 TL", "Çilek - 120")
+        Porsiyonlar ayrı satırda yazılsa da tek ürün olur:
+          Tavuk Döner Az 150 TL / Tavuk Döner Tam 200 TL / Tavuk Döner 1,5 280 TL
+          → Tavuk Döner 200 TL, porsiyonlar: Az 150, 1,5 280
+        Elle yazmak istersen:  Ürün | arama | fiyat | Az=150; 1,5=280
+     b) Menü resmi/PDF seç (Gemini ücretsiz anahtarla okur)
+     c) Hazır resim klasörü/zip'i varsa: 4. bölümde "Klasörden SQL" / "Zip'ten SQL"
+  3) db_siparismatik.sql dosyasını seç (bir kez, program hatırlar).
+  4) İndir → resimler 600x600 JPEG iner, bitince SQL otomatik oluşur.
+
+ÇIKTI
+  Urun_Resimleri\<Kategori>\...\Ürün.jpg        (tüm firmalar için ORTAK, firma adı yok;
+                                                  bir kez inen resim sonraki firmalarda tekrar kullanılır)
+  Firmalar\<Firma adı>\db_siparismatik.sql      (sadece SQL; aynı isim, aynı yapı)
+
+SQL KURALLARI
+  - Türkçe tüm metinler CONVERT(0x... USING utf8), dosya Windows-1254
+  - Resimler 600x600, 70 KB altı, urunresim / kategoriresim içine gömülü
+  - Fiyatı yazmayan ürüne varsayılan fiyat (0 olamaz), KDV 10
+  - Fotoğrafı bulunamayan ürüne adı yazılı yedek görsel konur
+  - Porsiyonlar (Az, Yarım, Tam, 1,5, Duble, Küçük, Büyük...) ayrı ürün değil;
+    tbl_urunkategoricarpan + tbl_uruncarpan'a "Porsiyon" olarak yazılır.
+    Ürünün kendi fiyatı = Tam/Normal porsiyon (yoksa en ucuzu).
+
+GEMİNİ ANAHTARI (ücretsiz, isteğe bağlı)
+  aistudio.google.com/apikey → Create API key. Menü RESMİ okumak için gerekir.
+  Yazılı listeler anahtarsız da kategorilere ayrılır.

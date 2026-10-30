@@ -1,0 +1,56 @@
+# Sebzeler
+Domates
+Salatalık
+Silor salatalık
+Limon lamas yatak
+Sivri biber
+Dolma biber
+Kapya biber
+Mazoma biber
+Patlıcan
+Kabak
+Acı kıl biber
+Tatlı kıl biber
+Topan patlıcan
+Patates
+Soğan
+Sarımsak Kastamonu
+Arpacık soğan
+Düz marul
+Kıvırcık marul
+Havuç
+Turp
+Mor lahana
+Pırasa
+Kereviz
+Ispanak
+Pancar
+Taze soğan
+Maydanoz
+Roka
+Dereotu
+Nane
+Tere
+
+# Meyveler
+Greyfurt
+Nar
+Armut santamaria
+Armut deveci
+Elma starking
+Elma golden
+Elma Amasya
+Elma arjantin
+Portakal
+Mandalina
+Ayva
+Muz ithal
+Kivi
+Cennet hurması
+Çilek
+Yerli muz
+Üzüm kavacık
+Üzüm sultaniye
+Altın çilek
+Yaban mersini
+Ananas
