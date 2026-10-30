@@ -1,4 +1,4 @@
-# Ürün Resim İndirici + Siparişmatik SQL
+# Ürün Resim İndirici 
 
 Ürün listesi ya da menü resminden ürün fotoğraflarını **600×600 JPEG** olarak indirir,
 kategorilere ayırır ve `db_siparismatik.sql` dosyasını (ürünler, kategoriler, porsiyonlar,
