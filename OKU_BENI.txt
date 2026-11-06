@@ -1,4 +1,4 @@
-ÜRÜN RESİM İNDİRİCİ + SİPARİŞMATİK SQL
+ÜRÜN RESİM İNDİRİCİ + POS SQL
 ======================================
 
 İLK KURULUM (bir kez, ~5 dakika)
@@ -27,7 +27,7 @@ YEREL DERLEME (GitHub olmadan, isteğe bağlı)
   EXE_YAP.bat → Python ile bu bilgisayarda exe derler.
 
 YENİ MÜŞTERİ
-  1) Firma adını yazmana gerek yok: SQL dosyasındaki firma adı (ör. KESE MANAV) kullanılır.
+  1) Firma adını yazmana gerek yok: SQL dosyasındaki firma adı kullanılır.
   2) Ürünleri ver — üç yol var:
      a) Listeyi yapıştır (fiyatlı olabilir: "Domates 45 TL", "Çilek - 120")
         Porsiyonlar ayrı satırda yazılsa da tek ürün olur:
@@ -36,13 +36,13 @@ YENİ MÜŞTERİ
         Elle yazmak istersen:  Ürün | arama | fiyat | Az=150; 1,5=280
      b) Menü resmi/PDF seç (Gemini ücretsiz anahtarla okur)
      c) Hazır resim klasörü/zip'i varsa: 4. bölümde "Klasörden SQL" / "Zip'ten SQL"
-  3) db_siparismatik.sql dosyasını seç (bir kez, program hatırlar).
+  3) POS'un SQL yedek dosyasını seç (bir kez, program hatırlar).
   4) İndir → resimler 600x600 JPEG iner, bitince SQL otomatik oluşur.
 
 ÇIKTI
   Urun_Resimleri\<Kategori>\...\Ürün.jpg        (tüm firmalar için ORTAK, firma adı yok;
                                                   bir kez inen resim sonraki firmalarda tekrar kullanılır)
-  Firmalar\<Firma adı>\db_siparismatik.sql      (sadece SQL; aynı isim, aynı yapı)
+  Firmalar\<Firma adı>\<aynı isimli>.sql          (sadece SQL; aynı isim, aynı yapı)
 
 SQL KURALLARI
   - Türkçe tüm metinler CONVERT(0x... USING utf8), dosya Windows-1254
@@ -51,6 +51,9 @@ SQL KURALLARI
   - Fotoğrafı bulunamayan ürüne adı yazılı yedek görsel konur
   - Kategori, ürün ve porsiyon adları BÜYÜK harfle yazılır (Türkçe: i→İ, ı→I)
   - Ödeme tiplerinde Nakit ve Kredi Kartı seçili gelir (diğerlerine dokunulmaz)
+  - Menüde/listede yemek kartı yazıyorsa onlar da seçilir. Menü okununca listenin sonuna
+    "ÖDEME: Sodexo, Multinet, Ticket" satırı eklenir; elle de yazabilirsin.
+    Sadece "ÖDEME: Yemek Kartı" yazarsa Sodexo, Multinet, Ticket, Setcard, Metropol seçilir.
   - Porsiyonlar (Az, Yarım, Tam, 1,5, Duble, Küçük, Büyük...) ayrı ürün değil;
     tbl_urunkategoricarpan + tbl_uruncarpan'a "Porsiyon" olarak yazılır.
     Ürünün kendi fiyatı = Tam/Normal porsiyon (yoksa en ucuzu).

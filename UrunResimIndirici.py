@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Ürün Resim İndirici + Siparişmatik SQL (tek dosya)
+Ürün Resim İndirici + POS SQL (tek dosya)
 --------------------------------------------------
 1) Yeni müşterinin menü resimlerini / PDF'ini okur (ücretsiz Gemini API veya yerel Ollama ile),
    ürünleri Kategori / Pişme Şekli / Menü-Sadece Yemek olarak ayırır.
@@ -48,7 +48,7 @@ BOYUT = 600
 KLASOR = (os.path.dirname(sys.executable) if getattr(sys, "frozen", False)
           else os.path.dirname(os.path.abspath(__file__)))
 AYAR_DOSYASI = os.path.join(KLASOR, "ayarlar.json")
-SURUM = "1.9"
+SURUM = "2.0"
 GITHUB_REPO = "MuammerGrG/UrunResimIndirici"     # ayarlar.json > "github_repo" ile değiştirilebilir
 GEMINI_MODELLER = ["gemini-2.5-flash", "gemini-flash-latest", "gemini-2.5-flash-lite"]   # yedek; asıl liste Google'dan çekilir
 _GEMINI_CACHE = {}
@@ -85,6 +85,11 @@ Kurallar:
   Örnek: "Et Döner Porsiyon | et döner porsiyon | 250 | Az=180; 1,5=350; Duble=450"
   Porsiyonu olmayan üründe "| porsiyonlar" kısmını hiç yazma. Ondalıklı porsiyonları virgülle yaz (1,5).
 - Okunamayan veya emin olmadığın ürünleri atlama, en iyi tahminini yaz.
+- ÖDEME: Menüde kabul edilen ödeme yöntemleri / yemek kartları (yazı ya da logo: Sodexo, Pluxee, Multinet,
+  Ticket, Edenred, Setcard, Metropol, Paye, Tokenflex, Kredi Kartı, Nakit vb.) görünüyorsa EN SONA tek satır yaz:
+  ÖDEME: Sodexo, Multinet, Ticket
+  Sadece "yemek kartı geçerlidir" gibi genel bir ifade varsa:  ÖDEME: Yemek Kartı
+  Ödeme bilgisi yoksa bu satırı hiç yazma.
 """
 
 
@@ -110,6 +115,11 @@ Kurallar:
 - Menü: patates/içecek ile set olarak satılan ürünler; diğerleri "Sadece Yemek".
 - Ürün Adı: listede yazdığı gibi, sadece yazım hatalarını düzelt (Havuc→Havuç, Mandalin→Mandalina) ve sondaki noktayı sil. Tekrarlananları bir kez yaz. Hiçbir ürünü atlama.
 - arama terimi: ürünün internette doğru fotoğrafını bulduracak 2-6 kelimelik Türkçe arama. Yerel/yöresel çeşit isimlerini anlaşılır yaz (ör. "Topan patlıcan" → "topan yuvarlak patlıcan", "Elma starking" → "starking kırmızı elma").
+- ÖDEME: Listede kabul edilen ödeme yöntemleri / yemek kartları (yazı ya da logo: Sodexo, Pluxee, Multinet,
+  Ticket, Edenred, Setcard, Metropol, Paye, Tokenflex, Kredi Kartı, Nakit vb.) görünüyorsa EN SONA tek satır yaz:
+  ÖDEME: Sodexo, Multinet, Ticket
+  Sadece "yemek kartı geçerlidir" gibi genel bir ifade varsa:  ÖDEME: Yemek Kartı
+  Ödeme bilgisi yoksa bu satırı hiç yazma.
 
 Liste:
 """
@@ -244,7 +254,7 @@ def _pors_norm(metin):
 
 
 def porsiyon_etiketi(metin):
-    """'1.5 porsiyon' → '1,5 Porsiyon', 'az' → 'Az' (Siparişmatik'teki gibi virgüllü)"""
+    """'1.5 porsiyon' → '1,5 Porsiyon', 'az' → 'Az' (POS'taki gibi virgüllü)"""
     m = re.sub(r"\s+", " ", metin).strip()
     kisa = re.sub(r"\s*(porsiyon|pors\.?|p\.)$", "", m, flags=re.I).strip()
     if kisa and not re.fullmatch(r"\d+", kisa):          # "Duble Porsiyon" → "Duble", "1,5 Pors" → "1,5"
@@ -358,12 +368,49 @@ def satiri_coz(s):
     return ad, arama, fiyat, pors
 
 
+# ---------------------------------------------------------------- ödeme tipleri
+_ODEME_SATIRI = re.compile(r"^\s*[-•*]?\s*(?:ödeme|odeme)(?:\s*(?:tipleri|yöntemleri|yontemleri|seçenekleri|secenekleri))?\s*[:=]",
+                           re.I)
+# anahtar kelime → POS ödeme kodu (tbl_odemetipi.odemekod)
+ODEME_ESLEME = [
+    ("pluxee", "SODEXO"), ("sodexo", "SODEXO"), ("multinet", "MULTINET"),
+    ("edenred", "SMARTICKET"), ("ticket", "SMARTICKET"), ("setcard", "SETCARD"), ("set kart", "SETCARD"),
+    ("metropol", "METROPOL"), ("paye", "PAYEKART"), ("tokenflex", "TOKENFLEX"),
+    ("win win", "WINWIN"), ("winwin", "WINWIN"), ("yemekmatik", "YEMEKMATIK"), ("cio card", "CIOCARD"),
+    ("ciocard", "CIOCARD"), ("en kart", "ENCARD"), ("encard", "ENCARD"), ("teb kart", "TEBCARD"),
+    ("bistra", "BISTRACARD"), ("maxima", "MAXIMACARD"), ("advantage", "ADVANTAGE"), ("maximum", "MAXIMUM"),
+    ("kredi kart", "KREDIKARTI"), ("banka kart", "KREDIKARTI"), ("nakit", "NAKIT"),
+]
+# Marka yazmadan sadece "yemek kartı" denmişse seçilecek yaygın kartlar
+YEMEK_KARTI_GENEL = ["SODEXO", "MULTINET", "SMARTICKET", "SETCARD", "METROPOL"]
+
+
+def odeme_satiri_mi(satir):
+    return bool(_ODEME_SATIRI.match((satir or "").translate(_TR)))
+
+
+def odeme_kodlari_bul(metin):
+    """Listedeki 'ÖDEME: ...' satırlarından POS ödeme kodlarını çıkarır."""
+    kodlar = []
+    for satir in (metin or "").splitlines():
+        if not odeme_satiri_mi(satir):
+            continue
+        n = " " + re.sub(r"[^a-z0-9]+", " ", _norm(re.split(r"[:=]", satir, 1)[-1])) + " "
+        for anahtar, kod in ODEME_ESLEME:
+            if f" {anahtar} " in n or (len(anahtar) > 5 and anahtar.replace(" ", "") in n.replace(" ", "")):
+                if kod not in kodlar:
+                    kodlar.append(kod)
+        if (" yemek kart" in n or " yemek ceki" in n) and not any(k in kodlar for k in YEMEK_KARTI_GENEL):
+            kodlar.extend(k for k in YEMEK_KARTI_GENEL if k not in kodlar)
+    return kodlar
+
+
 def listeyi_ayristir(metin: str) -> dict:
     """{"Kategori/Pişme/Menü": [(ad, arama, fiyat|None, [(porsiyon, fiyat), ...]), ...]}"""
     kategoriler, yigin = {}, []
     for satir in metin.splitlines():
         s = satir.strip().lstrip("-•* ").strip() if not satir.strip().startswith("#") else satir.strip()
-        if not s or s.startswith("```"):
+        if not s or s.startswith("```") or odeme_satiri_mi(s):
             continue
         m = re.match(r"^(#+)\s*(.*)$", s)
         if m:
@@ -668,12 +715,16 @@ def _ilk_gorulme(sira, yol):
 
 def yerel_siniflandir(metin):
     """Başlıksız listeyi internetsiz olarak kategorilere ayırır."""
+    odeme_satirlari = []
     gruplar = {}          # yol -> [satır]
     sira = []
     gorulen = set()
     for satir in metin.splitlines():
         s = satir.strip().lstrip("-•* ").strip()
         if not s or s.startswith("#"):
+            continue
+        if odeme_satiri_mi(s):
+            odeme_satirlari.append(s)
             continue
         ad_kismi, arama, fiyat, pors = satiri_coz(s)
         ad = _duzelt_ad(guvenli_ad(ad_kismi))
@@ -719,6 +770,8 @@ def yerel_siniflandir(metin):
                 satir += f" | {porsiyonlari_yaz(pors)}"
             cikti.append(satir)
         onceki = yol
+    if odeme_satirlari:
+        cikti += [""] + odeme_satirlari
     return "\n".join(cikti)
 
 
@@ -1068,7 +1121,7 @@ def kontrol_sayfasi_yaz(kategoriler, cikti, html_yolu=None):
     return hedef
 
 
-# ================================================================ Siparişmatik SQL yazıcı
+# ================================================================ POS SQL yazıcı
 
 KATEGORI_TABLO = "tbl_urunkategori"
 KAT_CARPAN_TABLO = "tbl_urunkategoricarpan"
@@ -1241,12 +1294,13 @@ def odeme_tiplerini_sec(dump, kodlar=("NAKIT", "KREDIKARTI"), log=print):
                 secilen.append(alan[i_kod].strip("'"))
             yeni.append("(" + ",".join(alan) + ")")
         return bas + ",".join(yeni) + ";"
-    dump = re.sub(r"^(INSERT INTO `tbl_odemetipi`(?:\s*\([^)]*\))?\s+VALUES\s*)(.*);\s*$",
+    dump = re.sub(r"^(INSERT INTO `tbl_odemetipi`(?:\s*\([^)]*\))?\s+VALUES\s*)(.*);[ \t]*$",
                   satir_duzelt, dump, flags=re.M)
     if secilen:
         log("Ödeme tipleri seçili: " + ", ".join(secilen))
-    else:
-        log("Uyarı: Nakit / Kredi Kartı ödeme tipi bulunamadı.")
+    eksik = [k for k in kodlar if k not in secilen]
+    if eksik:
+        log("Uyarı: dump'ta bulunamayan ödeme tipi: " + ", ".join(eksik))
     return dump
 
 
@@ -1350,7 +1404,7 @@ def _bolumu_doldur(dump, tablo, satirlar):
 
 
 def firma_adi_bul(dump_yolu):
-    """db_siparismatik.sql içindeki tbl_ayar satırından firma adını okur (ör. KESE MANAV)."""
+    """SQL yedeğindeki tbl_ayar satırından firma adını okur."""
     try:
         dump, _ = dump_oku(dump_yolu)
     except Exception:
@@ -1446,7 +1500,7 @@ def klasoru_tara(kok):
 
 
 def sql_olustur(dump_yolu, kategoriler, resim_kok, cikti_yolu, fiyat=1.0, kdv=10,
-                kategori_seviye=1, elle=None, log=print, gercek_klasorler=None):
+                kategori_seviye=1, elle=None, log=print, gercek_klasorler=None, ek_odemeler=()):
     """
     kategoriler: listeyi_ayristir() çıktısı {"Döner/Izgara/Menü": [(ad, arama), ...]}
     kategori_seviye: SQL kategorisi klasörün kaçıncı seviyesinden alınır
@@ -1536,11 +1590,12 @@ def sql_olustur(dump_yolu, kategoriler, resim_kok, cikti_yolu, fiyat=1.0, kdv=10
                                     carpanad=hex_metin(tr_buyuk(p_ad)), carpanfiyat=sayi(p_fiyat or u_fiyat),
                                     carpansil="'N'"))
 
-    dump = odeme_tiplerini_sec(dump, log=log)
+    kodlar = ["NAKIT", "KREDIKARTI"] + [k for k in ek_odemeler if k not in ("NAKIT", "KREDIKARTI")]
+    dump = odeme_tiplerini_sec(dump, tuple(kodlar), log=log)
     dump = eski_insertleri_duzelt(dump)
     dump = _bolumu_doldur(dump, KATEGORI_TABLO, k_satir)
     dump = _bolumu_doldur(dump, URUN_TABLO, u_satir)
-    # Porsiyonlar (Siparişmatik: tbl_urunkategoricarpan + tbl_uruncarpan)
+    # Porsiyonlar (tbl_urunkategoricarpan + tbl_uruncarpan)
     sayac = [(KATEGORI_TABLO, len(kat_sira)), (URUN_TABLO, uid)]
     for tablo, satirlar, n in ((KAT_CARPAN_TABLO, kc_satir, kcid), (URUN_CARPAN_TABLO, c_satir, cid)):
         try:
@@ -1795,7 +1850,7 @@ def pencere():
                               kontrol_yolu=KONTROL_SAYFASI)
                 if sql_var.get().strip():
                     log("")
-                    sql_yap_calistir(listeyi_ayristir(metin), hedef)
+                    sql_yap_calistir(listeyi_ayristir(metin), hedef, metin)
             except Exception as e:
                 log(f"HATA: {e}")
             finally:
@@ -1888,7 +1943,7 @@ def pencere():
     btn.pack(side="right", padx=4)
 
     # --- SQL
-    q_cer = tk.LabelFrame(kok, text=" 4) Siparişmatik SQL (isteğe bağlı) ")
+    q_cer = tk.LabelFrame(kok, text=" 4) POS SQL (isteğe bağlı) ")
     q_cer.pack(fill="x", padx=10, pady=4)
     tk.Label(q_cer, text="SQL dosyası:").grid(row=0, column=0, sticky="w", padx=4)
     sql_var = tk.StringVar(value=ayar.get("sql", ""))
@@ -1911,7 +1966,7 @@ def pencere():
                    variable=seviye_var).pack(side="left")
     q_cer.columnconfigure(1, weight=1)
 
-    def sql_yap_calistir(kategoriler, hedef):
+    def sql_yap_calistir(kategoriler, hedef, metin=""):
         try:
             fiyat = float(fiyat_var.get().replace(",", "."))
             kdv = float(kdv_var.get().replace(",", "."))
@@ -1925,11 +1980,12 @@ def pencere():
         log(f"Firma: {os.path.basename(firma)}")
         sql_olustur(sql_var.get(), kategoriler, hedef, cikti, fiyat=fiyat, kdv=kdv,
                                kategori_seviye=seviye_var.get(),
-                               elle=ayar.get("sql_sutunlar"), log=log)
+                               elle=ayar.get("sql_sutunlar"), log=log,
+                               ek_odemeler=odeme_kodlari_bul(metin))
 
     def sql_buton():
         if not os.path.isfile(sql_var.get()):
-            messagebox.showwarning("SQL yok", "Önce db_siparismatik.sql dosyasını seç.")
+            messagebox.showwarning("SQL yok", "Önce SQL yedek dosyasını seç.")
             return
         metin_ = kutu.get("1.0", "end")
         if basliksiz_mi(metin_):
@@ -1942,7 +1998,7 @@ def pencere():
 
         def is_():
             try:
-                sql_yap_calistir(kategoriler, hedef)
+                sql_yap_calistir(kategoriler, hedef, metin_)
             except Exception as e:
                 log(f"SQL HATASI: {e}")
         threading.Thread(target=is_, daemon=True).start()
@@ -1951,8 +2007,9 @@ def pencere():
         if not yol:
             return
         if not os.path.isfile(sql_var.get()):
-            messagebox.showwarning("SQL yok", "Önce db_siparismatik.sql dosyasını seç.")
+            messagebox.showwarning("SQL yok", "Önce SQL yedek dosyasını seç.")
             return
+        kutu_metni = kutu.get("1.0", "end")          # kutuda "ÖDEME: ..." satırı varsa o da kullanılır
 
         def is_():
             try:
@@ -1978,7 +2035,7 @@ def pencere():
                 sql_olustur(sql_var.get(), kategoriler, yol, os.path.join(
                     firma, os.path.basename(sql_var.get())), fiyat=fiyat, kdv=kdv,
                     kategori_seviye=seviye_var.get(), elle=ayar.get("sql_sutunlar"),
-                    log=log, gercek_klasorler=gercek)
+                    log=log, gercek_klasorler=gercek, ek_odemeler=odeme_kodlari_bul(kutu_metni))
             except Exception as e:
                 log(f"SQL HATASI: {e}")
         threading.Thread(target=is_, daemon=True).start()
