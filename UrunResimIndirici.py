@@ -48,7 +48,7 @@ BOYUT = 600
 KLASOR = (os.path.dirname(sys.executable) if getattr(sys, "frozen", False)
           else os.path.dirname(os.path.abspath(__file__)))
 AYAR_DOSYASI = os.path.join(KLASOR, "ayarlar.json")
-SURUM = "2.2"
+SURUM = "2.3"
 GITHUB_REPO = "MuammerGrG/UrunResimIndirici"     # ayarlar.json > "github_repo" ile değiştirilebilir
 GEMINI_MODELLER = ["gemini-2.5-flash", "gemini-flash-latest", "gemini-2.5-flash-lite"]   # yedek; asıl liste Google'dan çekilir
 _GEMINI_CACHE = {}
@@ -167,7 +167,38 @@ def github_exe_indir(adres, hedef, token="", ilerleme=None):
     if os.path.getsize(hedef + ".part") < 1_000_000:
         os.remove(hedef + ".part")
         raise RuntimeError("İnen dosya eksik/bozuk görünüyor.")
-    os.replace(hedef + ".part", hedef)
+    return _guvenli_tasi(hedef + ".part", hedef)
+
+
+def _guvenli_tasi(kaynak, hedef, deneme=30):
+    """Antivirüs yeni exe'yi tararken kısa süre kilitler (WinError 5/32): bekleyip tekrar dener.
+    Yine olmazsa farklı bir adla bırakır. Gerçekte kullanılan yolu döndürür."""
+    for i in range(deneme):
+        try:
+            if os.path.exists(hedef):
+                os.remove(hedef)                 # önceki yarım kalmış güncelleme
+            os.replace(kaynak, hedef)
+            return hedef
+        except PermissionError:
+            time.sleep(1)
+    yedek_ad = os.path.splitext(hedef)[0] + time.strftime("_%H%M%S") + ".exe"
+    for i in range(deneme):
+        try:
+            os.replace(kaynak, yedek_ad)
+            return yedek_ad
+        except PermissionError:
+            time.sleep(1)
+    raise RuntimeError("Antivirüs dosyayı bırakmadı. Birkaç dakika sonra tekrar dene ya da "
+                       "exe'yi GitHub Releases sayfasından elle indir.")
+
+
+def _oem_kodlama():
+    """cmd.exe .cmd dosyasını OEM kod sayfasıyla okur (Türkçe Windows: cp857), ANSI (cp1254) değil."""
+    try:
+        import ctypes
+        return f"cp{ctypes.windll.kernel32.GetOEMCP()}"
+    except Exception:
+        return "cp857"
 
 
 def exe_degistir_ve_yeniden_ac(yeni_exe, eski_surum):
@@ -178,14 +209,20 @@ def exe_degistir_ve_yeniden_ac(yeni_exe, eski_surum):
     yedek = os.path.join(klasor, "eski_surum")
     os.makedirs(yedek, exist_ok=True)
     cmd = os.path.join(klasor, "_guncelle_tmp.cmd")
-    with open(cmd, "w", encoding="cp1254", errors="replace") as f:
+    yedek_exe = os.path.join(yedek, f"UrunResimIndirici_v{eski_surum}.exe")
+    with open(cmd, "w", encoding=_oem_kodlama(), errors="replace", newline="\r\n") as f:
         f.write(f"""@echo off
+rem Program kapanana ve antivirus taramasi bitene kadar bekle, sonra yenisini koy
 timeout /t 2 /nobreak >nul
-copy /y "{mevcut}" "{os.path.join(yedek, f'UrunResimIndirici_v{eski_surum}.exe')}" >nul
-:bekle
-del /f /q "{mevcut}" >nul 2>&1
-if exist "{mevcut}" (timeout /t 1 /nobreak >nul & goto bekle)
-move /y "{yeni_exe}" "{mevcut}" >nul
+copy /y "{mevcut}" "{yedek_exe}" >nul 2>&1
+set n=0
+:tasi
+move /y "{yeni_exe}" "{mevcut}" >nul 2>&1 && goto ac
+set /a n+=1
+if %n% geq 60 goto ac
+timeout /t 1 /nobreak >nul
+goto tasi
+:ac
 start "" "{mevcut}"
 del "%~f0"
 """)
@@ -2169,7 +2206,7 @@ def pencere():
                         if y - son[0] >= 10:
                             son[0] = y
                             log(f"   %{y}")
-                    github_exe_indir(adres, hedef, token, ilerleme)
+                    hedef = github_exe_indir(adres, hedef, token, ilerleme)
                     log("İndi. Program kapanıp yeni sürümle açılacak...")
                     exe_degistir_ve_yeniden_ac(hedef, SURUM)
                     kok.after(800, kok.destroy)
