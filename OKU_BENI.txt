@@ -49,6 +49,8 @@ SQL KURALLARI
   - Resimler 600x600, 70 KB altı, urunresim / kategoriresim içine gömülü
   - Fiyatı yazmayan ürüne varsayılan fiyat (0 olamaz), KDV 10
   - Fotoğrafı bulunamayan ürüne adı yazılı yedek görsel konur
+  - Kategori, ürün ve porsiyon adları BÜYÜK harfle yazılır (Türkçe: i→İ, ı→I)
+  - Ödeme tiplerinde Nakit ve Kredi Kartı seçili gelir (diğerlerine dokunulmaz)
   - Porsiyonlar (Az, Yarım, Tam, 1,5, Duble, Küçük, Büyük...) ayrı ürün değil;
     tbl_urunkategoricarpan + tbl_uruncarpan'a "Porsiyon" olarak yazılır.
     Ürünün kendi fiyatı = Tam/Normal porsiyon (yoksa en ucuzu).

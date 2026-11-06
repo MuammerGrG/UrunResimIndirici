@@ -48,7 +48,7 @@ BOYUT = 600
 KLASOR = (os.path.dirname(sys.executable) if getattr(sys, "frozen", False)
           else os.path.dirname(os.path.abspath(__file__)))
 AYAR_DOSYASI = os.path.join(KLASOR, "ayarlar.json")
-SURUM = "1.8"
+SURUM = "1.9"
 GITHUB_REPO = "MuammerGrG/UrunResimIndirici"     # ayarlar.json > "github_repo" ile değiştirilebilir
 GEMINI_MODELLER = ["gemini-2.5-flash", "gemini-flash-latest", "gemini-2.5-flash-lite"]   # yedek; asıl liste Google'dan çekilir
 _GEMINI_CACHE = {}
@@ -1159,6 +1159,97 @@ def eslestir(sutunlar, urun_mi, elle=None):
 
 # ------------------------------------------------------------ değer biçimleme
 
+def tr_buyuk(metin):
+    """Türkçe büyük harf: i→İ, ı→I (Python'un upper()'ı 'i'yi 'I' yapar)."""
+    return (metin or "").replace("i", "İ").replace("ı", "I").upper()
+
+
+def _alanlari_ayir(ic):
+    """'1,'NAKIT','Nakit','N',NULL' → ['1', "'NAKIT'", ...]  (tırnak içindeki virgüller korunur)"""
+    alanlar, buf, tirnak, i = [], [], False, 0
+    while i < len(ic):
+        c = ic[i]
+        if tirnak:
+            buf.append(c)
+            if c == "\\" and i + 1 < len(ic):
+                buf.append(ic[i + 1]); i += 2; continue
+            if c == "'":
+                if i + 1 < len(ic) and ic[i + 1] == "'":
+                    buf.append("'"); i += 2; continue
+                tirnak = False
+        elif c == "'":
+            tirnak = True; buf.append(c)
+        elif c == ",":
+            alanlar.append("".join(buf).strip()); buf = []
+        else:
+            buf.append(c)
+        i += 1
+    alanlar.append("".join(buf).strip())
+    return alanlar
+
+
+def _demetleri_ayir(govde):
+    """'(..),(..)' → ['..', '..']  (en üst seviye parantezler, tırnaklara dikkat ederek)"""
+    sonuc, derinlik, tirnak, bas, i = [], 0, False, 0, 0
+    while i < len(govde):
+        c = govde[i]
+        if tirnak:
+            if c == "\\":
+                i += 2; continue
+            if c == "'":
+                if i + 1 < len(govde) and govde[i + 1] == "'":
+                    i += 2; continue
+                tirnak = False
+        elif c == "'":
+            tirnak = True
+        elif c == "(":
+            if derinlik == 0:
+                bas = i + 1
+            derinlik += 1
+        elif c == ")":
+            derinlik -= 1
+            if derinlik == 0:
+                sonuc.append(govde[bas:i])
+        i += 1
+    return sonuc
+
+
+def odeme_tiplerini_sec(dump, kodlar=("NAKIT", "KREDIKARTI"), log=print):
+    """tbl_odemetipi'nde verilen ödeme kodlarını seçili (odemesec='Y') ve görünür yapar.
+    Diğer ödeme tiplerine dokunmaz. Sütun sırası dump'tan okunur."""
+    try:
+        sut = [x["ad"] for x in sutunlari_bul(dump, "tbl_odemetipi")]
+    except ValueError:
+        log("Uyarı: dump'ta tbl_odemetipi yok, ödeme tipleri seçilemedi.")
+        return dump
+    if "odemekod" not in sut or "odemesec" not in sut:
+        log("Uyarı: tbl_odemetipi'nde odemekod/odemesec sütunu yok.")
+        return dump
+    i_kod, i_sec = sut.index("odemekod"), sut.index("odemesec")
+    i_gizle = sut.index("odemegizle") if "odemegizle" in sut else None
+    secilen = []
+
+    def satir_duzelt(m):
+        bas, govde = m.group(1), m.group(2)
+        yeni = []
+        for d in _demetleri_ayir(govde):
+            alan = _alanlari_ayir(d)
+            if len(alan) == len(sut) and alan[i_kod].strip("'").upper() in kodlar:
+                alan[i_sec] = "'Y'"
+                if i_gizle is not None:
+                    alan[i_gizle] = "'N'"
+                secilen.append(alan[i_kod].strip("'"))
+            yeni.append("(" + ",".join(alan) + ")")
+        return bas + ",".join(yeni) + ";"
+    dump = re.sub(r"^(INSERT INTO `tbl_odemetipi`(?:\s*\([^)]*\))?\s+VALUES\s*)(.*);\s*$",
+                  satir_duzelt, dump, flags=re.M)
+    if secilen:
+        log("Ödeme tipleri seçili: " + ", ".join(secilen))
+    else:
+        log("Uyarı: Nakit / Kredi Kartı ödeme tipi bulunamadı.")
+    return dump
+
+
 def hex_metin(metin):
     if metin == "":
         return "''"
@@ -1397,7 +1488,7 @@ def sql_olustur(dump_yolu, kategoriler, resim_kok, cikti_yolu, fiyat=1.0, kdv=10
     kc_satir, c_satir, kcid, cid = [], [], 0, 0
     for kid, kat_ad in enumerate(kat_sira, 1):
         ilk_resim = next((resim_bul(k, r) for _, k, _, r, _p in kat_urunler[kat_ad] if resim_bul(k, r)), None)
-        d = {k_es["id"]: str(kid), k_es["ad"]: hex_metin(kat_ad)}
+        d = {k_es["id"]: str(kid), k_es["ad"]: hex_metin(tr_buyuk(kat_ad))}
         if k_es.get("sira"):
             d[k_es["sira"]] = str(kid)
         if k_es.get("kdv"):
@@ -1419,7 +1510,7 @@ def sql_olustur(dump_yolu, kategoriler, resim_kok, cikti_yolu, fiyat=1.0, kdv=10
             r = resim_bul(klasor, r_ad)
             if not r:
                 eksik.append(ad)
-            d = {u_es["id"]: str(uid), u_es["ad"]: hex_metin(ad), u_es["kategori"]: str(kid)}
+            d = {u_es["id"]: str(uid), u_es["ad"]: hex_metin(tr_buyuk(ad)), u_es["kategori"]: str(kid)}
             if u_es.get("fiyat"):
                 d[u_es["fiyat"]] = sayi(u_fiyat)
             if u_es.get("sira"):
@@ -1436,15 +1527,16 @@ def sql_olustur(dump_yolu, kategoriler, resim_kok, cikti_yolu, fiyat=1.0, kdv=10
                     kcid += 1
                     kat_pors[anahtar] = kcid
                     kc_satir.append(dict(kategoricarpanid=str(kcid), kategoriid=str(kid),
-                                         kategoricarpantip="'Porsiyon'", kategoricarpanad=hex_metin(p_ad),
+                                         kategoricarpantip="'Porsiyon'", kategoricarpanad=hex_metin(tr_buyuk(p_ad)),
                                          kategoricarpansira=str(len(kat_pors)),
                                          kategoricarpansil="'N'", kategoricarpanyeni="'N'"))
                 cid += 1
                 c_satir.append(dict(carpanid=str(cid), kategoricarpanid=str(kat_pors[anahtar]),
                                     kategoriid=str(kid), urunid=str(uid), carpantip="'Porsiyon'",
-                                    carpanad=hex_metin(p_ad), carpanfiyat=sayi(p_fiyat or u_fiyat),
+                                    carpanad=hex_metin(tr_buyuk(p_ad)), carpanfiyat=sayi(p_fiyat or u_fiyat),
                                     carpansil="'N'"))
 
+    dump = odeme_tiplerini_sec(dump, log=log)
     dump = eski_insertleri_duzelt(dump)
     dump = _bolumu_doldur(dump, KATEGORI_TABLO, k_satir)
     dump = _bolumu_doldur(dump, URUN_TABLO, u_satir)
