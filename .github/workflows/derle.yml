@@ -60,5 +60,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           $v = "v${{ steps.surum.outputs.surum }}"
-          $not = git log -1 --pretty=%B
+          # Sürüm notu: commit mesajı (Co-Authored-By / Claude-Session satırları hariç)
+          $not = (git log -1 --pretty=%B) | Where-Object { $_ -notmatch '^(Co-Authored-By|Claude-Session|Signed-off-by):' -and $_ -notmatch 'claude\.ai/code' }
+          $not = ($not -join "`n").Trim()
           gh release create $v dist/UrunResimIndirici.exe --title $v --notes "$not" --latest

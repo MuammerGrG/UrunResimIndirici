@@ -48,7 +48,7 @@ BOYUT = 600
 KLASOR = (os.path.dirname(sys.executable) if getattr(sys, "frozen", False)
           else os.path.dirname(os.path.abspath(__file__)))
 AYAR_DOSYASI = os.path.join(KLASOR, "ayarlar.json")
-SURUM = "2.0"
+SURUM = "2.1"
 GITHUB_REPO = "MuammerGrG/UrunResimIndirici"     # ayarlar.json > "github_repo" ile değiştirilebilir
 GEMINI_MODELLER = ["gemini-2.5-flash", "gemini-flash-latest", "gemini-2.5-flash-lite"]   # yedek; asıl liste Google'dan çekilir
 _GEMINI_CACHE = {}
@@ -145,7 +145,10 @@ def github_son_surum(repo, token=""):
     if not exe:
         raise RuntimeError("Son sürümde exe dosyası yok (GitHub Actions derlemesi bitmemiş olabilir).")
     adres = exe["url"] if token else exe["browser_download_url"]
-    return veri.get("tag_name", "").lstrip("vV"), adres, (veri.get("body") or "").strip()
+    notlar = "\n".join(x for x in (veri.get("body") or "").splitlines()
+                       if not re.match(r"\s*(co-authored-by|claude-session|signed-off-by)\s*:", x, re.I)
+                       and "claude.ai/code" not in x)
+    return veri.get("tag_name", "").lstrip("vV"), adres, notlar.strip()
 
 
 def github_exe_indir(adres, hedef, token="", ilerleme=None):
@@ -434,13 +437,13 @@ def listeyi_ayristir(metin: str) -> dict:
 
 # ---------------------------------------------------------------- menü okuma (Gemini / Ollama)
 
-def _dosya_hazirla(yol):
+def _dosya_hazirla(yol, maks=1600):
     """(mime, base64) döner. Resimler küçültülüp JPEG yapılır, PDF olduğu gibi."""
     if yol.lower().endswith(".pdf"):
         with open(yol, "rb") as f:
             return "application/pdf", base64.b64encode(f.read()).decode()
     img = Image.open(yol).convert("RGB")
-    img.thumbnail((1600, 1600), Image.LANCZOS)
+    img.thumbnail((maks, maks), Image.LANCZOS)
     b = io.BytesIO()
     img.save(b, "JPEG", quality=88)
     return "image/jpeg", base64.b64encode(b.getvalue()).decode()
@@ -459,18 +462,21 @@ def menu_dosyalarini_topla(yollar):
     return dosyalar
 
 
-def _gemini(grup, api_key, model_tercih, istem=MENU_PROMPT, log=print):
+def _gemini(grup, api_key, model_tercih, istem=MENU_PROMPT, log=print, json_mod=False, resim_boyu=1600):
     """Gemini'ye istek atar. Her adımı log'a yazar; takılı kalmaz (süre sınırlı)."""
     parcalar = []
     for g in grup:
-        mime, veri = _dosya_hazirla(g)
+        mime, veri = _dosya_hazirla(g, resim_boyu)
         parcalar.append({"inline_data": {"mime_type": mime, "data": veri}})
     parcalar.append({"text": istem})
     log("   Uygun Gemini modelleri soruluyor...")
     modeller = [model_tercih] if model_tercih else gemini_modelleri(api_key)
     hatalar = []
+    zaman = 180 if len(grup) > 1 or json_mod else 120
     for model in modeller:
-        config = {"temperature": 0.1, "maxOutputTokens": 16384}
+        config = {"temperature": 0.1, "maxOutputTokens": 32768}
+        if json_mod:
+            config["responseMimeType"] = "application/json"
         if "2.5" in model:                       # "düşünme"yi kapat: hızlı ve token yemesin
             config["thinkingConfig"] = {"thinkingBudget": 0}
         else:                                     # yeni modeller: düşünmeyi en aza indir
@@ -482,9 +488,9 @@ def _gemini(grup, api_key, model_tercih, istem=MENU_PROMPT, log=print):
             log(f"   → {model} deneniyor" + (f" (tekrar {deneme})" if deneme else "") + "...")
             baslangic = time.time()
             try:
-                r = requests.post(url, params={"key": api_key}, json=govde, timeout=(15, 120))
+                r = requests.post(url, params={"key": api_key}, json=govde, timeout=(15, zaman))
             except requests.Timeout:
-                log(f"   {model}: 120 sn içinde cevap vermedi, sonraki modele geçiliyor.")
+                log(f"   {model}: {zaman} sn içinde cevap vermedi, sonraki modele geçiliyor.")
                 hatalar.append(f"{model}: zaman aşımı")
                 r = None
                 break
@@ -595,6 +601,174 @@ def menuyu_oku(dosyalar, saglayici, api_key, model, log):
             metin = _ollama(grup, model)
         sonuc.append(metin.strip())
     return "\n\n".join(sonuc)
+
+
+BIRLESIK_PROMPT = """Sana bir işletmenin menüsüyle ilgili {n} resim veriyorum (sırayla 1, 2, ...).
+Resimlerin bazıları ürün fotoğraflı tasarımlı broşür/menü, bazıları düz yazı liste (ör. WhatsApp mesajı
+ekran görüntüsü) olabilir.{liste_notu}
+
+GÖREV: Tüm kaynakları KARŞILAŞTIR ve satılan TÜM ürünleri tek bir listede birleştir.
+- Bir kaynakta olup diğerinde olmayan ürünleri de ekle; HİÇBİR ürünü atlama.
+- Aynı ürün farklı adla geçiyorsa (ör. "Ciğerli Pilav" / "Nohutlu Ciğerli Pilav") tek ürün yap.
+- Fiyatlar farklıysa YAZILI LİSTEDEKİ fiyatı kullan (daha güncel); listede yoksa broşürdeki.
+- kategori: menüdeki başlık (ör. "Izgara & Et Ürünleri", "Pilav Çeşitleri", "İçecekler", "Menüler"), kısa ve düzgün.
+- pisme: Izgara, Kızartma, Fırın, Haşlama, Tava, Ocakbaşı, Soğuk; pişme şekli yoksa "Hazır".
+- tip: patates/içecekle birlikte set olarak satılanlar "Menü", diğerleri "Sadece Yemek".
+- PORSİYON: aynı ürünün boy/miktar seçenekleri (Yarım Ekmek / 3 Parça, Tek / Buçuk / Duble, Az / Tam / 1,5,
+  Küçük / Büyük) AYRI ÜRÜN DEĞİL: ürünü bir kez yaz, "fiyat" = ilk/normal seçeneğin fiyatı, diğerleri
+  "porsiyonlar". Servis şekli tamamen farklıysa (ekmek arası vs. 200 gr porsiyon tabak) ayrı ürün yap.
+  Tat/çeşit seçenekleri (Fuse Tea Mango / Şeftali, Acılı / Acısız Şalgam) ayrı ürün.
+- ad: düzgün Türkçe ürün adı, fiyat ve emoji olmadan.
+- arama: ürünün internette doğru fotoğrafını bulduracak 2-6 kelimelik Türkçe arama.
+- resim: Ürünün broşürde KENDİNE AİT ayrı bir fotoğrafı varsa {{"sayfa": resim no, "kutu": [ymin, xmin, ymax, xmax]}}
+  (0-1000 arası normalize koordinat). Kutu sadece yemek fotoğrafını kapsasın: yazı, fiyat etiketi, logo hariç.
+  Fotoğraf birden fazla farklı ürünü birlikte gösteriyorsa (ör. içecek şişeleri grubu) ya da emin değilsen null.
+- odeme: menüde/listede geçen ödeme yöntemleri ve yemek kartları (logo ya da yazı: Ticket, Setcard, Metropol,
+  Sodexo, Multinet, Tokenflex, Visa/Mastercard → "Kredi Kartı"...). Sadece "tüm yemek kartları geçerli" gibi
+  genel bir ifade varsa "Yemek Kartı" da ekle.
+- farklar: kısa Türkçe notlar — sadece listede olanlar, sadece broşürde olanlar, fiyatı farklı olanlar,
+  ekstralar (ör. "Patates Kızartması sadece listede", "cheddar/ranch sos +10 TL").
+
+SADECE şu JSON'u döndür:
+{{"urunler":[{{"kategori":"","pisme":"","tip":"Sadece Yemek","ad":"","arama":"","fiyat":0,
+"porsiyonlar":[{{"ad":"","fiyat":0}}],"resim":null}}],"odeme":[],"farklar":[]}}
+"""
+
+
+def _json_coz(metin):
+    """Model cevabından JSON'u güvenle çıkarır (kod bloğu, sondaki virgül vb. temizlenir)."""
+    t = (metin or "").strip()
+    t = re.sub(r"^```(?:json)?\s*|\s*```$", "", t)
+    try:
+        return json.loads(t)
+    except ValueError:
+        pass
+    m = re.search(r"\{.*\}", t, re.S)
+    if not m:
+        raise RuntimeError("Menü okunamadı: geçerli veri gelmedi.")
+    t = re.sub(r",\s*([}\]])", r"\1", m.group(0))
+    return json.loads(t)
+
+
+def _f(v):
+    if isinstance(v, (int, float)):
+        return float(v) if v > 0 else None
+    return fiyat_coz(str(v)) if v not in (None, "") else None
+
+
+def brosur_json_metne(veri, dosyalar):
+    """JSON → kutudaki liste metni + broşürden kesilecek resimler + farklar"""
+    sira, gruplar, kirp = [], {}, {}
+    for u in veri.get("urunler") or []:
+        ad = guvenli_ad(str(u.get("ad") or "").strip())
+        if not ad:
+            continue
+        kat = guvenli_ad(str(u.get("kategori") or "Genel")) or "Genel"
+        pisme = guvenli_ad(str(u.get("pisme") or "Hazır")) or "Hazır"
+        tip = "Menü" if "men" in _norm(str(u.get("tip") or "")) else "Sadece Yemek"
+        anahtar = (kat, pisme, tip)
+        if anahtar not in gruplar:
+            gruplar[anahtar] = []
+            sira.append(anahtar)
+        fiyat = _f(u.get("fiyat"))
+        pors = [(porsiyon_etiketi(str(p.get("ad") or "")), _f(p.get("fiyat")))
+                for p in (u.get("porsiyonlar") or []) if isinstance(p, dict) and p.get("ad")]
+        pors = [(e, f) for e, f in pors if e]
+        satir = ad + f" | {str(u.get('arama') or ad).replace('|', ' ')}"
+        if fiyat or pors:
+            satir += f" | {'%g' % fiyat if fiyat else ''}"
+        if pors:
+            satir += " | " + "; ".join(f"{e}={'%g' % f}" if f else e for e, f in pors)
+        gruplar[anahtar].append(satir)
+        r = u.get("resim")
+        if isinstance(r, dict) and isinstance(r.get("kutu"), list) and len(r["kutu"]) == 4:
+            try:
+                sayfa = int(r.get("sayfa") or 1)
+                kutu = [float(x) for x in r["kutu"]]
+                if 1 <= sayfa <= len(dosyalar):
+                    kirp[_norm(ad)] = (dosyalar[sayfa - 1], kutu)
+            except (TypeError, ValueError):
+                pass
+    cikti, onceki = [], (None, None)
+    for kat, pisme, tip in sira:
+        if onceki[0] != kat:
+            if cikti:
+                cikti.append("")
+            cikti.append(f"# {kat}")
+            onceki = (kat, None)
+        if onceki[1] != pisme:
+            cikti.append(f"## {pisme}")
+            onceki = (kat, pisme)
+        cikti.append(f"### {tip}")
+        cikti.extend(gruplar[(kat, pisme, tip)])
+    odeme = [str(x) for x in (veri.get("odeme") or []) if str(x).strip()]
+    if odeme:
+        cikti += ["", "ÖDEME: " + ", ".join(odeme)]
+    farklar = [str(x) for x in (veri.get("farklar") or []) if str(x).strip()]
+    return "\n".join(cikti), kirp, farklar
+
+
+def liste_eksik_kontrol(liste_metni, sonuc_metni):
+    """Yazılı listede fiyatıyla geçip sonuçta bulunamayan satırları döndürür (kontrol için)."""
+    urunler = [_norm(u[0]) for v in listeyi_ayristir(sonuc_metni).values() for u in v]
+    kelimeler = [set(re.findall(r"[a-z0-9]{3,}", u)) for u in urunler]
+    eksik = []
+    for satir in (liste_metni or "").splitlines():
+        s = satir.strip().lstrip("-•*·").strip()
+        if not s or s.startswith("#") or odeme_satiri_mi(s):
+            continue
+        ad, _, fiyat, _ = satiri_coz(s)
+        if not fiyat:
+            continue
+        n = _norm(ad)
+        if not n or re.fullmatch(r"(?:%s|bu[cç]uk|[0-9 ]+)(?:\s*(?:porsiyon|pors|parca|gram|gr))*" % _PORS_KELIME, n, re.I):
+            continue                                   # "3 Parça 400 TL", "Buçuk 225 TL" gibi porsiyon satırları
+        k = set(re.findall(r"[a-z0-9]{3,}", n)) - {"gram", "porsiyon", "yarim", "ekmek", "parca", "tek", "tam",
+                                                    "bucuk", "duble", "double", "buyuk", "kucuk", "orta", "cift"}
+        if not k:
+            continue
+        en_iyi = max((len(k & w) / len(k) for w in kelimeler), default=0)
+        if en_iyi < 0.75:
+            eksik.append(ad)
+    return eksik
+
+
+def brosur_oku(dosyalar, liste_metni, api_key, model, log):
+    """Broşür resimleri (+ varsa yazılı liste) → (liste metni, kırpmalar, farklar)"""
+    liste_notu = ""
+    if liste_metni.strip():
+        liste_notu = ("\nAyrıca müşterinin YAZILI LİSTESİ aşağıda; broşürle karşılaştır, fiyatlarda bunu esas al:\n"
+                      "-----\n" + liste_metni.strip()[:12000] + "\n-----")
+    istem = BIRLESIK_PROMPT.format(n=len(dosyalar), liste_notu=liste_notu)
+    log(f"Broşür{' + liste' if liste_notu else ''} okunuyor ({len(dosyalar)} resim)...")
+    cevap = _gemini(dosyalar[:6], api_key, model, istem, log=log, json_mod=True, resim_boyu=2048)
+    veri = _json_coz(cevap)
+    return brosur_json_metne(veri, dosyalar[:6])
+
+
+def brosurden_kes(dosya, kutu, hedef):
+    """Broşürdeki ürün fotoğrafını (0-1000 normalize kutu) kesip 600x600 beyaz zemine yerleştirir."""
+    if dosya.lower().endswith(".pdf"):
+        return False
+    img = Image.open(dosya).convert("RGB")
+    W, H = img.size
+    y0, x0, y1, x1 = kutu
+    if y0 > y1:
+        y0, y1 = y1, y0
+    if x0 > x1:
+        x0, x1 = x1, x0
+    pay_x, pay_y = (x1 - x0) * 0.03, (y1 - y0) * 0.03
+    sol, ust = max(0, (x0 - pay_x) / 1000 * W), max(0, (y0 - pay_y) / 1000 * H)
+    sag, alt = min(W, (x1 + pay_x) / 1000 * W), min(H, (y1 + pay_y) / 1000 * H)
+    if sag - sol < 40 or alt - ust < 40:
+        return False
+    parca = img.crop((int(sol), int(ust), int(sag), int(alt)))
+    oran = min(BOYUT / parca.width, BOYUT / parca.height)
+    parca = parca.resize((max(1, round(parca.width * oran)), max(1, round(parca.height * oran))), Image.LANCZOS)
+    tuval = Image.new("RGB", (BOYUT, BOYUT), (255, 255, 255))
+    tuval.paste(parca, ((BOYUT - parca.width) // 2, (BOYUT - parca.height) // 2))
+    tuval.save(hedef, "JPEG", quality=90, optimize=True)
+    return True
 
 
 def basliksiz_mi(metin):
@@ -1052,7 +1226,7 @@ def yedek_gorsel(ad, alt_baslik, hedef):
 
 
 def hepsini_indir(kategoriler, cikti, adet, ek, log, klasor_arama=False, yenile=False,
-                  kontrol_yolu=None):
+                  kontrol_yolu=None, kirpmalar=None):
     toplam = sum(len(v) for v in kategoriler.values())
     os.makedirs(cikti, exist_ok=True)
     kayit = _kullanilan_oku(cikti)
@@ -1068,6 +1242,14 @@ def hepsini_indir(kategoriler, cikti, adet, ek, log, klasor_arama=False, yenile=
                               if p.lower() not in ("genel", "sadece yemek", "hazır"))
         for u in urunler:
             ad, arama = u[0], u[1]
+            if kirpmalar and _norm(ad) in kirpmalar:          # müşterinin broşüründeki kendi fotoğrafı
+                dosya, kutu = kirpmalar[_norm(ad)]
+                try:
+                    if brosurden_kes(dosya, kutu, os.path.join(klasor, f"{ad}.jpg")):
+                        log(f"  ✓ {ad} (broşürden alındı)")
+                        continue
+                except Exception as e:
+                    log(f"  {ad}: broşürden kesilemedi ({e.__class__.__name__}), internette aranıyor")
             sorgu = " ".join(x for x in (baglam, arama_olustur(ad, arama, kat), ek) if x)
             anahtar = f"{kat}/{ad}"
             liste = kayit.setdefault(anahtar, [])
@@ -1676,6 +1858,8 @@ def pencere():
                 ayar_yaz(ayar)
         return (key or "").strip()
 
+    brosur_kirp = {}          # ürün adı → (broşür dosyası, kutu); 'İndir'de fotoğraf buradan kesilir
+
     def menu_oku(yollar):
         dosyalar = menu_dosyalarini_topla(yollar)
         if not dosyalar:
@@ -1690,16 +1874,43 @@ def pencere():
         ayar["saglayici"] = saglayici
         ayar_yaz(ayar)
         model = ayar.get("gemini_model" if saglayici == "gemini" else "ollama_model", "")
+        mevcut = kutu.get("1.0", "end").strip()
+        birlestir = False
+        if mevcut:
+            birlestir = messagebox.askyesno(
+                "Liste + broşür",
+                "Kutuda bir liste var.\n\n"
+                "EVET: Kutudaki liste ile seçilen resimleri KARŞILAŞTIRIP birleştir\n"
+                "   (eksik ürünler tamamlanır, fiyatlarda yazılı liste esas alınır)\n\n"
+                "HAYIR: Kutuyu silip sadece seçilen resimleri oku")
+        liste_metni = mevcut if birlestir else ""
         log(f"{len(dosyalar)} menü dosyası okunuyor ({saglayici})...")
 
         def is_parcacigi():
             try:
-                metin = menuyu_oku(dosyalar, saglayici, key, model, log)
+                farklar, eksik = [], []
+                if saglayici == "gemini":
+                    metin, kirp, farklar = brosur_oku(dosyalar, liste_metni, key, model, log)
+                    if liste_metni:
+                        eksik = liste_eksik_kontrol(liste_metni, metin)
+                else:
+                    metin, kirp = menuyu_oku(dosyalar, saglayici, key, model, log), {}
+                    if liste_metni:
+                        metin = liste_metni + "\n\n" + metin
+                brosur_kirp.clear()
+                brosur_kirp.update(kirp)
+
                 def yaz():
                     kutu.delete("1.0", "end")
                     kutu.insert("1.0", metin)
                     sayi = sum(len(v) for v in listeyi_ayristir(metin).values())
-                    log(f"Menü okundu: {sayi} ürün. Listeyi kontrol et, sonra 'İndir'e bas.\n")
+                    log(f"Menü okundu: {sayi} ürün, {len(kirp)} ürünün fotoğrafı broşürden alınacak.")
+                    for f in farklar:
+                        log("  • " + f)
+                    if eksik:
+                        log("  ! Listede olup sonuçta bulamadığım satırlar (kontrol et, gerekirse elle ekle): "
+                            + ", ".join(eksik))
+                    log("Listeyi kontrol et, sonra 'İndir'e bas.\n")
                 kok.after(0, yaz)
             except Exception as e:
                 msg = str(e)
@@ -1847,6 +2058,7 @@ def pencere():
                     kok.after(0, lambda: (kutu.delete("1.0", "end"), kutu.insert("1.0", son)))
                     log("Kategoriler hazır (listeyi kutuda görebilirsin).\n")
                 hepsini_indir(listeyi_ayristir(metin), hedef, adet, ek, log, k_arama, yenile,
+                              kirpmalar=dict(brosur_kirp),
                               kontrol_yolu=KONTROL_SAYFASI)
                 if sql_var.get().strip():
                     log("")
