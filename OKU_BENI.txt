@@ -35,8 +35,9 @@ YENİ MÜŞTERİ
           → Tavuk Döner 200 TL, porsiyonlar: Az 150, 1,5 280
         Elle yazmak istersen:  Ürün | arama | fiyat | Az=150; 1,5=280
      b) Menü resmi/PDF seç (Gemini ücretsiz anahtarla okur)
-        Müşteri hem LİSTE hem BROŞÜR attıysa: listeyi kutuya yapıştır (ya da liste ekran
-        görüntüsünü de resimlerle birlikte seç), sonra broşür resimlerini seç → "EVET (birleştir)".
+        Müşteri hem LİSTE hem BROŞÜR attıysa: yazılı listeyi 1. bölümdeki "Müşterinin yazılı
+        listesi" kutusuna yapıştır, broşür resimlerini seç. Sıra fark etmez: broşürü önce seçtiysen
+        listeyi yapıştırıp "Broşürle birleştir"e bas. (Liste ekran görüntüsüyse onu da resimlerle seç.)
         Program ikisini karşılaştırır, eksik ürünleri tamamlar (fiyatlarda yazılı liste esas),
         broşürde fotoğrafı olan ürünlerin resmini broşürden keser, kalanları internetten bulur.
         Log'da farklar ve "listede olup bulunamayan" satırlar yazar.

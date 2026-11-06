@@ -48,7 +48,7 @@ BOYUT = 600
 KLASOR = (os.path.dirname(sys.executable) if getattr(sys, "frozen", False)
           else os.path.dirname(os.path.abspath(__file__)))
 AYAR_DOSYASI = os.path.join(KLASOR, "ayarlar.json")
-SURUM = "2.1"
+SURUM = "2.2"
 GITHUB_REPO = "MuammerGrG/UrunResimIndirici"     # ayarlar.json > "github_repo" ile değiştirilebilir
 GEMINI_MODELLER = ["gemini-2.5-flash", "gemini-flash-latest", "gemini-2.5-flash-lite"]   # yedek; asıl liste Google'dan çekilir
 _GEMINI_CACHE = {}
@@ -1823,7 +1823,7 @@ def pencere():
     ayar = ayar_oku()
     kok = tk.Tk()
     kok.title(f"Ürün Resim İndirici v{SURUM} (600x600 JPEG)")
-    kok.geometry("900x860")
+    kok.geometry("900x950")
 
     # --- müşteri + menü okuma
     m_cer = tk.LabelFrame(kok, text=" 1) Müşteri ve menü ")
@@ -1860,30 +1860,32 @@ def pencere():
 
     brosur_kirp = {}          # ürün adı → (broşür dosyası, kutu); 'İndir'de fotoğraf buradan kesilir
 
+    son_dosyalar = []         # son seçilen broşür resimleri ("Broşürle birleştir" tekrar kullanır)
+
     def menu_oku(yollar):
         dosyalar = menu_dosyalarini_topla(yollar)
         if not dosyalar:
             messagebox.showwarning("Dosya yok", "Resim (jpg/png/webp) veya PDF bulunamadı.")
             return
+        son_dosyalar[:] = dosyalar
         key = api_key_al()
         if not key:
             return
-        for b in (btn_resim, btn_klasor, btn):
+        for b in (btn_resim, btn_klasor, btn, btn_birlestir):
             b.configure(state="disabled")
         saglayici = saglayici_var.get()
         ayar["saglayici"] = saglayici
         ayar_yaz(ayar)
         model = ayar.get("gemini_model" if saglayici == "gemini" else "ollama_model", "")
-        mevcut = kutu.get("1.0", "end").strip()
-        birlestir = False
-        if mevcut:
-            birlestir = messagebox.askyesno(
-                "Liste + broşür",
-                "Kutuda bir liste var.\n\n"
-                "EVET: Kutudaki liste ile seçilen resimleri KARŞILAŞTIRIP birleştir\n"
-                "   (eksik ürünler tamamlanır, fiyatlarda yazılı liste esas alınır)\n\n"
-                "HAYIR: Kutuyu silip sadece seçilen resimleri oku")
-        liste_metni = mevcut if birlestir else ""
+        # Yazılı liste: "Müşterinin yazılı listesi" kutusu; o boşsa ve büyük kutuya
+        # başlıksız düz liste yapıştırılmışsa o kullanılır.
+        liste_metni = liste_kutu.get("1.0", "end").strip()
+        if not liste_metni:
+            mevcut = kutu.get("1.0", "end").strip()
+            if mevcut and basliksiz_mi(mevcut):
+                liste_metni = mevcut
+        if liste_metni:
+            log("Yazılı liste broşürle karşılaştırılacak.")
         log(f"{len(dosyalar)} menü dosyası okunuyor ({saglayici})...")
 
         def is_parcacigi():
@@ -1921,7 +1923,7 @@ def pencere():
                 log(f"HATA: {msg}")
             finally:
                 kok.after(0, lambda: [b.configure(state="normal")
-                                      for b in (btn_resim, btn_klasor, btn)])
+                                      for b in (btn_resim, btn_klasor, btn, btn_birlestir)])
         threading.Thread(target=is_parcacigi, daemon=True).start()
 
     btn_resim = tk.Button(m_cer, text="Menü resimleri / PDF seç...",
@@ -1934,10 +1936,37 @@ def pencere():
                            command=lambda: (lambda y: y and menu_oku([y]))(filedialog.askdirectory()))
     btn_klasor.grid(row=0, column=3, padx=2, pady=4)
 
+    tk.Label(m_cer, text="Müşterinin yazılı listesi (varsa buraya yapıştır — broşürle karşılaştırılır, "
+                         "fiyatlarda bu esas alınır):").grid(row=3, column=0, columnspan=4, sticky="w",
+                                                             padx=4, pady=(6, 0))
+    liste_kutu = scrolledtext.ScrolledText(m_cer, height=4, font=("Consolas", 9))
+    liste_kutu.grid(row=4, column=0, columnspan=4, sticky="we", padx=4)
+    m_cer.columnconfigure(1, weight=1)
+
+    def brosurle_birlestir():
+        if not liste_kutu.get("1.0", "end").strip():
+            messagebox.showinfo("Birleştir", "Önce müşterinin yazılı listesini yukarıdaki kutuya yapıştır.")
+            return
+        if son_dosyalar:
+            menu_oku(list(son_dosyalar))
+            return
+        y = filedialog.askopenfilenames(title="Broşür resimlerini seç", filetypes=[
+            ("Menü", "*.jpg *.jpeg *.png *.webp *.pdf *.bmp"), ("Hepsi", "*.*")])
+        if y:
+            menu_oku(list(y))
+
+    lb1 = tk.Frame(m_cer)
+    lb1.grid(row=5, column=0, columnspan=4, sticky="we", padx=4, pady=(2, 4))
+    btn_birlestir = tk.Button(lb1, text="Broşürle birleştir", command=brosurle_birlestir)
+    btn_birlestir.pack(side="left")
+    tk.Button(lb1, text="Temizle", command=lambda: liste_kutu.delete("1.0", "end")).pack(side="left", padx=6)
+    tk.Label(lb1, text="Sıra fark etmez: broşürü önce seçtiysen listeyi yapıştırıp 'Broşürle birleştir'e bas.",
+             fg="#777").pack(side="left", padx=6)
+
     # --- liste
     l_cer = tk.LabelFrame(kok, text=" 2) Ürün listesi  ( # Kategori   ## Pişme Şekli   ### Menü / Sadece Yemek   Ürün | arama ) ")
     l_cer.pack(fill="both", expand=True, padx=10, pady=4)
-    kutu = scrolledtext.ScrolledText(l_cer, height=14, font=("Consolas", 10))
+    kutu = scrolledtext.ScrolledText(l_cer, height=11, font=("Consolas", 10))
     kutu.pack(fill="both", expand=True, padx=4, pady=4)
 
     def dosyadan_yukle():
