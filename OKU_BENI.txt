@@ -41,9 +41,11 @@ YENİ MÜŞTERİ
         Program ikisini karşılaştırır, eksik ürünleri tamamlar (fiyatlarda yazılı liste esas),
         broşürde fotoğrafı olan ürünlerin resmini broşürden keser, kalanları internetten bulur.
         Log'da farklar ve "listede olup bulunamayan" satırlar yazar.
-     c) Hazır resim klasörü/zip'i varsa: 4. bölümde "Klasörden SQL" / "Zip'ten SQL"
-  3) POS'un SQL yedek dosyasını seç (bir kez, program hatırlar).
-  4) İndir → resimler 600x600 JPEG iner, bitince SQL otomatik oluşur.
+     c) Hazır resim klasörü/zip'i varsa: 4. bölümde "Klasörden" / "Zip'ten"
+  3) 4. bölümde çıktıyı seç:
+       Eski SiparişMatik (.sql) → POS'un SQL yedek dosyasını seç (bir kez, program hatırlar)
+       SiparişMatik Pro         → Pro'nun siparismatik.db dosyasını seç (aşağıya bak)
+  4) İndir → resimler 600x600 JPEG iner, bitince SQL / Pro veritabanı otomatik oluşur.
 
 ÇIKTI
   Urun_Resimleri\<Kategori>\...\Ürün.jpg        (tüm firmalar için ORTAK, firma adı yok;
@@ -63,6 +65,29 @@ SQL KURALLARI
   - Porsiyonlar (Az, Yarım, Tam, 1,5, Duble, Küçük, Büyük...) ayrı ürün değil;
     tbl_urunkategoricarpan + tbl_uruncarpan'a "Porsiyon" olarak yazılır.
     Ürünün kendi fiyatı = Tam/Normal porsiyon (yoksa en ucuzu).
+
+SİPARİŞMATİK PRO (v2.4)
+  Pro menüyü SQLite'ta tutar: C:\Users\<kullanıcı>\AppData\Roaming\siparismatik-pro\siparismatik.db
+  Şablon: yeni kurulmuş bir Pro'nun siparismatik.db'si (yanındaki -wal dosyası da okunur).
+  Çıktı:  Firmalar\<Firma adı>\siparismatik.db  +  Firmalar\<Firma adı>\product-images\
+          (firma adı boşsa Pro'daki işletme adı kullanılır)
+  Kurulum: Pro'yu kapat → siparismatik.db, siparismatik.db-wal, siparismatik.db-shm'yi yedeğe al →
+           yeni siparismatik.db'yi ve product-images klasörünü oraya kopyala → Pro'yu aç.
+           İnternete bağlıyken menü resimleriyle panele kendisi gider.
+  - "Kurulacak PC kullanıcı adı": müşteri bilgisayarının Windows kullanıcı adı. Resim yolları
+    C:\Users\<bu ad>\AppData\Roaming\siparismatik-pro\product-images\ olarak yazılır; yanlışsa resim görünmez.
+  - Porsiyonlar ürünün varyantı olur (fiyat farkıyla, ör. AZ −50, 1,5 +80); ayrı ürün açılmaz.
+  - Opsiyonlar (Soğanlı, Soğansız, Acılı ...) virgülle yazılır, tüm ürünlere detay olarak bağlanır;
+    "İçeceklere de opsiyon ekle" işaretli değilse İÇECEK kategorileri hariç.
+  - Şablonda menü varsa silinir ve panele silme olarak bildirilir. Yeni id'ler eski id'lerin
+    devamından verilir (panel, silinen eski ürünlerin id'lerini hatırlar; çakışmasın diye).
+  - Nakit ve Kredi Kartı açık gelir; menüde yemek kartı yazıyorsa "Yemek Kartı / Ticket" de açılır.
+  - "Demo verileri temizle" (varsayılan açık): Pro'nun örnek siparişleri, SMS'leri, vardiyası,
+    müşterileri, e-fatura firmaları, kullanıcıları ve yazıcıları silinir. YÖNETİCİ hesabı ve
+    PIN'i değişmez.
+  - "Kurulu Pro'da demo temizle...": menüsü zaten yüklenmiş, çalışan bir kasada aynı temizliği
+    yerinde yapar (menüye dokunmaz). Pro KAPALI olmalı; önce yanına .yedek_tarih kopyası alınır.
+    Not: panele daha önce gönderilmiş örnek satışlar yerelden silinince panelden düşmez.
 
 GEMİNİ ANAHTARI (ücretsiz, isteğe bağlı)
   aistudio.google.com/apikey → Create API key. Menü RESMİ okumak için gerekir.

@@ -48,7 +48,7 @@ BOYUT = 600
 KLASOR = (os.path.dirname(sys.executable) if getattr(sys, "frozen", False)
           else os.path.dirname(os.path.abspath(__file__)))
 AYAR_DOSYASI = os.path.join(KLASOR, "ayarlar.json")
-SURUM = "2.3"
+SURUM = "2.4"
 GITHUB_REPO = "MuammerGrG/UrunResimIndirici"     # ayarlar.json > "github_repo" ile değiştirilebilir
 GEMINI_MODELLER = ["gemini-2.5-flash", "gemini-flash-latest", "gemini-2.5-flash-lite"]   # yedek; asıl liste Google'dan çekilir
 _GEMINI_CACHE = {}
@@ -1851,6 +1851,304 @@ def sql_olustur(dump_yolu, kategoriler, resim_kok, cikti_yolu, fiyat=1.0, kdv=10
     return len(kat_sira), uid, eksik
 
 
+# ---------------------------------------------------------------- SiparişMatik Pro (siparismatik.db)
+#
+# Pro, menüyü SQLite (siparismatik.db) içinde tutar:
+#   categories / products (porsiyonlar products.variants JSON'u: [{"name": "1,5", "price": fark}])
+#   detaylar + urun_detaylar (opsiyonlar: soğansız, acısız ...)
+#   resimler veritabanında değil, AppData\Roaming\siparismatik-pro\product-images\ klasöründe;
+#   products.image / categories.image o dosyanın TAM yolunu tutar.
+# Panel, silinen eski kayıtların yerel id'lerini hatırlar; bu yüzden id'ler sqlite_sequence'den
+# devam eder (eski id tekrar kullanılmaz) ve updated_at "şimdi" yazılır.
+
+PRO_VERI_KLASORU = r"C:\Users\{kullanici}\AppData\Roaming\siparismatik-pro"
+PRO_OPSIYON_VARSAYILAN = ("Soğanlı, Soğansız, Domatesli, Domatessiz, Marullu, Marulsuz, Soslu, Sossuz, "
+                          "Patatesli, Patatessiz, Turşulu, Turşusuz, Mayonezli, Mayonezsiz, "
+                          "Ketçaplı, Ketçapsız, Acılı, Acısız")
+
+
+def _pro_simdi():
+    import datetime
+    return datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z"
+
+
+def pro_db_kopyala(kaynak, hedef):
+    """siparismatik.db'yi (yanındaki -wal/-shm ile) kopyalar, WAL'i dosyaya işler, tek dosya bırakır."""
+    import shutil
+    import sqlite3
+    os.makedirs(os.path.dirname(os.path.abspath(hedef)), exist_ok=True)
+    for ek in ("-wal", "-shm"):
+        if os.path.exists(hedef + ek):
+            os.remove(hedef + ek)
+    shutil.copy2(kaynak, hedef)
+    for ek in ("-wal", "-shm"):
+        if os.path.exists(kaynak + ek):
+            shutil.copy2(kaynak + ek, hedef + ek)
+    c = sqlite3.connect(hedef)
+    c.execute("PRAGMA wal_checkpoint(TRUNCATE)")
+    c.execute("PRAGMA journal_mode=DELETE")
+    c.commit()
+    if c.execute("PRAGMA integrity_check").fetchone()[0] != "ok":
+        c.close()
+        raise ValueError("Pro veritabanı bozuk görünüyor (integrity_check).")
+    return c
+
+
+def pro_firma_adi(db_yolu):
+    import sqlite3
+    try:
+        c = sqlite3.connect(f"file:{db_yolu}?mode=ro", uri=True)
+        for k in ("sm_firma_adi", "panel_firma_adi", "isletme_adi"):
+            r = c.execute("SELECT value FROM settings WHERE key=?", (k,)).fetchone()
+            if r and str(r[0]).strip():
+                return guvenli_ad(str(r[0]).strip())
+    except Exception:
+        pass
+    return ""
+
+
+def _pro_tablolar(c):
+    return {r[0] for r in c.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+
+
+def pro_demo_temizle(c, log=print):
+    """
+    Pro'nun ilk kurulumda gelen örnek verilerini siler. Örnek kayıtlar kurulumun tohum zamanıyla
+    (yönetici kullanıcısının created_at'i) yazılır; siparişler ondan öncesine tarihlidir.
+    Yönetici kullanıcısına ve PIN'ine dokunulmaz.
+    """
+    t = _pro_tablolar(c)
+    r = c.execute("SELECT created_at FROM users ORDER BY id LIMIT 1").fetchone()
+    if not r or not r[0]:
+        log("Demo temizliği: tohum zamanı bulunamadı, atlandı.")
+        return {}
+    tohum = r[0]
+    sayac = {}
+
+    def sil(tablo, kosul, p=()):
+        if tablo in t:
+            n = c.execute(f"DELETE FROM {tablo} WHERE {kosul}", p).rowcount
+            if n:
+                sayac[tablo] = sayac.get(tablo, 0) + n
+
+    demo_sip = [x[0] for x in c.execute("SELECT id FROM orders WHERE created_at < ?", (tohum,))]
+    if demo_sip:
+        yer = ",".join("?" * len(demo_sip))
+        for tablo in sorted(t):
+            if tablo == "orders":
+                continue
+            sutun = [x[1] for x in c.execute(f"PRAGMA table_info({tablo})")]
+            if "order_id" in sutun:
+                sil(tablo, f"order_id IN ({yer})", demo_sip)
+        sil("orders", f"id IN ({yer})", demo_sip)
+    sil("shifts", "baslangic < ?", (tohum,))
+    sil("sms_history", "created_at < ?", (tohum,))
+    demo_uye = [x[0] for x in c.execute("SELECT id FROM members WHERE created_at = ?", (tohum,))]
+    if demo_uye:
+        yer = ",".join("?" * len(demo_uye))
+        sil("member_adresleri", f"member_id IN ({yer})", demo_uye)
+        sil("members", f"id IN ({yer})", demo_uye)
+    sil("firmalar", "created_at = ?", (tohum,))
+    ilk = c.execute("SELECT id FROM users ORDER BY id LIMIT 1").fetchone()[0]
+    sil("users", "created_at = ? AND id <> ? AND role <> 'Yönetici'", (tohum, ilk))
+    # Örnek yazıcılar (Adisyon / Mutfak / Bar) ve onlara bağlı eşleşmeler
+    if "printers" in t:
+        if "categories" in t:
+            c.execute("UPDATE categories SET printer_id=NULL, printer_ids=''")
+        sil("yazici_eslesme", "1=1")
+        sil("printers", "1=1")
+    log("Demo temizliği: " + (", ".join(f"{k} {v}" for k, v in sayac.items()) or "silinecek kayıt yok")
+        + "  (yönetici hesabına dokunulmadı)")
+    return sayac
+
+
+def _pro_menuyu_bosalt(c, log):
+    """Var olan menüyü siler; panelin de silmesi için silinen_kayitlar'a yazar."""
+    simdi = _pro_simdi()
+    t = _pro_tablolar(c)
+    n_u = n_k = 0
+    for tur, tablo in (("urun", "products"), ("kategori", "categories")):
+        for kid, rid in c.execute(f"SELECT id, COALESCE(remote_id,0) FROM {tablo}").fetchall():
+            if "silinen_kayitlar" in t:
+                c.execute("INSERT INTO silinen_kayitlar (tur, kayit_id, remote_id, silindi_at, gonderildi_at) "
+                          "VALUES (?,?,?,?, '')", (tur, kid, rid, simdi))
+        n = c.execute(f"DELETE FROM {tablo}").rowcount
+        if tur == "urun":
+            n_u = n
+        else:
+            n_k = n
+    for tablo in ("urun_detaylar", "kategori_detaylar"):
+        if tablo in t:
+            c.execute(f"DELETE FROM {tablo}")
+    if "yazici_eslesme" in t:
+        c.execute("DELETE FROM yazici_eslesme WHERE hedef_tip='kategori'")
+    if n_u or n_k:
+        log(f"Eski menü silindi: {n_k} kategori, {n_u} ürün (panele silme olarak gönderilecek).")
+
+
+def _pro_detay_id(c, ad, simdi):
+    ad = tr_buyuk(ad.strip())[:40]
+    r = c.execute("SELECT id FROM detaylar WHERE lower(name)=lower(?)", (ad,)).fetchone()
+    if r:
+        return r[0]
+    sira = (c.execute("SELECT COALESCE(MAX(sira),0) FROM detaylar").fetchone()[0] or 0) + 1
+    return c.execute("INSERT INTO detaylar (name, sira, updated_at, remote_id) VALUES (?,?,?,0)",
+                     (ad, sira, simdi)).lastrowid
+
+
+def pro_db_olustur(sablon_db, kategoriler, resim_kok, cikti_klasor, fiyat=1.0, kdv=10,
+                   kategori_seviye=1, log=print, gercek_klasorler=None, ek_odemeler=(),
+                   kullanici="", opsiyonlar="", icecege_opsiyon=False, demo_temizle=True):
+    """
+    Menüyü Pro veritabanına yazar. Çıktı:
+        cikti_klasor/siparismatik.db
+        cikti_klasor/product-images/*.jpg
+    Müşteri PC'sinde ikisi de C:\\Users\\<kullanici>\\AppData\\Roaming\\siparismatik-pro\\ içine konur.
+    """
+    import shutil
+    if fiyat <= 0:
+        raise ValueError("Fiyat 0 veya eksi olamaz (yazar kasa kabul etmez).")
+    kullanici = (kullanici or "").strip()
+    if not kullanici:
+        raise ValueError("Kurulacak bilgisayarın Windows kullanıcı adı boş olamaz (resim yolları için).")
+    hedef_db = os.path.join(cikti_klasor, "siparismatik.db")
+    r_klasor = os.path.join(cikti_klasor, "product-images")
+    if os.path.isdir(r_klasor):
+        shutil.rmtree(r_klasor)
+    os.makedirs(r_klasor)
+    c = pro_db_kopyala(sablon_db, hedef_db)
+    try:
+        t = _pro_tablolar(c)
+        for gerekli in ("categories", "products", "detaylar", "urun_detaylar", "settings"):
+            if gerekli not in t:
+                raise ValueError(f"Seçilen dosya SiparişMatik Pro veritabanı değil ({gerekli} tablosu yok).")
+        if demo_temizle:
+            pro_demo_temizle(c, log)
+        _pro_menuyu_bosalt(c, log)
+        simdi = _pro_simdi()
+        win_klasor = PRO_VERI_KLASORU.format(kullanici=kullanici) + "\\product-images\\"
+        damga = int(time.time() * 1000)
+
+        def resim_kopyala(kaynak, ad):
+            if not kaynak:
+                return ""
+            dosya = f"prod_{damga}_{ad}.jpg"
+            with open(kaynak, "rb") as f:
+                veri = f.read()
+            hedef = os.path.join(r_klasor, dosya)
+            if not kare_jpeg_kaydet(veri, hedef):
+                # küçük resim (200 px altı) de kullanılır: büyütülüp 600x600 yapılır
+                try:
+                    img = Image.open(io.BytesIO(veri))
+                    img.load()
+                    if img.mode in ("RGBA", "LA", "P"):
+                        img = img.convert("RGBA")
+                        duz = Image.new("RGB", img.size, (255, 255, 255))
+                        duz.paste(img, mask=img.split()[-1])
+                        img = duz
+                    img = img.convert("RGB")
+                    oran = min(BOYUT / img.width, BOYUT / img.height)
+                    yeni = (max(1, round(img.width * oran)), max(1, round(img.height * oran)))
+                    tuval = Image.new("RGB", (BOYUT, BOYUT), (255, 255, 255))
+                    tuval.paste(img.resize(yeni, Image.LANCZOS), ((BOYUT - yeni[0]) // 2, (BOYUT - yeni[1]) // 2))
+                    tuval.save(hedef, "JPEG", quality=90, optimize=True)
+                except Exception:
+                    return ""
+            return win_klasor + dosya
+
+        # Kategorileri topla (sql_olustur ile aynı kural)
+        kat_sira, kat_urunler = [], {}
+        for yol, urunler in kategoriler.items():
+            kat_ad = " ".join(yol.split(os.sep)[:kategori_seviye])
+            if kat_ad not in kat_urunler:
+                kat_sira.append(kat_ad)
+                kat_urunler[kat_ad] = []
+            klasor_yolu = (gercek_klasorler or {}).get(yol) or os.path.join(resim_kok, yol)
+            kat_urunler[kat_ad].extend(
+                (u[0], klasor_yolu, u[2] if len(u) > 2 else None,
+                 u[1] if gercek_klasorler else u[0], u[3] if len(u) > 3 else [])
+                for u in urunler)
+
+        detay_idler = [_pro_detay_id(c, o, simdi)
+                       for o in re.split(r"[,;\n]", opsiyonlar or "") if o.strip()]
+        n_urun, fiyatli, eksik, n_var, n_bag = 0, 0, [], 0, 0
+        for ks, kat_ad in enumerate(kat_sira, 1):
+            ilk = next((resim_bul(k, r) for _, k, _, r, _p in kat_urunler[kat_ad] if resim_bul(k, r)), None)
+            cid = c.execute(
+                "INSERT INTO categories (name, image, kdv, sort_order, remote_id, kiosk_visible, kiosk_sort, "
+                "updated_at) VALUES (?,?,?,?,0,1,?,?)",
+                (tr_buyuk(kat_ad), resim_kopyala(ilk, f"k{ks}"), int(round(kdv)), ks, ks, simdi)).lastrowid
+            icecek = "ICECEK" in _norm(kat_ad).upper().replace(" ", "")
+            for us, (ad, klasor, u_fiyat, r_ad, u_pors) in enumerate(kat_urunler[kat_ad], 1):
+                n_urun += 1
+                if u_fiyat is not None and u_fiyat > 0:
+                    fiyatli += 1
+                else:
+                    u_fiyat = fiyat
+                r = resim_bul(klasor, r_ad)
+                if not r:
+                    eksik.append(ad)
+                varyant = []
+                for p_ad, p_fiyat in u_pors:
+                    p_fiyat = p_fiyat if p_fiyat and p_fiyat > 0 else u_fiyat
+                    varyant.append({"name": tr_buyuk(p_ad)[:40], "price": round(p_fiyat - u_fiyat, 2)})
+                n_var += len(varyant)
+                pid = c.execute(
+                    "INSERT INTO products (category_id, name, price, kdv, active, wp_show, image, sort_order, "
+                    "variants, remote_id, kiosk_visible, salon_show, paket_show, updated_at) "
+                    "VALUES (?,?,?,?,1,1,?,?,?,0,1,1,1,?)",
+                    (cid, tr_buyuk(ad), float(u_fiyat), int(round(kdv)), resim_kopyala(r, f"u{n_urun}"), us,
+                     json.dumps(varyant, ensure_ascii=False) if varyant else "", simdi)).lastrowid
+                if detay_idler and (icecege_opsiyon or not icecek):
+                    for d in detay_idler:
+                        c.execute("INSERT OR IGNORE INTO urun_detaylar (product_id, detay_id) VALUES (?,?)", (pid, d))
+                        n_bag += 1
+        # Ödeme tipleri: Nakit + Kredi Kartı (+ menüde yazan yemek kartları) açık
+        if "payment_methods" in t:
+            c.execute("UPDATE payment_methods SET active=1 WHERE name IN ('Nakit','Kredi Kartı')")
+            if any(k not in ("NAKIT", "KREDIKARTI") for k in ek_odemeler):
+                c.execute("UPDATE payment_methods SET active=1 WHERE name LIKE 'Yemek Kart%'")
+        c.commit()
+        if c.execute("PRAGMA integrity_check").fetchone()[0] != "ok":
+            raise ValueError("Yazılan veritabanı integrity_check'ten geçmedi.")
+        # journal_mode DELETE kalır: tek dosya; Pro açılışta kendisi WAL'e geçer
+    finally:
+        c.close()
+    for ek in ("-wal", "-shm"):
+        if os.path.exists(hedef_db + ek):
+            os.remove(hedef_db + ek)
+    log(f"Pro veritabanı yazıldı: {hedef_db}  ({len(kat_sira)} kategori, {n_urun} ürün, "
+        f"{n_var} porsiyon, {len(detay_idler)} opsiyon / {n_bag} bağ, "
+        f"{fiyatli} ürün menü fiyatıyla, {n_urun - fiyatli} ürün {sayi(fiyat)} TL)")
+    log(f"Resimler: {r_klasor}  → müşteride {PRO_VERI_KLASORU.format(kullanici=kullanici)}\\product-images")
+    log("KURULUM: Pro'yu kapat → AppData\\Roaming\\siparismatik-pro içindeki siparismatik.db, "
+        "siparismatik.db-wal ve siparismatik.db-shm'yi yedeğe al → bu siparismatik.db'yi ve "
+        "product-images klasörünü oraya kopyala → Pro'yu aç.")
+    if eksik:
+        log(f"Resmi olmayan {len(eksik)} ürün: " + ", ".join(eksik[:15]) + (" ..." if len(eksik) > 15 else ""))
+    return len(kat_sira), n_urun, eksik
+
+
+def pro_demo_temizle_dosya(db_yolu, log=print):
+    """Kurulu bir Pro veritabanında yerinde demo temizliği (önce yedek alır). Pro kapalı olmalı."""
+    import shutil
+    import sqlite3
+    if os.path.exists(db_yolu + "-wal") and os.path.getsize(db_yolu + "-wal") > 0:
+        log("Uyarı: yanında dolu -wal dosyası var; Pro açık olabilir. Önce Pro'yu kapat.")
+    yedek = db_yolu + time.strftime(".yedek_%Y%m%d_%H%M%S")
+    shutil.copy2(db_yolu, yedek)
+    if os.path.exists(db_yolu + "-wal"):
+        shutil.copy2(db_yolu + "-wal", yedek + "-wal")
+    c = sqlite3.connect(db_yolu)
+    try:
+        c.execute("PRAGMA busy_timeout=3000")
+        pro_demo_temizle(c, log)
+        c.commit()
+    finally:
+        c.close()
+    log(f"Yedek: {yedek}")
+
+
 # ---------------------------------------------------------------- pencere
 
 def pencere():
@@ -1860,7 +2158,7 @@ def pencere():
     ayar = ayar_oku()
     kok = tk.Tk()
     kok.title(f"Ürün Resim İndirici v{SURUM} (600x600 JPEG)")
-    kok.geometry("900x950")
+    kok.geometry("900x1060")
 
     # --- müşteri + menü okuma
     m_cer = tk.LabelFrame(kok, text=" 1) Müşteri ve menü ")
@@ -2070,7 +2368,9 @@ def pencere():
     def firma_klasoru():
         """SQL ve firmaya özel dosyalar: Firmalar/<Firma adı>/"""
         ad = guvenli_ad(musteri_var.get())
-        if not ad and os.path.isfile(sql_var.get()):
+        if not ad and pro_mu() and os.path.isfile(pro_var.get()):
+            ad = pro_firma_adi(pro_var.get())
+        elif not ad and os.path.isfile(sql_var.get()):
             ad = firma_adi_bul(sql_var.get())
             if ad:
                 kok.after(0, lambda: musteri_var.set(ad))
@@ -2126,7 +2426,7 @@ def pencere():
                 hepsini_indir(listeyi_ayristir(metin), hedef, adet, ek, log, k_arama, yenile,
                               kirpmalar=dict(brosur_kirp),
                               kontrol_yolu=KONTROL_SAYFASI)
-                if sql_var.get().strip():
+                if (pro_var.get().strip() if pro_mu() else sql_var.get().strip()):
                     log("")
                     sql_yap_calistir(listeyi_ayristir(metin), hedef, metin)
             except Exception as e:
@@ -2221,8 +2521,19 @@ def pencere():
     btn.pack(side="right", padx=4)
 
     # --- SQL
-    q_cer = tk.LabelFrame(kok, text=" 4) POS SQL (isteğe bağlı) ")
+    q_cer = tk.LabelFrame(kok, text=" 4) POS çıktısı (isteğe bağlı) ")
     q_cer.pack(fill="x", padx=10, pady=4)
+    mod_var = tk.StringVar(value=ayar.get("cikti_modu", "sql"))
+
+    def pro_mu():
+        return mod_var.get() == "pro"
+    mf = tk.Frame(q_cer)
+    mf.grid(row=5, column=0, columnspan=3, sticky="we", pady=(2, 0))
+    tk.Label(mf, text="Çıktı:").pack(side="left", padx=4)
+    tk.Radiobutton(mf, text="Eski SiparişMatik (.sql)", value="sql", variable=mod_var,
+                   command=lambda: mod_degisti()).pack(side="left")
+    tk.Radiobutton(mf, text="SiparişMatik Pro (siparismatik.db)", value="pro", variable=mod_var,
+                   command=lambda: mod_degisti()).pack(side="left", padx=8)
     tk.Label(q_cer, text="SQL dosyası:").grid(row=0, column=0, sticky="w", padx=4)
     sql_var = tk.StringVar(value=ayar.get("sql", ""))
     tk.Entry(q_cer, textvariable=sql_var, width=60).grid(row=0, column=1, sticky="we")
@@ -2244,6 +2555,95 @@ def pencere():
                    variable=seviye_var).pack(side="left")
     q_cer.columnconfigure(1, weight=1)
 
+    # --- SiparişMatik Pro alanları
+    p_cer = tk.Frame(q_cer)
+    p_cer.grid(row=6, column=0, columnspan=3, sticky="we")
+    tk.Label(p_cer, text="Pro veritabanı:").grid(row=0, column=0, sticky="w", padx=4)
+    pro_var = tk.StringVar(value=ayar.get("pro_db", ""))
+    tk.Entry(p_cer, textvariable=pro_var, width=60).grid(row=0, column=1, sticky="we")
+    tk.Button(p_cer, text="Seç...", command=lambda: pro_var.set(
+        filedialog.askopenfilename(title="Pro'nun siparismatik.db dosyası (AppData\\Roaming\\siparismatik-pro)",
+                                   filetypes=[("Pro veritabanı", "*.db"), ("Hepsi", "*.*")])
+        or pro_var.get())).grid(row=0, column=2, padx=4)
+    tk.Label(p_cer, text="Kurulacak PC kullanıcı adı:").grid(row=1, column=0, sticky="w", padx=4)
+    try:
+        import getpass
+        _kul = getpass.getuser()
+    except Exception:
+        _kul = ""
+    kullanici_var = tk.StringVar(value=ayar.get("pro_kullanici", _kul))
+    tk.Entry(p_cer, textvariable=kullanici_var, width=30).grid(row=1, column=1, sticky="w")
+    tk.Label(p_cer, text="Opsiyonlar:").grid(row=2, column=0, sticky="w", padx=4)
+    opsiyon_var = tk.StringVar(value=ayar.get("pro_opsiyonlar", PRO_OPSIYON_VARSAYILAN))
+    tk.Entry(p_cer, textvariable=opsiyon_var, width=60).grid(row=2, column=1, columnspan=2, sticky="we")
+    pf = tk.Frame(p_cer)
+    pf.grid(row=3, column=0, columnspan=3, sticky="w")
+    icecek_ops_var = tk.BooleanVar(value=ayar.get("pro_icecek_opsiyon", False))
+    tk.Checkbutton(pf, text="İçeceklere de opsiyon ekle", variable=icecek_ops_var).pack(side="left", padx=4)
+    demo_var = tk.BooleanVar(value=ayar.get("pro_demo_temizle", True))
+    tk.Checkbutton(pf, text="Demo verileri temizle (yönetici hesabı kalır)",
+                   variable=demo_var).pack(side="left", padx=8)
+
+    def kurulu_pro_temizle():
+        yol = filedialog.askopenfilename(
+            title="Temizlenecek siparismatik.db (Pro KAPALI olmalı)",
+            filetypes=[("Pro veritabanı", "*.db"), ("Hepsi", "*.*")])
+        if not yol:
+            return
+        if not messagebox.askyesno("Demo temizle", "SiparişMatik Pro kapalı mı?\n\n"
+                                   "Örnek siparişler, müşteriler, e-fatura firmaları, kullanıcılar ve yazıcılar "
+                                   "silinecek. Yönetici hesabına dokunulmaz. Önce yedek alınır."):
+            return
+        try:
+            pro_demo_temizle_dosya(yol, log)
+        except Exception as e:
+            log(f"TEMİZLİK HATASI: {e}")
+    tk.Button(pf, text="Kurulu Pro'da demo temizle...", command=kurulu_pro_temizle).pack(side="left", padx=4)
+    p_cer.columnconfigure(1, weight=1)
+
+    def mod_degisti():
+        for w in q_cer.grid_slaves(row=0):          # SQL dosyası satırı sadece eski SM'de
+            w.grid() if not pro_mu() else w.grid_remove()
+        if pro_mu():
+            p_cer.grid()
+            btn_sql.configure(text="Listeden Pro DB oluştur")
+        else:
+            p_cer.grid_remove()
+            btn_sql.configure(text="Listeden SQL oluştur")
+        ayar["cikti_modu"] = mod_var.get()
+        ayar_yaz(ayar)
+
+    def kaynak_hazir():
+        if pro_mu():
+            if not os.path.isfile(pro_var.get()):
+                messagebox.showwarning("Pro veritabanı yok", "Önce Pro'nun siparismatik.db dosyasını seç "
+                                       "(yeni kurulumun AppData\\Roaming\\siparismatik-pro klasöründen).")
+                return False
+            return True
+        if not os.path.isfile(sql_var.get()):
+            messagebox.showwarning("SQL yok", "Önce SQL yedek dosyasını seç.")
+            return False
+        return True
+
+    def cikti_yaz(kategoriler, kaynak_klasor, fiyat, kdv, metin, gercek=None):
+        firma = firma_klasoru()
+        log(f"Firma: {os.path.basename(firma)}")
+        if pro_mu():
+            ayar.update(pro_db=pro_var.get(), pro_kullanici=kullanici_var.get().strip(),
+                        pro_opsiyonlar=opsiyon_var.get(), pro_icecek_opsiyon=icecek_ops_var.get(),
+                        pro_demo_temizle=demo_var.get())
+            ayar_yaz(ayar)
+            pro_db_olustur(pro_var.get(), kategoriler, kaynak_klasor, firma, fiyat=fiyat, kdv=kdv,
+                           kategori_seviye=seviye_var.get(), log=log, gercek_klasorler=gercek,
+                           ek_odemeler=odeme_kodlari_bul(metin), kullanici=kullanici_var.get(),
+                           opsiyonlar=opsiyon_var.get(), icecege_opsiyon=icecek_ops_var.get(),
+                           demo_temizle=demo_var.get())
+        else:
+            sql_olustur(sql_var.get(), kategoriler, kaynak_klasor,
+                        os.path.join(firma, os.path.basename(sql_var.get())), fiyat=fiyat, kdv=kdv,
+                        kategori_seviye=seviye_var.get(), elle=ayar.get("sql_sutunlar"), log=log,
+                        gercek_klasorler=gercek, ek_odemeler=odeme_kodlari_bul(metin))
+
     def sql_yap_calistir(kategoriler, hedef, metin=""):
         try:
             fiyat = float(fiyat_var.get().replace(",", "."))
@@ -2253,17 +2653,10 @@ def pencere():
             return
         ayar.update(sql=sql_var.get(), fiyat=fiyat, kdv=kdv, kategori_seviye=seviye_var.get())
         ayar_yaz(ayar)
-        firma = firma_klasoru()
-        cikti = os.path.join(firma, os.path.basename(sql_var.get()))
-        log(f"Firma: {os.path.basename(firma)}")
-        sql_olustur(sql_var.get(), kategoriler, hedef, cikti, fiyat=fiyat, kdv=kdv,
-                               kategori_seviye=seviye_var.get(),
-                               elle=ayar.get("sql_sutunlar"), log=log,
-                               ek_odemeler=odeme_kodlari_bul(metin))
+        cikti_yaz(kategoriler, hedef, fiyat, kdv, metin)
 
     def sql_buton():
-        if not os.path.isfile(sql_var.get()):
-            messagebox.showwarning("SQL yok", "Önce SQL yedek dosyasını seç.")
+        if not kaynak_hazir():
             return
         metin_ = kutu.get("1.0", "end")
         if basliksiz_mi(metin_):
@@ -2284,8 +2677,7 @@ def pencere():
     def klasorden_sql(yol):
         if not yol:
             return
-        if not os.path.isfile(sql_var.get()):
-            messagebox.showwarning("SQL yok", "Önce SQL yedek dosyasını seç.")
+        if not kaynak_hazir():
             return
         kutu_metni = kutu.get("1.0", "end")          # kutuda "ÖDEME: ..." satırı varsa o da kullanılır
 
@@ -2307,13 +2699,7 @@ def pencere():
                 ayar.update(sql=sql_var.get(), fiyat=fiyat, kdv=kdv,
                             kategori_seviye=seviye_var.get())
                 ayar_yaz(ayar)
-                firma = firma_klasoru()
-                os.makedirs(firma, exist_ok=True)
-                log(f"Firma: {os.path.basename(firma)}")
-                sql_olustur(sql_var.get(), kategoriler, yol, os.path.join(
-                    firma, os.path.basename(sql_var.get())), fiyat=fiyat, kdv=kdv,
-                    kategori_seviye=seviye_var.get(), elle=ayar.get("sql_sutunlar"),
-                    log=log, gercek_klasorler=gercek, ek_odemeler=odeme_kodlari_bul(kutu_metni))
+                cikti_yaz(kategoriler, yol, fiyat, kdv, kutu_metni, gercek)
             except Exception as e:
                 log(f"SQL HATASI: {e}")
         threading.Thread(target=is_, daemon=True).start()
@@ -2324,14 +2710,15 @@ def pencere():
     kb.grid(row=3, column=0, columnspan=3, sticky="we", pady=(0, 4))
     tk.Label(kb, text="Hazır resim klasörü / zip'i varsa (klasör = kategori, dosya adı = ürün):",
              fg="#555").pack(side="left", padx=4)
-    tk.Button(kb, text="Zip'ten SQL", command=lambda: klasorden_sql(filedialog.askopenfilename(
+    tk.Button(kb, text="Zip'ten", command=lambda: klasorden_sql(filedialog.askopenfilename(
         filetypes=[("Zip", "*.zip")]))).pack(side="right", padx=4)
-    tk.Button(kb, text="Klasörden SQL", command=lambda: klasorden_sql(
+    tk.Button(kb, text="Klasörden", command=lambda: klasorden_sql(
         filedialog.askdirectory())).pack(side="right")
-    tk.Label(q_cer, text="SQL seçiliyse 'İndir' bitince otomatik oluşturulur; "
-                         "aynı isimle müşteri klasörüne kaydedilir.",
+    tk.Label(q_cer, text="SQL / Pro dosyası seçiliyse 'İndir' bitince otomatik oluşturulur; "
+                         "Firmalar\\<firma> klasörüne kaydedilir.",
              fg="#555").grid(row=2, column=0, columnspan=2, sticky="w", padx=4)
 
+    mod_degisti()
     log_kutu.pack(fill="both", expand=False, padx=10, pady=(4, 10))
     kok.mainloop()
 
