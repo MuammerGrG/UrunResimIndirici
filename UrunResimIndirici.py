@@ -48,7 +48,7 @@ BOYUT = 600
 KLASOR = (os.path.dirname(sys.executable) if getattr(sys, "frozen", False)
           else os.path.dirname(os.path.abspath(__file__)))
 AYAR_DOSYASI = os.path.join(KLASOR, "ayarlar.json")
-SURUM = "2.4"
+SURUM = "2.5"
 GITHUB_REPO = "MuammerGrG/UrunResimIndirici"     # ayarlar.json > "github_repo" ile değiştirilebilir
 GEMINI_MODELLER = ["gemini-2.5-flash", "gemini-flash-latest", "gemini-2.5-flash-lite"]   # yedek; asıl liste Google'dan çekilir
 _GEMINI_CACHE = {}
@@ -2158,7 +2158,8 @@ def pencere():
     ayar = ayar_oku()
     kok = tk.Tk()
     kok.title(f"Ürün Resim İndirici v{SURUM} (600x600 JPEG)")
-    kok.geometry("900x1060")
+    # Küçük ekranlarda (ör. 1366x768) pencere ekrandan taşmasın
+    kok.geometry(f"900x{max(600, min(1060, kok.winfo_screenheight() - 80))}+20+10")
 
     # --- müşteri + menü okuma
     m_cer = tk.LabelFrame(kok, text=" 1) Müşteri ve menü ")
@@ -2534,12 +2535,19 @@ def pencere():
                    command=lambda: mod_degisti()).pack(side="left")
     tk.Radiobutton(mf, text="SiparişMatik Pro (siparismatik.db)", value="pro", variable=mod_var,
                    command=lambda: mod_degisti()).pack(side="left", padx=8)
-    tk.Label(q_cer, text="SQL dosyası:").grid(row=0, column=0, sticky="w", padx=4)
+    sql_satiri = []          # SQL dosyası satırı (Pro seçilince gizlenir, eskiye dönünce geri gelir)
+    w = tk.Label(q_cer, text="SQL dosyası:")
+    w.grid(row=0, column=0, sticky="w", padx=4)
+    sql_satiri.append(w)
     sql_var = tk.StringVar(value=ayar.get("sql", ""))
-    tk.Entry(q_cer, textvariable=sql_var, width=60).grid(row=0, column=1, sticky="we")
-    tk.Button(q_cer, text="Seç...", command=lambda: sql_var.set(
+    w = tk.Entry(q_cer, textvariable=sql_var, width=60)
+    w.grid(row=0, column=1, sticky="we")
+    sql_satiri.append(w)
+    w = tk.Button(q_cer, text="Seç...", command=lambda: sql_var.set(
         filedialog.askopenfilename(filetypes=[("SQL", "*.sql"), ("Hepsi", "*.*")])
-        or sql_var.get())).grid(row=0, column=2, padx=4)
+        or sql_var.get()))
+    w.grid(row=0, column=2, padx=4)
+    sql_satiri.append(w)
     ic = tk.Frame(q_cer)
     ic.grid(row=1, column=0, columnspan=3, sticky="we", pady=2)
     tk.Label(ic, text="Fiyatı yazmayanlara (TL):").pack(side="left", padx=4)
@@ -2602,8 +2610,12 @@ def pencere():
     p_cer.columnconfigure(1, weight=1)
 
     def mod_degisti():
-        for w in q_cer.grid_slaves(row=0):          # SQL dosyası satırı sadece eski SM'de
-            w.grid() if not pro_mu() else w.grid_remove()
+        # grid_slaves() gizlenmiş widget'ları döndürmez; bu yüzden satır elle tutuluyor
+        for w in sql_satiri:
+            if pro_mu():
+                w.grid_remove()
+            else:
+                w.grid()
         if pro_mu():
             p_cer.grid()
             btn_sql.configure(text="Listeden Pro DB oluştur")
