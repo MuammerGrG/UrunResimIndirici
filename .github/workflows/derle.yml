@@ -47,7 +47,7 @@ jobs:
 
       - name: Kutuphaneler
         if: steps.kontrol.outputs.var == '0'
-        run: python -m pip install ddgs pillow requests pyinstaller
+        run: python -m pip install ddgs pillow requests openpyxl pyinstaller
 
       - name: EXE derle
         if: steps.kontrol.outputs.var == '0'

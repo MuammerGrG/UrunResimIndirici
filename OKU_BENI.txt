@@ -34,6 +34,11 @@ YENİ MÜŞTERİ
           Tavuk Döner Az 150 TL / Tavuk Döner Tam 200 TL / Tavuk Döner 1,5 280 TL
           → Tavuk Döner 200 TL, porsiyonlar: Az 150, 1,5 280
         Elle yazmak istersen:  Ürün | arama | fiyat | Az=150; 1,5=280
+     d) Excel: "Excel'den yükle" (.xlsx). Başlıklı (Ürün / Fiyat / Kategori / Porsiyon) ya da
+        başlıksız (ilk yazı sütunu = ürün, ilk sayı sütunu = fiyat) okunur; birden fazla sayfa
+        varsa sayfa adları kategori olur. Liste kutusu doluysa Excel'i "yazılı liste" kutusuna
+        koyup broşürle karşılaştırabilirsin. Eski .xls'i önce Excel'de .xlsx olarak kaydet.
+        "Excel'e aktar": hazırlanan menü (resimli, kategori/fiyat/porsiyon) .xlsx olarak kaydedilir.
      b) Menü resmi/PDF seç (Gemini ücretsiz anahtarla okur)
         Müşteri hem LİSTE hem BROŞÜR attıysa: yazılı listeyi 1. bölümdeki "Müşterinin yazılı
         listesi" kutusuna yapıştır, broşür resimlerini seç. Sıra fark etmez: broşürü önce seçtiysen

@@ -16,7 +16,7 @@ if errorlevel 1 (
     exit /b 1
 )
 python -m pip install --quiet --upgrade pip
-python -m pip install --quiet --upgrade ddgs pillow requests pyinstaller
+python -m pip install --quiet --upgrade ddgs pillow requests openpyxl pyinstaller
 if exist "UrunResimIndirici.exe" del /q "UrunResimIndirici.exe" >nul 2>&1
 python -m PyInstaller --noconfirm --clean --onefile --windowed ^
     --name "UrunResimIndirici" ^

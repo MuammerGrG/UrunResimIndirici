@@ -40,7 +40,7 @@ except ImportError:
     try:
         from duckduckgo_search import DDGS
     except ImportError:
-        print("Eksik kütüphane. Şunu çalıştır:  pip install ddgs pillow requests")
+        print("Eksik kütüphane. Şunu çalıştır:  pip install ddgs pillow requests openpyxl")
         sys.exit(1)
 
 BOYUT = 600
@@ -48,7 +48,7 @@ BOYUT = 600
 KLASOR = (os.path.dirname(sys.executable) if getattr(sys, "frozen", False)
           else os.path.dirname(os.path.abspath(__file__)))
 AYAR_DOSYASI = os.path.join(KLASOR, "ayarlar.json")
-SURUM = "2.5"
+SURUM = "2.6"
 GITHUB_REPO = "MuammerGrG/UrunResimIndirici"     # ayarlar.json > "github_repo" ile değiştirilebilir
 GEMINI_MODELLER = ["gemini-2.5-flash", "gemini-flash-latest", "gemini-2.5-flash-lite"]   # yedek; asıl liste Google'dan çekilir
 _GEMINI_CACHE = {}
@@ -806,6 +806,171 @@ def brosurden_kes(dosya, kutu, hedef):
     tuval.paste(parca, ((BOYUT - parca.width) // 2, (BOYUT - parca.height) // 2))
     tuval.save(hedef, "JPEG", quality=90, optimize=True)
     return True
+
+
+# ---------------------------------------------------------------- Excel (.xlsx)
+_X_AD = ("urun", "ürün", "ad", "adi", "adı", "isim", "ismi", "name", "product", "aciklama", "açıklama", "menu", "menü")
+_X_FIYAT = ("fiyat", "fiyatı", "price", "tutar", "tl", "satis", "satış", "₺")
+_X_KAT = ("kategori", "kategorisi", "grup", "grubu", "category", "bolum", "bölüm", "tur", "tür")
+_X_PISME = ("pisme", "pişme")
+_X_TIP = ("tip", "tipi")
+_X_PORS = ("porsiyon", "porsiyonlar", "portion", "boy", "secenek", "seçenek")
+
+
+def _x_hucre(v):
+    if v is None:
+        return ""
+    if isinstance(v, float) and v.is_integer():
+        v = int(v)
+    return str(v).strip()
+
+
+def _x_baslik_bul(satirlar):
+    """İlk 10 satırda başlık satırı arar: {'ad': i, 'fiyat': j, ...}"""
+    for r, satir in enumerate(satirlar[:10]):
+        norm = [_norm(_x_hucre(h)) for h in satir]
+        es = {}
+        for i, h in enumerate(norm):
+            if not h:
+                continue
+            kelimeler = set(re.findall(r"[a-z0-9]+", h))
+            for anahtar, liste in (("kat", _X_KAT), ("pisme", _X_PISME), ("tip", _X_TIP),
+                                   ("pors", _X_PORS), ("fiyat", _X_FIYAT), ("ad", _X_AD)):
+                if anahtar not in es and kelimeler & {_norm(x) for x in liste}:
+                    es[anahtar] = i
+                    break
+        if "ad" in es and ("fiyat" in es or "kat" in es):
+            return r, es
+    return None, {}
+
+
+def excel_oku(yol):
+    """Müşterinin Excel ürün listesini programın liste biçimine çevirir.
+    Başlık satırı (Ürün / Fiyat / Kategori...) varsa ona göre, yoksa: ilk yazı sütunu = ürün,
+    ilk sayı sütunu = fiyat. Kategori sütunu yoksa ve birden fazla sayfa varsa sayfa adı kategori olur."""
+    import openpyxl
+    if yol.lower().endswith(".xls"):
+        raise RuntimeError("Eski .xls biçimi okunamıyor: Excel'de 'Farklı Kaydet → .xlsx' yapıp tekrar seç.")
+    kitap = openpyxl.load_workbook(yol, read_only=True, data_only=True)
+    sayfalar = [ws for ws in kitap.worksheets if ws.sheet_state == "visible"]
+    cikti, kategorili = [], False
+    for ws in sayfalar:
+        satirlar = [list(r) for r in ws.iter_rows(values_only=True)]
+        satirlar = [r for r in satirlar if any(_x_hucre(v) for v in r)]
+        if not satirlar:
+            continue
+        bas, es = _x_baslik_bul(satirlar)
+        veri = satirlar[bas + 1:] if bas is not None else satirlar
+        if "ad" not in es:                            # başlıksız: sütunları içerikten tahmin et
+            yazi = sayi_s = None
+            for i in range(max(len(r) for r in veri)):
+                degerler = [_x_hucre(r[i]) for r in veri if i < len(r) and _x_hucre(r[i])]
+                if not degerler:
+                    continue
+                sayisal = sum(1 for d in degerler if fiyat_coz(d) is not None and re.fullmatch(r"[₺\d.,\s]+(tl)?", d, re.I))
+                if sayi_s is None and sayisal >= len(degerler) * 0.6:
+                    sayi_s = i
+                elif yazi is None and sayisal < len(degerler) * 0.4:
+                    yazi = i
+            if yazi is None:
+                continue
+            es = {"ad": yazi}
+            if sayi_s is not None:
+                es["fiyat"] = sayi_s
+        sayfa_kat = guvenli_ad(ws.title) if len(sayfalar) > 1 and "kat" not in es else ""
+        son_kat = None
+        if sayfa_kat:
+            cikti += ["", f"# {sayfa_kat}"]
+            kategorili = True
+        for r in veri:
+            al = lambda k: _x_hucre(r[es[k]]) if k in es and es[k] < len(r) else ""
+            ad = al("ad")
+            if not ad:
+                continue
+            fiyat = fiyat_coz(al("fiyat")) if al("fiyat") else None
+            if "kat" in es and al("kat"):
+                kat, pisme, tip = guvenli_ad(al("kat")), guvenli_ad(al("pisme")), guvenli_ad(al("tip"))
+                if (kat, pisme, tip) != son_kat:
+                    if not son_kat or son_kat[0] != kat:
+                        cikti += ["", f"# {kat}"]
+                    if pisme and (not son_kat or son_kat[:2] != (kat, pisme)):
+                        cikti.append(f"## {pisme}")
+                    if tip:
+                        cikti.append(f"### {tip}" if pisme else f"## Hazır\n### {tip}")
+                    son_kat = (kat, pisme, tip)
+                    kategorili = True
+            satir = ad
+            pors = al("pors")
+            if fiyat or pors:
+                satir = f"{ad} | {ad} | {'%g' % fiyat if fiyat else ''}"
+                if pors:
+                    satir += f" | {pors}"
+            elif not fiyat and not kategorili and not any(_x_hucre(v) for i, v in enumerate(r) if i != es["ad"]):
+                pass                                 # sadece ad yazılmış satır
+            cikti.append(satir)
+    kitap.close()
+    metin = "\n".join(cikti).strip()
+    if not metin:
+        raise RuntimeError("Excel'de ürün bulunamadı.")
+    return metin
+
+
+def excel_yaz(kategoriler, resim_kok, hedef, firma=""):
+    """Hazırlanan menüyü Excel'e yazar: kategori, pişme, tip, ürün, fiyat, porsiyonlar + küçük resim."""
+    import openpyxl
+    from openpyxl.drawing.image import Image as XImage
+    from openpyxl.styles import Alignment, Font, PatternFill
+    kitap = openpyxl.Workbook()
+    ws = kitap.active
+    ws.title = "Menü"
+    basliklar = ["Resim", "Kategori", "Pişme Şekli", "Tip", "Ürün", "Fiyat (TL)", "Porsiyonlar"]
+    bas = 1
+    if firma:
+        ws.cell(1, 1, firma).font = Font(bold=True, size=14)
+        bas = 3
+    for i, b in enumerate(basliklar, 1):
+        h = ws.cell(bas, i, b)
+        h.font = Font(bold=True, color="FFFFFF")
+        h.fill = PatternFill("solid", fgColor="2E7D32")
+        h.alignment = Alignment(horizontal="center", vertical="center")
+    for harf, gen in zip("ABCDEFG", (11, 22, 14, 14, 38, 11, 34)):
+        ws.column_dimensions[harf].width = gen
+    ws.freeze_panes = ws.cell(bas + 1, 1)
+    satir = bas + 1
+    gecici = []
+    for yol, urunler in kategoriler.items():
+        parca = yol.split(os.sep) + ["", "", ""]
+        for u in urunler:
+            ad, fiyat = u[0], (u[2] if len(u) > 2 else None)
+            pors = u[3] if len(u) > 3 else []
+            degerler = [None, tr_buyuk(parca[0]), parca[1], parca[2], tr_buyuk(ad), fiyat,
+                        "; ".join(f"{tr_buyuk(e)} = {'%g' % f} TL" if f else tr_buyuk(e) for e, f in pors)]
+            for i, v in enumerate(degerler, 1):
+                c = ws.cell(satir, i, v)
+                c.alignment = Alignment(vertical="center", wrap_text=(i == 7))
+            ws.cell(satir, 6).number_format = '#,##0.00'
+            r = resim_bul(os.path.join(resim_kok, yol), ad)
+            if r:
+                try:
+                    kucuk = Image.open(r).convert("RGB")
+                    kucuk.thumbnail((70, 70))
+                    gec = os.path.join(os.path.dirname(hedef), f".x_{satir}.png")
+                    kucuk.save(gec)
+                    gecici.append(gec)
+                    ws.add_image(XImage(gec), f"A{satir}")
+                    ws.row_dimensions[satir].height = 56
+                except Exception:
+                    pass
+            satir += 1
+    ws.auto_filter.ref = f"A{bas}:G{max(bas, satir - 1)}"
+    os.makedirs(os.path.dirname(os.path.abspath(hedef)), exist_ok=True)
+    kitap.save(hedef)
+    for g in gecici:
+        try:
+            os.remove(g)
+        except OSError:
+            pass
+    return satir - bas - 1
 
 
 def basliksiz_mi(metin):
@@ -2324,6 +2489,53 @@ def pencere():
     tk.Button(lb, text="Dosyadan yükle", command=dosyadan_yukle).pack(side="left")
     tk.Button(lb, text="Listeyi kaydet", command=listeyi_kaydet).pack(side="left", padx=6)
     tk.Button(lb, text="Temizle", command=lambda: kutu.delete("1.0", "end")).pack(side="left")
+
+    def excelden_yukle():
+        yol = filedialog.askopenfilename(title="Müşterinin Excel ürün listesi",
+                                         filetypes=[("Excel", "*.xlsx *.xlsm *.xls"), ("Hepsi", "*.*")])
+        if not yol:
+            return
+        try:
+            metin = excel_oku(yol)
+        except Exception as e:
+            messagebox.showerror("Excel", f"Excel okunamadı:\n{e}")
+            return
+        hedef_kutu = kutu
+        if kutu.get("1.0", "end").strip():
+            # Büyük kutu doluysa (ör. broşür okundu) Excel'i karşılaştırma için yazılı liste kutusuna koy
+            if messagebox.askyesno("Excel", "Ürün listesi kutusu dolu.\n\nEVET: Excel'i 'Müşterinin yazılı "
+                                   "listesi' kutusuna koy (broşürle karşılaştırmak için)\n"
+                                   "HAYIR: Ürün listesi kutusunu Excel ile değiştir"):
+                hedef_kutu = liste_kutu
+        hedef_kutu.delete("1.0", "end")
+        hedef_kutu.insert("1.0", metin)
+        sayi = sum(len(v) for v in listeyi_ayristir(metin).values())
+        log(f"Excel'den {sayi} ürün yüklendi: {os.path.basename(yol)}")
+
+    def excele_aktar():
+        metin = kutu.get("1.0", "end")
+        if basliksiz_mi(metin):
+            metin = yerel_siniflandir(metin)
+        kategoriler = listeyi_ayristir(metin)
+        if not kategoriler:
+            messagebox.showwarning("Excel", "Ürün listesi boş.")
+            return
+        firma = firma_klasoru()
+        varsayilan = os.path.join(firma, "menu.xlsx")
+        yol = filedialog.asksaveasfilename(title="Menüyü Excel olarak kaydet", defaultextension=".xlsx",
+                                           initialdir=firma if os.path.isdir(firma) else None,
+                                           initialfile="menu.xlsx", filetypes=[("Excel", "*.xlsx")])
+        if not yol:
+            return
+        try:
+            n = excel_yaz(kategoriler, hedef_klasor(), yol, os.path.basename(firma)
+                          if os.path.basename(firma) != "Firmasiz" else "")
+            log(f"Excel'e aktarıldı: {yol}  ({n} ürün)")
+        except Exception as e:
+            log(f"Excel HATASI: {e}")
+
+    tk.Button(lb, text="Excel'den yükle", command=excelden_yukle).pack(side="left", padx=(16, 0))
+    tk.Button(lb, text="Excel'e aktar", command=excele_aktar).pack(side="left", padx=6)
 
     # --- ayarlar
     a_cer = tk.LabelFrame(kok, text=" 3) İndir ")
