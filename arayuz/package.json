@@ -24,7 +24,7 @@
   "build": {
     "appId": "com.muammergrg.urunresimindirici",
     "productName": "Ürün Resim İndirici",
-    "executableName": "UrunResimIndirici",
+    "executableName": "UrunResim",
     "artifactName": "UrunResimIndirici-Kurulum-${version}.${ext}",
     "directories": {
       "output": "dist",

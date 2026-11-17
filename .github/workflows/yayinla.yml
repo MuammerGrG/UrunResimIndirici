@@ -33,6 +33,7 @@ jobs:
           $s = (Get-Content arayuz/package.json -Raw | ConvertFrom-Json).version
           "surum=$s" >> $env:GITHUB_OUTPUT
           $var = gh release view "v$s" 2>$null; if ($LASTEXITCODE -eq 0) { "yayinli=1" >> $env:GITHUB_OUTPUT } else { "yayinli=0" >> $env:GITHUB_OUTPUT }
+          exit 0
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -77,8 +78,8 @@ jobs:
         run: |
           $kur = Get-ChildItem arayuz/dist/*.exe | Select-Object -First 1
           Start-Process -FilePath $kur.FullName -ArgumentList "/S" -Wait
-          $exe = Join-Path $env:LOCALAPPDATA "Programs\urun-resim-indirici\UrunResimIndirici.exe"
-          if (-not (Test-Path $exe)) { $exe = (Get-ChildItem "$env:LOCALAPPDATA\Programs" -Recurse -Filter UrunResimIndirici.exe | Select-Object -First 1).FullName }
+          $exe = Join-Path $env:LOCALAPPDATA "Programs\urun-resim-indirici\UrunResim.exe"
+          if (-not (Test-Path $exe)) { $exe = (Get-ChildItem "$env:LOCALAPPDATA\Programs" -Recurse -Filter UrunResim.exe | Select-Object -First 1).FullName }
           "Kurulan: $exe" | Tee-Object -FilePath derle.txt -Append
           $motor = Join-Path (Split-Path $exe) "resources\motor\Motor.exe"
           if (-not (Test-Path $motor)) { "Motor kurulumda yok" | Tee-Object -FilePath derle.txt -Append; exit 1 }
@@ -86,10 +87,10 @@ jobs:
           Start-Sleep -Seconds 12
           $calisiyor = -not $p.HasExited
           "Program 12 sn sonra açık: $calisiyor" | Tee-Object -FilePath derle.txt -Append
-          Get-Process | Where-Object { $_.ProcessName -match 'Motor|UrunResim' } | Format-Table ProcessName, Id | Out-String | Tee-Object -FilePath derle.txt -Append
+          Get-Process | Where-Object { $_.ProcessName -match "^(Motor|UrunResim)$" } | Format-Table ProcessName, Id | Out-String | Tee-Object -FilePath derle.txt -Append
           $log = Join-Path $env:APPDATA "Ürün Resim İndirici\son_log.txt"
           if (Test-Path $log) { Get-Content $log | Tee-Object -FilePath derle.txt -Append }
-          Get-Process | Where-Object { $_.ProcessName -match 'Motor|UrunResim' } | Stop-Process -Force
+          Get-Process | Where-Object { $_.ProcessName -match "^(Motor|UrunResim)$" } | Stop-Process -Force
           if (-not $calisiyor) { exit 1 }
 
       - name: Sonuçları ci-log dalına yaz
