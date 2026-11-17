@@ -48,7 +48,7 @@ BOYUT = 600
 KLASOR = (os.path.dirname(sys.executable) if getattr(sys, "frozen", False)
           else os.path.dirname(os.path.abspath(__file__)))
 AYAR_DOSYASI = os.path.join(KLASOR, "ayarlar.json")
-SURUM = "2.8"
+SURUM = "2.9"
 GITHUB_REPO = "MuammerGrG/UrunResimIndirici"     # ayarlar.json > "github_repo" ile değiştirilebilir
 GEMINI_MODELLER = ["gemini-flash-latest", "gemini-flash-lite-latest"]   # yedek; asıl liste Google'dan çekilir
 _GEMINI_CACHE = {}
@@ -638,6 +638,86 @@ def _gemini(grup, api_key, model_tercih, istem=MENU_PROMPT, log=print, json_mod=
     raise RuntimeError("Gemini menüyü okuyamadı → " + " | ".join(hatalar or ["model yok"]))
 
 
+MISTRAL_MODELLER = ["mistral-small-latest", "mistral-medium-latest"]   # ikisi de resim okur
+
+
+def _mistral(grup, api_key, istem, log=print, json_mod=False, resim_boyu=1600):
+    """Yedek: Mistral (ücretsiz katman, kart gerekmez). OpenAI biçimli sohbet API'si, akışla.
+    Broşürdeki fotoğrafın yerini Gemini kadar iyi bulamadığı için kutu bilgisi kullanılmaz."""
+    icerik = [{"type": "text", "text": istem}]
+    for g in grup:
+        if g.lower().endswith(".pdf"):
+            raise RuntimeError("Yedek model (Mistral) PDF okuyamaz; menüyü resim olarak ver.")
+        icerik.append({"type": "image_url",
+                       "image_url": "data:image/jpeg;base64," + _dosya_hazirla(g, resim_boyu)[1]})
+    hatalar = []
+    for model in MISTRAL_MODELLER:
+        govde = {"model": model, "temperature": 0.1, "max_tokens": 16000, "stream": True,
+                 "messages": [{"role": "user", "content": icerik}]}
+        if json_mod:
+            govde["response_format"] = {"type": "json_object"}
+        for deneme in range(3):
+            log(f"   → Mistral {model} deneniyor" + (f" (tekrar {deneme})" if deneme else "") + "...")
+            baslangic, gelen, bitti = time.time(), [0], threading.Event()
+
+            def nabiz(m=model, t0=baslangic):
+                while not bitti.wait(20):
+                    ek = f", {gelen[0]} karakter geldi" if gelen[0] else ""
+                    log(f"   … Mistral {m} çalışıyor ({int(time.time() - t0)} sn{ek})")
+            threading.Thread(target=nabiz, daemon=True).start()
+            try:
+                with requests.post("https://api.mistral.ai/v1/chat/completions", json=govde, stream=True,
+                                   headers={"Authorization": f"Bearer {api_key}", "Accept": "text/event-stream"},
+                                   timeout=(15, 120)) as r:
+                    kod = r.status_code
+                    if kod != 200:
+                        ham = r.text
+                    else:
+                        parca = []
+                        for satir in r.iter_lines(decode_unicode=True):
+                            if not satir or not satir.startswith("data:"):
+                                continue
+                            v = satir[5:].strip()
+                            if v == "[DONE]":
+                                break
+                            try:
+                                d = json.loads(v)
+                            except ValueError:
+                                continue
+                            for c in d.get("choices", []) or []:
+                                t = (c.get("delta") or {}).get("content")
+                                if isinstance(t, list):
+                                    t = "".join(x.get("text", "") for x in t if isinstance(x, dict))
+                                if t:
+                                    parca.append(t)
+                                    gelen[0] += len(t)
+                        metin = "".join(parca)
+            except requests.RequestException as e:
+                log(f"   Mistral {model}: bağlantı/zaman aşımı ({e.__class__.__name__}).")
+                hatalar.append(f"{model}: bağlantı")
+                break
+            finally:
+                bitti.set()
+            if kod == 200:
+                if metin.strip():
+                    log(f"   ✓ Mistral {model} cevap verdi ({int(time.time() - baslangic)} sn).")
+                    return metin
+                hatalar.append(f"{model}: boş")
+                break
+            if kod in (401, 403):
+                raise RuntimeError("MISTRAL_KEY_HATALI: Mistral anahtarı geçersiz — 'Yedek AI anahtarı' ile yeniden gir.")
+            if kod == 429 or kod >= 500:
+                bekle = 8 * (deneme + 1)
+                log(f"   Mistral {model}: {'kota' if kod == 429 else 'sunucu yoğun'} (HTTP {kod}), {bekle} sn sonra tekrar...")
+                time.sleep(bekle)
+                continue
+            kisa = re.sub(r"\s+", " ", ham[:200])
+            log(f"   Mistral {model}: HTTP {kod} — {kisa}")
+            hatalar.append(f"{model}: HTTP {kod}")
+            break
+    raise RuntimeError("Mistral de okuyamadı → " + " | ".join(hatalar or ["?"]))
+
+
 def gemini_modelleri(api_key):
     """Anahtarın kullanabildiği güncel 'flash' modellerini Google'dan sorar (model adları değişiyor)."""
     if api_key in _GEMINI_CACHE:
@@ -829,7 +909,7 @@ def liste_eksik_kontrol(liste_metni, sonuc_metni):
     return eksik
 
 
-def brosur_oku(dosyalar, liste_metni, api_key, model, log):
+def brosur_oku(dosyalar, liste_metni, api_key, model, log, mistral_key=""):
     """Broşür resimleri (+ varsa yazılı liste) → (liste metni, kırpmalar, farklar)"""
     liste_notu = ""
     if liste_metni.strip():
@@ -837,9 +917,22 @@ def brosur_oku(dosyalar, liste_metni, api_key, model, log):
                       "-----\n" + liste_metni.strip()[:12000] + "\n-----")
     istem = BIRLESIK_PROMPT.format(n=len(dosyalar), liste_notu=liste_notu)
     log(f"Broşür{' + liste' if liste_notu else ''} okunuyor ({len(dosyalar)} resim)...")
-    cevap = _gemini(dosyalar[:6], api_key, model, istem, log=log, json_mod=True, resim_boyu=2048)
-    veri = _json_coz(cevap)
-    return brosur_json_metne(veri, dosyalar[:6])
+    gemini_hata = None
+    if api_key and api_key != "-":
+        try:
+            cevap = _gemini(dosyalar[:6], api_key, model, istem, log=log, json_mod=True, resim_boyu=2048)
+            return brosur_json_metne(_json_coz(cevap), dosyalar[:6])
+        except RuntimeError as e:
+            if "API_KEY_HATALI" in str(e) or not mistral_key:
+                raise
+            gemini_hata = e
+            log(f"   Gemini okuyamadı ({str(e)[:120]}).")
+    if not mistral_key:
+        raise RuntimeError("Gemini anahtarı yok.")
+    log("   Yedek model (Mistral) ile okunuyor — broşür fotoğrafları kesilmeyecek, internetten bulunacak.")
+    cevap = _mistral(dosyalar[:6], mistral_key, istem, log=log, json_mod=True)
+    metin, _kirp, farklar = brosur_json_metne(_json_coz(cevap), dosyalar[:6])
+    return metin, {}, farklar
 
 
 def brosurden_kes(dosya, kutu, hedef):
@@ -2429,7 +2522,7 @@ def pencere():
             return
         son_dosyalar[:] = dosyalar
         key = api_key_al()
-        if not key:
+        if not key and not ayar.get("mistral_key"):
             return
         for b in (btn_resim, btn_klasor, btn, btn_birlestir):
             b.configure(state="disabled")
@@ -2452,7 +2545,8 @@ def pencere():
             try:
                 farklar, eksik = [], []
                 if saglayici == "gemini":
-                    metin, kirp, farklar = brosur_oku(dosyalar, liste_metni, key, model, log)
+                    metin, kirp, farklar = brosur_oku(dosyalar, liste_metni, key, model, log,
+                                                      mistral_key=ayar.get("mistral_key", ""))
                     if liste_metni:
                         eksik = liste_eksik_kontrol(liste_metni, metin)
                 else:
@@ -2476,7 +2570,10 @@ def pencere():
                 kok.after(0, yaz)
             except Exception as e:
                 msg = str(e)
-                if "API_KEY_HATALI" in msg:
+                if "MISTRAL_KEY_HATALI" in msg:
+                    ayar.pop("mistral_key", None)
+                    ayar_yaz(ayar)
+                elif "API_KEY_HATALI" in msg:
                     ayar.pop("gemini_key", None)
                     ayar_yaz(ayar)
                     msg += "\nAPI anahtarı hatalı, bir dahaki sefere tekrar sorulacak."
@@ -2751,6 +2848,24 @@ def pencere():
             messagebox.showinfo("Kontrol", "Önce 'İndir' ile resimleri indir.")
     tk.Button(alt, text="Resimleri kontrol et", command=kontrol_ac).pack(side="left", padx=4)
     tk.Button(alt, text="API anahtarını değiştir", command=api_degistir).pack(side="left")
+
+    def mistral_anahtari():
+        mevcut = "kayıtlı" if ayar.get("mistral_key") else "yok"
+        k = simpledialog.askstring(
+            "Yedek AI: Mistral (ücretsiz)",
+            f"Gemini cevap vermezse menü Mistral ile okunur. Şu an: {mevcut}\n\n"
+            "console.mistral.ai → hesap aç (kart gerekmez) → API Keys → Create new key\n"
+            "Anahtarı buraya yapıştır (silmek için boş bırakıp Tamam'a bas):", show="*")
+        if k is None:
+            return
+        if k.strip():
+            ayar["mistral_key"] = k.strip()
+            log("Yedek AI (Mistral) anahtarı kaydedildi.")
+        else:
+            ayar.pop("mistral_key", None)
+            log("Yedek AI (Mistral) anahtarı silindi.")
+        ayar_yaz(ayar)
+    tk.Button(alt, text="Yedek AI anahtarı", command=mistral_anahtari).pack(side="left", padx=4)
 
     def guncelle(sessiz=False):
         """GitHub'daki son sürümü kontrol eder; yeniyse indirip kendini günceller."""

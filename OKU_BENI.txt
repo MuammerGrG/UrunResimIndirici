@@ -97,3 +97,10 @@ SİPARİŞMATİK PRO (v2.4)
 GEMİNİ ANAHTARI (ücretsiz, isteğe bağlı)
   aistudio.google.com/apikey → Create API key. Menü RESMİ okumak için gerekir.
   Yazılı listeler anahtarsız da kategorilere ayrılır.
+
+
+YEDEK AI: MISTRAL (ücretsiz, isteğe bağlı)
+  Gemini yoğun/kapalıysa menü Mistral ile okunur. console.mistral.ai → hesap aç (kart gerekmez)
+  → API Keys → Create new key → programda "Yedek AI anahtarı" düğmesine yapıştır.
+  Mistral ile okunduğunda broşür fotoğrafları kesilmez, ürün resimleri internetten bulunur.
+  Mistral PDF okuyamaz (resim olarak ver).
