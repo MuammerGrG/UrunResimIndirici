@@ -181,6 +181,11 @@ function pencereAc() {
     return { action: 'deny' };
   });
   pencere.webContents.on('will-navigate', (e) => e.preventDefault());
+  pencere.webContents.on('console-message', (_e, seviye, mesaj, satir, kaynak) => {
+    if (seviye >= 2) logDosya(`arayüz: ${mesaj} (${path.basename(kaynak || '')}:${satir})`);
+  });
+  pencere.webContents.on('preload-error', (_e, yol, hata) => logDosya(`preload hatası: ${hata?.message || hata}`));
+  pencere.webContents.on('render-process-gone', (_e, d) => logDosya(`arayüz kapandı: ${d.reason}`));
 }
 
 // ------------------------------------------------------------------ güncelleme
@@ -197,7 +202,7 @@ function guncellemeKur() {
   guncelleyici.on('update-not-available', () => gonder('guncel'));
   guncelleyici.on('download-progress', (p) => gonder('iniyor', { yuzde: Math.round(p.percent) }));
   guncelleyici.on('update-downloaded', (i) => gonder('hazir', { surum: i.version, notlar: notTemizle(i.releaseNotes) }));
-  guncelleyici.on('error', (e) => { logDosya('Güncelleme: ' + (e?.message || e)); gonder('hata', { mesaj: String(e?.message || e).slice(0, 200) }); });
+  guncelleyici.on('error', (e) => { logDosya('Güncelleme: ' + String(e?.message || e).split('\n')[0]); gonder('hata', { mesaj: String(e?.message || e).slice(0, 200) }); });
   setTimeout(() => guncelleyici.checkForUpdates().catch(() => {}), 4000);
 }
 function notTemizle(n) {

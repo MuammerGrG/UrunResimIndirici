@@ -713,6 +713,7 @@ document.addEventListener('keydown', (e) => {
 
 // ------------------------------------------------------------------ açılış
 (async function ac() {
+  try {
   D.ayar = await api.ayar.al();
   $('#surum').textContent = 'v' + (await api.surum());
   $('#ayar-surum').textContent = 'Sürüm ' + (await api.surum());
@@ -736,4 +737,8 @@ document.addEventListener('keydown', (e) => {
   }
   if ((D.ayar.saglayici || 'gemini') === 'gemini' && !D.ayar.geminiAnahtar && !D.ayar.mistralAnahtar)
     log('Menü resmi okumak için Ayarlar\'dan ücretsiz Gemini anahtarını gir. Yazılı liste ve Excel anahtarsız da çalışır.');
+  console.warn('arayüz hazır');
+  } catch (e) { console.error('açılış hatası: ' + (e && e.stack || e)); log('HATA: ' + (e && e.message || e)); }
 })();
+window.addEventListener('error', (e) => console.error('hata: ' + e.message));
+window.addEventListener('unhandledrejection', (e) => console.error('söz hatası: ' + (e.reason && e.reason.message || e.reason)));
