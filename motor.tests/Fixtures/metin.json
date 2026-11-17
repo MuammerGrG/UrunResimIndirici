@@ -1,0 +1,1226 @@
+{
+ "vakalar": [
+  {
+   "girdi": "Domates 45 TL",
+   "satiri_coz": [
+    "Domates",
+    "",
+    45.0,
+    []
+   ],
+   "porsiyon_ayir": null,
+   "fiyat_coz": null,
+   "porsiyon_etiketi": "Domates 45 TL",
+   "norm": "domates 45 tl",
+   "pors_norm": "domates 45 tl",
+   "guvenli_ad": "Domates 45 TL",
+   "tr_buyuk": "DOMATES 45 TL",
+   "hex": "CONVERT(0x446F6D6174657320343520544C USING utf8)",
+   "odeme_satiri": false,
+   "duzelt_ad": "Domates 45 TL",
+   "emojisiz": "Domates 45 TL ☕",
+   "porsiyonlari_coz": [
+    [
+     "Domates 45 TL",
+     null
+    ]
+   ]
+  },
+  {
+   "girdi": "Çilek - 120",
+   "satiri_coz": [
+    "Çilek",
+    "",
+    120.0,
+    []
+   ],
+   "porsiyon_ayir": null,
+   "fiyat_coz": null,
+   "porsiyon_etiketi": "Çilek - 120",
+   "norm": "cilek - 120",
+   "pors_norm": "cilek - 120",
+   "guvenli_ad": "Çilek - 120",
+   "tr_buyuk": "ÇİLEK - 120",
+   "hex": "CONVERT(0xC387696C656B202D20313230 USING utf8)",
+   "odeme_satiri": false,
+   "duzelt_ad": "Çilek - 120",
+   "emojisiz": "Çilek - 120 ☕",
+   "porsiyonlari_coz": [
+    [
+     "Çilek - 120",
+     null
+    ]
+   ]
+  },
+  {
+   "girdi": "Elma starking ....... 60,50",
+   "satiri_coz": [
+    "Elma starking",
+    "",
+    60.5,
+    []
+   ],
+   "porsiyon_ayir": null,
+   "fiyat_coz": null,
+   "porsiyon_etiketi": "Elma starking ....... 60,50",
+   "norm": "elma starking         60,50",
+   "pors_norm": "elma starking ....... 60,50",
+   "guvenli_ad": "Elma starking ....... 60,50",
+   "tr_buyuk": "ELMA STARKİNG ....... 60,50",
+   "hex": "CONVERT(0x456C6D6120737461726B696E67202E2E2E2E2E2E2E2036302C3530 USING utf8)",
+   "odeme_satiri": false,
+   "duzelt_ad": "Elma starking 60,50",
+   "emojisiz": "Elma starking ....... 60,50 ☕",
+   "porsiyonlari_coz": []
+  },
+  {
+   "girdi": "Muz ithal | 85",
+   "satiri_coz": [
+    "Muz ithal",
+    "",
+    85.0,
+    []
+   ],
+   "porsiyon_ayir": null,
+   "fiyat_coz": null,
+   "porsiyon_etiketi": "Muz ithal | 85",
+   "norm": "muz ithal | 85",
+   "pors_norm": "muz ithal | 85",
+   "guvenli_ad": "Muz ithal 85",
+   "tr_buyuk": "MUZ İTHAL | 85",
+   "hex": "CONVERT(0x4D757A20697468616C207C203835 USING utf8)",
+   "odeme_satiri": false,
+   "duzelt_ad": "Muz ithal | 85",
+   "emojisiz": "Muz ithal | 85 ☕",
+   "porsiyonlari_coz": [
+    [
+     "Muz ithal | 85",
+     null
+    ]
+   ]
+  },
+  {
+   "girdi": "Kola 330",
+   "satiri_coz": [
+    "Kola 330",
+    "",
+    null,
+    []
+   ],
+   "porsiyon_ayir": null,
+   "fiyat_coz": null,
+   "porsiyon_etiketi": "Kola 330",
+   "norm": "kola 330",
+   "pors_norm": "kola 330",
+   "guvenli_ad": "Kola 330",
+   "tr_buyuk": "KOLA 330",
+   "hex": "CONVERT(0x4B6F6C6120333330 USING utf8)",
+   "odeme_satiri": false,
+   "duzelt_ad": "Kola 330",
+   "emojisiz": "Kola 330 ☕",
+   "porsiyonlari_coz": [
+    [
+     "Kola 330",
+     null
+    ]
+   ]
+  },
+  {
+   "girdi": "Efes Pilsen 50 cl",
+   "satiri_coz": [
+    "Efes Pilsen 50 cl",
+    "",
+    null,
+    []
+   ],
+   "porsiyon_ayir": null,
+   "fiyat_coz": null,
+   "porsiyon_etiketi": "Efes Pilsen 50 cl",
+   "norm": "efes pilsen 50 cl",
+   "pors_norm": "efes pilsen 50 cl",
+   "guvenli_ad": "Efes Pilsen 50 cl",
+   "tr_buyuk": "EFES PİLSEN 50 CL",
+   "hex": "CONVERT(0x456665732050696C73656E20353020636C USING utf8)",
+   "odeme_satiri": false,
+   "duzelt_ad": "Efes Pilsen 50 cl",
+   "emojisiz": "Efes Pilsen 50 cl ☕",
+   "porsiyonlari_coz": [
+    [
+     "Efes Pilsen 50 cl",
+     null
+    ]
+   ]
+  },
+  {
+   "girdi": "Adana menü 1.250,00 ₺",
+   "satiri_coz": [
+    "Adana menü",
+    "",
+    1250.0,
+    []
+   ],
+   "porsiyon_ayir": null,
+   "fiyat_coz": null,
+   "porsiyon_etiketi": "Adana menü 1,250,00 ₺",
+   "norm": "adana menu 1 250,00 ₺",
+   "pors_norm": "adana menu 1.250,00 ₺",
+   "guvenli_ad": "Adana menü 1.250,00 ₺",
+   "tr_buyuk": "ADANA MENÜ 1.250,00 ₺",
+   "hex": "CONVERT(0x4164616E61206D656EC3BC20312E3235302C303020E282BA USING utf8)",
+   "odeme_satiri": false,
+   "duzelt_ad": "Adana menü 1.250,00 ₺",
+   "emojisiz": "Adana menü 1.250,00 ₺ ☕",
+   "porsiyonlari_coz": []
+  },
+  {
+   "girdi": "Nar | nar meyvesi | 70",
+   "satiri_coz": [
+    "Nar",
+    "nar meyvesi",
+    70.0,
+    []
+   ],
+   "porsiyon_ayir": null,
+   "fiyat_coz": null,
+   "porsiyon_etiketi": "Nar | nar meyvesi | 70",
+   "norm": "nar | nar meyvesi | 70",
+   "pors_norm": "nar | nar meyvesi | 70",
+   "guvenli_ad": "Nar nar meyvesi 70",
+   "tr_buyuk": "NAR | NAR MEYVESİ | 70",
+   "hex": "CONVERT(0x4E6172207C206E6172206D657976657369207C203730 USING utf8)",
+   "odeme_satiri": false,
+   "duzelt_ad": "Nar | nar meyvesi | 70",
+   "emojisiz": "Nar | nar meyvesi | 70 ☕",
+   "porsiyonlari_coz": []
+  },
+  {
+   "girdi": "Havuç",
+   "satiri_coz": [
+    "Havuç",
+    "",
+    null,
+    []
+   ],
+   "porsiyon_ayir": null,
+   "fiyat_coz": null,
+   "porsiyon_etiketi": "Havuç",
+   "norm": "havuc",
+   "pors_norm": "havuc",
+   "guvenli_ad": "Havuç",
+   "tr_buyuk": "HAVUÇ",
+   "hex": "CONVERT(0x48617675C3A7 USING utf8)",
+   "odeme_satiri": false,
+   "duzelt_ad": "Havuç",
+   "emojisiz": "Havuç ☕",
+   "porsiyonlari_coz": [
+    [
+     "Havuç",
+     null
+    ]
+   ]
+  },
+  {
+   "girdi": "Tavuk Döner Az 150 TL",
+   "satiri_coz": [
+    "Tavuk Döner Az",
+    "",
+    150.0,
+    []
+   ],
+   "porsiyon_ayir": null,
+   "fiyat_coz": null,
+   "porsiyon_etiketi": "Tavuk Döner Az 150 TL",
+   "norm": "tavuk doner az 150 tl",
+   "pors_norm": "tavuk doner az 150 tl",
+   "guvenli_ad": "Tavuk Döner Az 150 TL",
+   "tr_buyuk": "TAVUK DÖNER AZ 150 TL",
+   "hex": "CONVERT(0x546176756B2044C3B66E657220417A2031353020544C USING utf8)",
+   "odeme_satiri": false,
+   "duzelt_ad": "Tavuk Döner Az 150 TL",
+   "emojisiz": "Tavuk Döner Az 150 TL ☕",
+   "porsiyonlari_coz": []
+  },
+  {
+   "girdi": "Tavuk Döner 1,5 280 TL",
+   "satiri_coz": [
+    "Tavuk Döner 1,5",
+    "",
+    280.0,
+    []
+   ],
+   "porsiyon_ayir": null,
+   "fiyat_coz": null,
+   "porsiyon_etiketi": "Tavuk Döner 1,5 280 TL",
+   "norm": "tavuk doner 1,5 280 tl",
+   "pors_norm": "tavuk doner 1,5 280 tl",
+   "guvenli_ad": "Tavuk Döner 1,5 280 TL",
+   "tr_buyuk": "TAVUK DÖNER 1,5 280 TL",
+   "hex": "CONVERT(0x546176756B2044C3B66E657220312C352032383020544C USING utf8)",
+   "odeme_satiri": false,
+   "duzelt_ad": "Tavuk Döner 1,5 280 TL",
+   "emojisiz": "Tavuk Döner 1,5 280 TL ☕",
+   "porsiyonlari_coz": []
+  },
+  {
+   "girdi": "Et Döner 1.5 Porsiyon - 350",
+   "satiri_coz": [
+    "Et Döner 1.5 Porsiyon",
+    "",
+    350.0,
+    []
+   ],
+   "porsiyon_ayir": null,
+   "fiyat_coz": null,
+   "porsiyon_etiketi": "Et Döner 1,5 Porsiyon - 350",
+   "norm": "et doner 1 5 porsiyon - 350",
+   "pors_norm": "et doner 1.5 porsiyon - 350",
+   "guvenli_ad": "Et Döner 1.5 Porsiyon - 350",
+   "tr_buyuk": "ET DÖNER 1.5 PORSİYON - 350",
+   "hex": "CONVERT(0x45742044C3B66E657220312E3520506F727369796F6E202D20333530 USING utf8)",
+   "odeme_satiri": false,
+   "duzelt_ad": "Et Döner 1.5 Porsiyon - 350",
+   "emojisiz": "Et Döner 1.5 Porsiyon - 350 ☕",
+   "porsiyonlari_coz": []
+  },
+  {
+   "girdi": "Et Döner Duble Porsiyon - 450",
+   "satiri_coz": [
+    "Et Döner Duble Porsiyon",
+    "",
+    450.0,
+    []
+   ],
+   "porsiyon_ayir": null,
+   "fiyat_coz": null,
+   "porsiyon_etiketi": "Et Döner Duble Porsiyon - 450",
+   "norm": "et doner duble porsiyon - 450",
+   "pors_norm": "et doner duble porsiyon - 450",
+   "guvenli_ad": "Et Döner Duble Porsiyon - 450",
+   "tr_buyuk": "ET DÖNER DUBLE PORSİYON - 450",
+   "hex": "CONVERT(0x45742044C3B66E6572204475626C6520506F727369796F6E202D20343530 USING utf8)",
+   "odeme_satiri": false,
+   "duzelt_ad": "Et Döner Duble Porsiyon - 450",
+   "emojisiz": "Et Döner Duble Porsiyon - 450 ☕",
+   "porsiyonlari_coz": []
+  },
+  {
+   "girdi": "İskender Yarım Porsiyon - 200",
+   "satiri_coz": [
+    "İskender Yarım Porsiyon",
+    "",
+    200.0,
+    []
+   ],
+   "porsiyon_ayir": null,
+   "fiyat_coz": null,
+   "porsiyon_etiketi": "İskender Yarım Porsiyon - 200",
+   "norm": "iskender yarim porsiyon - 200",
+   "pors_norm": "iskender yarim porsiyon - 200",
+   "guvenli_ad": "İskender Yarım Porsiyon - 200",
+   "tr_buyuk": "İSKENDER YARIM PORSİYON - 200",
+   "hex": "CONVERT(0xC4B0736B656E64657220596172C4B16D20506F727369796F6E202D20323030 USING utf8)",
+   "odeme_satiri": false,
+   "duzelt_ad": "İskender Yarım Porsiyon - 200",
+   "emojisiz": "İskender Yarım Porsiyon - 200 ☕",
+   "porsiyonlari_coz": []
+  },
+  {
+   "girdi": "Lahmacun Küçük - 60",
+   "satiri_coz": [
+    "Lahmacun Küçük",
+    "",
+    60.0,
+    []
+   ],
+   "porsiyon_ayir": null,
+   "fiyat_coz": null,
+   "porsiyon_etiketi": "Lahmacun Küçük - 60",
+   "norm": "lahmacun kucuk - 60",
+   "pors_norm": "lahmacun kucuk - 60",
+   "guvenli_ad": "Lahmacun Küçük - 60",
+   "tr_buyuk": "LAHMACUN KÜÇÜK - 60",
+   "hex": "CONVERT(0x4C61686D6163756E204BC3BCC3A7C3BC6B202D203630 USING utf8)",
+   "odeme_satiri": false,
+   "duzelt_ad": "Lahmacun Küçük - 60",
+   "emojisiz": "Lahmacun Küçük - 60 ☕",
+   "porsiyonlari_coz": [
+    [
+     "Lahmacun Küçük - 60",
+     null
+    ]
+   ]
+  },
+  {
+   "girdi": "Yarım Ekmek Antakya - 160",
+   "satiri_coz": [
+    "Yarım Ekmek Antakya",
+    "",
+    160.0,
+    []
+   ],
+   "porsiyon_ayir": null,
+   "fiyat_coz": null,
+   "porsiyon_etiketi": "Yarım Ekmek Antakya - 160",
+   "norm": "yarim ekmek antakya - 160",
+   "pors_norm": "yarim ekmek antakya - 160",
+   "guvenli_ad": "Yarım Ekmek Antakya - 160",
+   "tr_buyuk": "YARIM EKMEK ANTAKYA - 160",
+   "hex": "CONVERT(0x596172C4B16D20456B6D656B20416E74616B7961202D20313630 USING utf8)",
+   "odeme_satiri": false,
+   "duzelt_ad": "Yarım Ekmek Antakya - 160",
+   "emojisiz": "Yarım Ekmek Antakya - 160 ☕",
+   "porsiyonlari_coz": []
+  },
+  {
+   "girdi": "Su 0,5 lt - 15",
+   "satiri_coz": [
+    "Su 0,5 lt",
+    "",
+    15.0,
+    []
+   ],
+   "porsiyon_ayir": null,
+   "fiyat_coz": null,
+   "porsiyon_etiketi": "Su 0,5 lt - 15",
+   "norm": "su 0,5 lt - 15",
+   "pors_norm": "su 0,5 lt - 15",
+   "guvenli_ad": "Su 0,5 lt - 15",
+   "tr_buyuk": "SU 0,5 LT - 15",
+   "hex": "CONVERT(0x537520302C35206C74202D203135 USING utf8)",
+   "odeme_satiri": false,
+   "duzelt_ad": "Su 0,5 lt - 15",
+   "emojisiz": "Su 0,5 lt - 15 ☕",
+   "porsiyonlari_coz": [
+    [
+     "Su 0,5 lt - 15",
+     null
+    ]
+   ]
+  },
+  {
+   "girdi": "Et Döner Porsiyon | et döner | 250 | Az=180; 1,5=350; Duble=450",
+   "satiri_coz": [
+    "Et Döner Porsiyon",
+    "et döner",
+    250.0,
+    [
+     [
+      "Az",
+      180.0
+     ],
+     [
+      "1,5",
+      350.0
+     ],
+     [
+      "Duble",
+      450.0
+     ]
+    ]
+   ],
+   "porsiyon_ayir": null,
+   "fiyat_coz": null,
+   "porsiyon_etiketi": "Et Döner Porsiyon | et döner | 250 | Az=180; 1,5=350; Duble=450",
+   "norm": "et doner porsiyon | et doner | 250 | az=180; 1,5=350; duble=450",
+   "pors_norm": "et doner porsiyon | et doner | 250 | az=180; 1,5=350; duble=450",
+   "guvenli_ad": "Et Döner Porsiyon et döner 250 Az=180; 1,5=350; Duble=450",
+   "tr_buyuk": "ET DÖNER PORSİYON | ET DÖNER | 250 | AZ=180; 1,5=350; DUBLE=450",
+   "hex": "CONVERT(0x45742044C3B66E657220506F727369796F6E207C2065742064C3B66E6572207C20323530207C20417A3D3138303B20312C353D3335303B204475626C653D343530 USING utf8)",
+   "odeme_satiri": false,
+   "duzelt_ad": "Et Döner Porsiyon | et döner | 250 | Az=180; 1,5=350; Duble=450",
+   "emojisiz": "Et Döner Porsiyon | et döner | 250 | Az=180; 1,5=350; Duble=450 ☕",
+   "porsiyonlari_coz": [
+    [
+     "Et Döner Porsiyon | et döner | 250 | Az",
+     180.0
+    ],
+    [
+     "1,5",
+     350.0
+    ],
+    [
+     "Duble",
+     450.0
+    ]
+   ]
+  },
+  {
+   "girdi": "Pizza (Büyük)",
+   "satiri_coz": [
+    "Pizza (Büyük)",
+    "",
+    null,
+    []
+   ],
+   "porsiyon_ayir": [
+    "Pizza",
+    "Büyük",
+    false
+   ],
+   "fiyat_coz": null,
+   "porsiyon_etiketi": "Pizza (Büyük)",
+   "norm": "pizza (buyuk)",
+   "pors_norm": "pizza (buyuk)",
+   "guvenli_ad": "Pizza (Büyük)",
+   "tr_buyuk": "PİZZA (BÜYÜK)",
+   "hex": "CONVERT(0x50697A7A61202842C3BC79C3BC6B29 USING utf8)",
+   "odeme_satiri": false,
+   "duzelt_ad": "Pizza (Büyük)",
+   "emojisiz": "Pizza (Büyük) ☕",
+   "porsiyonlari_coz": [
+    [
+     "Pizza (Büyük)",
+     null
+    ]
+   ]
+  },
+  {
+   "girdi": "Tavuk Şiş 2 Porsiyon",
+   "satiri_coz": [
+    "Tavuk Şiş 2 Porsiyon",
+    "",
+    null,
+    []
+   ],
+   "porsiyon_ayir": [
+    "Tavuk Şiş",
+    "2 Porsiyon",
+    false
+   ],
+   "fiyat_coz": null,
+   "porsiyon_etiketi": "Tavuk Şiş 2",
+   "norm": "tavuk sis 2 porsiyon",
+   "pors_norm": "tavuk sis 2 porsiyon",
+   "guvenli_ad": "Tavuk Şiş 2 Porsiyon",
+   "tr_buyuk": "TAVUK ŞİŞ 2 PORSİYON",
+   "hex": "CONVERT(0x546176756B20C59E69C59F203220506F727369796F6E USING utf8)",
+   "odeme_satiri": false,
+   "duzelt_ad": "Tavuk Şiş 2 Porsiyon",
+   "emojisiz": "Tavuk Şiş 2 Porsiyon ☕",
+   "porsiyonlari_coz": [
+    [
+     "Tavuk Şiş 2",
+     null
+    ]
+   ]
+  },
+  {
+   "girdi": "Kumru: 80",
+   "satiri_coz": [
+    "Kumru",
+    "",
+    80.0,
+    []
+   ],
+   "porsiyon_ayir": null,
+   "fiyat_coz": null,
+   "porsiyon_etiketi": "Kumru: 80",
+   "norm": "kumru: 80",
+   "pors_norm": "kumru: 80",
+   "guvenli_ad": "Kumru 80",
+   "tr_buyuk": "KUMRU: 80",
+   "hex": "CONVERT(0x4B756D72753A203830 USING utf8)",
+   "odeme_satiri": false,
+   "duzelt_ad": "Kumru: 80",
+   "emojisiz": "Kumru: 80 ☕",
+   "porsiyonlari_coz": [
+    [
+     "Kumru",
+     80.0
+    ]
+   ]
+  },
+  {
+   "girdi": "Ayran 30₺",
+   "satiri_coz": [
+    "Ayran",
+    "",
+    30.0,
+    []
+   ],
+   "porsiyon_ayir": null,
+   "fiyat_coz": null,
+   "porsiyon_etiketi": "Ayran 30₺",
+   "norm": "ayran 30₺",
+   "pors_norm": "ayran 30₺",
+   "guvenli_ad": "Ayran 30₺",
+   "tr_buyuk": "AYRAN 30₺",
+   "hex": "CONVERT(0x417972616E203330E282BA USING utf8)",
+   "odeme_satiri": false,
+   "duzelt_ad": "Ayran 30₺",
+   "emojisiz": "Ayran 30₺ ☕",
+   "porsiyonlari_coz": [
+    [
+     "Ayran 30₺",
+     null
+    ]
+   ]
+  },
+  {
+   "girdi": "Sade Pişi…15",
+   "satiri_coz": [
+    "Sade Pişi",
+    "",
+    15.0,
+    []
+   ],
+   "porsiyon_ayir": null,
+   "fiyat_coz": null,
+   "porsiyon_etiketi": "Sade Pişi…15",
+   "norm": "sade pisi…15",
+   "pors_norm": "sade pisi…15",
+   "guvenli_ad": "Sade Pişi…15",
+   "tr_buyuk": "SADE PİŞİ…15",
+   "hex": "CONVERT(0x53616465205069C59F69E280A63135 USING utf8)",
+   "odeme_satiri": false,
+   "duzelt_ad": "Sade Pişi…15",
+   "emojisiz": "Sade Pişi…15 ☕",
+   "porsiyonlari_coz": [
+    [
+     "Sade Pişi…15",
+     null
+    ]
+   ]
+  },
+  {
+   "girdi": "Fiyatsız Ürün",
+   "satiri_coz": [
+    "Fiyatsız Ürün",
+    "",
+    null,
+    []
+   ],
+   "porsiyon_ayir": null,
+   "fiyat_coz": null,
+   "porsiyon_etiketi": "Fiyatsız Ürün",
+   "norm": "fiyatsiz urun",
+   "pors_norm": "fiyatsiz urun",
+   "guvenli_ad": "Fiyatsız Ürün",
+   "tr_buyuk": "FİYATSIZ ÜRÜN",
+   "hex": "CONVERT(0x466979617473C4B17A20C39C72C3BC6E USING utf8)",
+   "odeme_satiri": false,
+   "duzelt_ad": "Fiyatsız Ürün",
+   "emojisiz": "Fiyatsız Ürün ☕",
+   "porsiyonlari_coz": [
+    [
+     "Fiyatsız Ürün",
+     null
+    ]
+   ]
+  },
+  {
+   "girdi": "Çiğ Köfte Dürüm Bir Buçuk",
+   "satiri_coz": [
+    "Çiğ Köfte Dürüm Bir Buçuk",
+    "",
+    null,
+    []
+   ],
+   "porsiyon_ayir": [
+    "Çiğ Köfte Dürüm",
+    "Bir Buçuk",
+    false
+   ],
+   "fiyat_coz": null,
+   "porsiyon_etiketi": "Çiğ Köfte Dürüm Bir Buçuk",
+   "norm": "cig kofte durum bir bucuk",
+   "pors_norm": "cig kofte durum bir bucuk",
+   "guvenli_ad": "Çiğ Köfte Dürüm Bir Buçuk",
+   "tr_buyuk": "ÇİĞ KÖFTE DÜRÜM BİR BUÇUK",
+   "hex": "CONVERT(0xC38769C49F204BC3B66674652044C3BC72C3BC6D20426972204275C3A7756B USING utf8)",
+   "odeme_satiri": false,
+   "duzelt_ad": "Çiğ Köfte Dürüm Bir Buçuk",
+   "emojisiz": "Çiğ Köfte Dürüm Bir Buçuk ☕",
+   "porsiyonlari_coz": []
+  },
+  {
+   "girdi": "Içli köfte - 25 TRY",
+   "satiri_coz": [
+    "Içli köfte",
+    "",
+    25.0,
+    []
+   ],
+   "porsiyon_ayir": null,
+   "fiyat_coz": null,
+   "porsiyon_etiketi": "Içli köfte - 25 TRY",
+   "norm": "icli kofte - 25 try",
+   "pors_norm": "icli kofte - 25 try",
+   "guvenli_ad": "Içli köfte - 25 TRY",
+   "tr_buyuk": "IÇLİ KÖFTE - 25 TRY",
+   "hex": "CONVERT(0x49C3A76C69206BC3B6667465202D20323520545259 USING utf8)",
+   "odeme_satiri": false,
+   "duzelt_ad": "Içli köfte - 25 TRY",
+   "emojisiz": "Içli köfte - 25 TRY ☕",
+   "porsiyonlari_coz": [
+    [
+     "Içli köfte - 25 TRY",
+     null
+    ]
+   ]
+  },
+  {
+   "girdi": "Ürün / Mega",
+   "satiri_coz": [
+    "Ürün / Mega",
+    "",
+    null,
+    []
+   ],
+   "porsiyon_ayir": [
+    "Ürün",
+    "Mega",
+    false
+   ],
+   "fiyat_coz": null,
+   "porsiyon_etiketi": "Ürün / Mega",
+   "norm": "urun / mega",
+   "pors_norm": "urun / mega",
+   "guvenli_ad": "Ürün Mega",
+   "tr_buyuk": "ÜRÜN / MEGA",
+   "hex": "CONVERT(0xC39C72C3BC6E202F204D656761 USING utf8)",
+   "odeme_satiri": false,
+   "duzelt_ad": "Ürün / Mega",
+   "emojisiz": "Ürün / Mega ☕",
+   "porsiyonlari_coz": [
+    [
+     "Ürün",
+     null
+    ],
+    [
+     "Mega",
+     null
+    ]
+   ]
+  },
+  {
+   "girdi": "  boşluklu   ürün  .  ",
+   "satiri_coz": [
+    "boşluklu   ürün  .",
+    "",
+    null,
+    []
+   ],
+   "porsiyon_ayir": null,
+   "fiyat_coz": null,
+   "porsiyon_etiketi": "Boşluklu ürün .",
+   "norm": "bosluklu   urun",
+   "pors_norm": "bosluklu urun .",
+   "guvenli_ad": "boşluklu ürün ",
+   "tr_buyuk": "  BOŞLUKLU   ÜRÜN  .  ",
+   "hex": "CONVERT(0x2020626FC59F6C756B6C75202020C3BC72C3BC6E20202E2020 USING utf8)",
+   "odeme_satiri": false,
+   "duzelt_ad": "boşluklu ürün",
+   "emojisiz": "boşluklu ürün . ☕",
+   "porsiyonlari_coz": [
+    [
+     "Boşluklu ürün .",
+     null
+    ]
+   ]
+  },
+  {
+   "girdi": "ÖDEME: Sodexo, Multinet",
+   "satiri_coz": [
+    "ÖDEME: Sodexo, Multinet",
+    "",
+    null,
+    []
+   ],
+   "porsiyon_ayir": null,
+   "fiyat_coz": null,
+   "porsiyon_etiketi": "ÖDEME: Sodexo, Multinet",
+   "norm": "odeme: sodexo, multinet",
+   "pors_norm": "odeme: sodexo, multinet",
+   "guvenli_ad": "ÖDEME Sodexo, Multinet",
+   "tr_buyuk": "ÖDEME: SODEXO, MULTİNET",
+   "hex": "CONVERT(0xC39644454D453A20536F6465786F2C204D756C74696E6574 USING utf8)",
+   "odeme_satiri": true,
+   "duzelt_ad": "ÖDEME: Sodexo, Multinet",
+   "emojisiz": "ÖDEME: Sodexo, Multinet ☕",
+   "porsiyonlari_coz": [
+    [
+     "Multinet",
+     null
+    ]
+   ]
+  },
+  {
+   "girdi": "Ödeme yöntemleri = Yemek Kartı",
+   "satiri_coz": [
+    "Ödeme yöntemleri = Yemek Kartı",
+    "",
+    null,
+    []
+   ],
+   "porsiyon_ayir": null,
+   "fiyat_coz": null,
+   "porsiyon_etiketi": "Ödeme yöntemleri = Yemek Kartı",
+   "norm": "odeme yontemleri = yemek karti",
+   "pors_norm": "odeme yontemleri = yemek karti",
+   "guvenli_ad": "Ödeme yöntemleri = Yemek Kartı",
+   "tr_buyuk": "ÖDEME YÖNTEMLERİ = YEMEK KARTI",
+   "hex": "CONVERT(0xC39664656D652079C3B66E74656D6C657269203D2059656D656B204B617274C4B1 USING utf8)",
+   "odeme_satiri": true,
+   "duzelt_ad": "Ödeme yöntemleri = Yemek Kartı",
+   "emojisiz": "Ödeme yöntemleri = Yemek Kartı ☕",
+   "porsiyonlari_coz": []
+  },
+  {
+   "girdi": "Ünlü İstanbul Çıtır Şişe Ğ",
+   "satiri_coz": [
+    "Ünlü İstanbul Çıtır Şişe Ğ",
+    "",
+    null,
+    []
+   ],
+   "porsiyon_ayir": null,
+   "fiyat_coz": null,
+   "porsiyon_etiketi": "Ünlü İstanbul Çıtır Şişe Ğ",
+   "norm": "unlu istanbul citir sise g",
+   "pors_norm": "unlu istanbul citir sise g",
+   "guvenli_ad": "Ünlü İstanbul Çıtır Şişe Ğ",
+   "tr_buyuk": "ÜNLÜ İSTANBUL ÇITIR ŞİŞE Ğ",
+   "hex": "CONVERT(0xC39C6E6CC3BC20C4B07374616E62756C20C387C4B174C4B17220C59E69C59F6520C49E USING utf8)",
+   "odeme_satiri": false,
+   "duzelt_ad": "Ünlü İstanbul Çıtır Şişe Ğ",
+   "emojisiz": "Ünlü İstanbul Çıtır Şişe Ğ ☕",
+   "porsiyonlari_coz": []
+  },
+  {
+   "girdi": "Kıvırcık marul",
+   "satiri_coz": [
+    "Kıvırcık marul",
+    "",
+    null,
+    []
+   ],
+   "porsiyon_ayir": null,
+   "fiyat_coz": null,
+   "porsiyon_etiketi": "Kıvırcık marul",
+   "norm": "kivircik marul",
+   "pors_norm": "kivircik marul",
+   "guvenli_ad": "Kıvırcık marul",
+   "tr_buyuk": "KIVIRCIK MARUL",
+   "hex": "CONVERT(0x4BC4B176C4B17263C4B16B206D6172756C USING utf8)",
+   "odeme_satiri": false,
+   "duzelt_ad": "Kıvırcık marul",
+   "emojisiz": "Kıvırcık marul ☕",
+   "porsiyonlari_coz": [
+    [
+     "Kıvırcık marul",
+     null
+    ]
+   ]
+  },
+  {
+   "girdi": "Patatesli Pişi............20",
+   "satiri_coz": [
+    "Patatesli Pişi",
+    "",
+    20.0,
+    []
+   ],
+   "porsiyon_ayir": null,
+   "fiyat_coz": null,
+   "porsiyon_etiketi": "Patatesli Pişi............20",
+   "norm": "patatesli pisi            20",
+   "pors_norm": "patatesli pisi............20",
+   "guvenli_ad": "Patatesli Pişi............20",
+   "tr_buyuk": "PATATESLİ PİŞİ............20",
+   "hex": "CONVERT(0x506174617465736C69205069C59F692E2E2E2E2E2E2E2E2E2E2E2E3230 USING utf8)",
+   "odeme_satiri": false,
+   "duzelt_ad": "Patatesli Pişi 20",
+   "emojisiz": "Patatesli Pişi............20 ☕",
+   "porsiyonlari_coz": []
+  },
+  {
+   "girdi": "Mangal Sucuk 1.250",
+   "satiri_coz": [
+    "Mangal Sucuk 1.250",
+    "",
+    null,
+    []
+   ],
+   "porsiyon_ayir": null,
+   "fiyat_coz": null,
+   "porsiyon_etiketi": "Mangal Sucuk 1,250",
+   "norm": "mangal sucuk 1 250",
+   "pors_norm": "mangal sucuk 1.250",
+   "guvenli_ad": "Mangal Sucuk 1.250",
+   "tr_buyuk": "MANGAL SUCUK 1.250",
+   "hex": "CONVERT(0x4D616E67616C20537563756B20312E323530 USING utf8)",
+   "odeme_satiri": false,
+   "duzelt_ad": "Mangal Sucuk 1.250",
+   "emojisiz": "Mangal Sucuk 1.250 ☕",
+   "porsiyonlari_coz": [
+    [
+     "Mangal Sucuk 1,250",
+     null
+    ]
+   ]
+  },
+  {
+   "girdi": "Tost 87.50 TL",
+   "satiri_coz": [
+    "Tost",
+    "",
+    87.5,
+    []
+   ],
+   "porsiyon_ayir": null,
+   "fiyat_coz": null,
+   "porsiyon_etiketi": "Tost 87,50 TL",
+   "norm": "tost 87 50 tl",
+   "pors_norm": "tost 87.50 tl",
+   "guvenli_ad": "Tost 87.50 TL",
+   "tr_buyuk": "TOST 87.50 TL",
+   "hex": "CONVERT(0x546F73742038372E353020544C USING utf8)",
+   "odeme_satiri": false,
+   "duzelt_ad": "Tost 87.50 TL",
+   "emojisiz": "Tost 87.50 TL ☕",
+   "porsiyonlari_coz": [
+    [
+     "Tost 87,50 TL",
+     null
+    ]
+   ]
+  },
+  {
+   "girdi": "Kahve Orta",
+   "satiri_coz": [
+    "Kahve Orta",
+    "",
+    null,
+    []
+   ],
+   "porsiyon_ayir": [
+    "Kahve",
+    "Orta",
+    false
+   ],
+   "fiyat_coz": null,
+   "porsiyon_etiketi": "Kahve Orta",
+   "norm": "kahve orta",
+   "pors_norm": "kahve orta",
+   "guvenli_ad": "Kahve Orta",
+   "tr_buyuk": "KAHVE ORTA",
+   "hex": "CONVERT(0x4B61687665204F727461 USING utf8)",
+   "odeme_satiri": false,
+   "duzelt_ad": "Kahve Orta",
+   "emojisiz": "Kahve Orta ☕",
+   "porsiyonlari_coz": [
+    [
+     "Kahve Orta",
+     null
+    ]
+   ]
+  },
+  {
+   "girdi": "Menemen Tek",
+   "satiri_coz": [
+    "Menemen Tek",
+    "",
+    null,
+    []
+   ],
+   "porsiyon_ayir": [
+    "Menemen",
+    "Tek",
+    false
+   ],
+   "fiyat_coz": null,
+   "porsiyon_etiketi": "Menemen Tek",
+   "norm": "menemen tek",
+   "pors_norm": "menemen tek",
+   "guvenli_ad": "Menemen Tek",
+   "tr_buyuk": "MENEMEN TEK",
+   "hex": "CONVERT(0x4D656E656D656E2054656B USING utf8)",
+   "odeme_satiri": false,
+   "duzelt_ad": "Menemen Tek",
+   "emojisiz": "Menemen Tek ☕",
+   "porsiyonlari_coz": [
+    [
+     "Menemen Tek",
+     null
+    ]
+   ]
+  },
+  {
+   "girdi": "Bal 0.5",
+   "satiri_coz": [
+    "Bal 0.5",
+    "",
+    null,
+    []
+   ],
+   "porsiyon_ayir": [
+    "Bal",
+    "0,5",
+    false
+   ],
+   "fiyat_coz": null,
+   "porsiyon_etiketi": "Bal 0,5",
+   "norm": "bal 0 5",
+   "pors_norm": "bal 0.5",
+   "guvenli_ad": "Bal 0.5",
+   "tr_buyuk": "BAL 0.5",
+   "hex": "CONVERT(0x42616C20302E35 USING utf8)",
+   "odeme_satiri": false,
+   "duzelt_ad": "Bal 0.5",
+   "emojisiz": "Bal 0.5 ☕",
+   "porsiyonlari_coz": [
+    [
+     "Bal 0,5",
+     null
+    ]
+   ]
+  },
+  {
+   "girdi": "İçecek 12.345,67 TL",
+   "satiri_coz": [
+    "İçecek",
+    "",
+    12345.67,
+    []
+   ],
+   "porsiyon_ayir": null,
+   "fiyat_coz": null,
+   "porsiyon_etiketi": "İçecek 12,345,67 TL",
+   "norm": "icecek 12 345,67 tl",
+   "pors_norm": "icecek 12.345,67 tl",
+   "guvenli_ad": "İçecek 12.345,67 TL",
+   "tr_buyuk": "İÇECEK 12.345,67 TL",
+   "hex": "CONVERT(0xC4B0C3A76563656B2031322E3334352C363720544C USING utf8)",
+   "odeme_satiri": false,
+   "duzelt_ad": "İçecek 12.345,67 TL",
+   "emojisiz": "İçecek 12.345,67 TL ☕",
+   "porsiyonlari_coz": [
+    [
+     "İçecek 12,345,67 TL",
+     null
+    ]
+   ]
+  },
+  {
+   "girdi": "Çay 7,5 TL",
+   "satiri_coz": [
+    "Çay",
+    "",
+    7.5,
+    []
+   ],
+   "porsiyon_ayir": null,
+   "fiyat_coz": null,
+   "porsiyon_etiketi": "Çay 7,5 TL",
+   "norm": "cay 7,5 tl",
+   "pors_norm": "cay 7,5 tl",
+   "guvenli_ad": "Çay 7,5 TL",
+   "tr_buyuk": "ÇAY 7,5 TL",
+   "hex": "CONVERT(0xC387617920372C3520544C USING utf8)",
+   "odeme_satiri": false,
+   "duzelt_ad": "Çay 7,5 TL",
+   "emojisiz": "Çay 7,5 TL ☕",
+   "porsiyonlari_coz": [
+    [
+     "Çay 7,5 TL",
+     null
+    ]
+   ]
+  },
+  {
+   "girdi": "x 0 TL",
+   "satiri_coz": [
+    "x",
+    "",
+    null,
+    []
+   ],
+   "porsiyon_ayir": null,
+   "fiyat_coz": null,
+   "porsiyon_etiketi": "X 0 TL",
+   "norm": "x 0 tl",
+   "pors_norm": "x 0 tl",
+   "guvenli_ad": "x 0 TL",
+   "tr_buyuk": "X 0 TL",
+   "hex": "CONVERT(0x78203020544C USING utf8)",
+   "odeme_satiri": false,
+   "duzelt_ad": "x 0 TL",
+   "emojisiz": "x 0 TL ☕",
+   "porsiyonlari_coz": [
+    [
+     "X 0 TL",
+     null
+    ]
+   ]
+  },
+  {
+   "girdi": "Cola: abc",
+   "satiri_coz": [
+    "Cola: abc",
+    "",
+    null,
+    []
+   ],
+   "porsiyon_ayir": null,
+   "fiyat_coz": null,
+   "porsiyon_etiketi": "Cola: abc",
+   "norm": "cola: abc",
+   "pors_norm": "cola: abc",
+   "guvenli_ad": "Cola abc",
+   "tr_buyuk": "COLA: ABC",
+   "hex": "CONVERT(0x436F6C613A20616263 USING utf8)",
+   "odeme_satiri": false,
+   "duzelt_ad": "Cola: abc",
+   "emojisiz": "Cola: abc ☕",
+   "porsiyonlari_coz": []
+  }
+ ],
+ "fiyat": [
+  [
+   "250",
+   250.0
+  ],
+  [
+   "87,50",
+   87.5
+  ],
+  [
+   "1.250,00",
+   1250.0
+  ],
+  [
+   "₺ 99",
+   99.0
+  ],
+  [
+   "1.250",
+   1250.0
+  ],
+  [
+   "0",
+   null
+  ],
+  [
+   "-5",
+   null
+  ],
+  [
+   "abc",
+   null
+  ],
+  [
+   "12.5",
+   12.5
+  ],
+  [
+   "1,5",
+   1.5
+  ],
+  [
+   " 45 tl ",
+   45.0
+  ],
+  [
+   "1 250",
+   1250.0
+  ],
+  [
+   "99.999",
+   99999.0
+  ],
+  [
+   "7,5",
+   7.5
+  ]
+ ],
+ "sayi": [
+  [
+   1,
+   "1"
+  ],
+  [
+   1.0,
+   "1"
+  ],
+  [
+   250,
+   "250"
+  ],
+  [
+   87.5,
+   "87.5"
+  ],
+  [
+   12.345,
+   "12.35"
+  ],
+  [
+   0.1,
+   "0.1"
+  ],
+  [
+   1250.0,
+   "1250"
+  ],
+  [
+   99.999,
+   "100"
+  ],
+  [
+   10,
+   "10"
+  ],
+  [
+   0.005,
+   "0.01"
+  ],
+  [
+   2.675,
+   "2.67"
+  ]
+ ],
+ "gfmt": [
+  [
+   250.0,
+   "250"
+  ],
+  [
+   87.5,
+   "87.5"
+  ],
+  [
+   1250.0,
+   "1250"
+  ],
+  [
+   220.5,
+   "220.5"
+  ],
+  [
+   12345.67,
+   "12345.7"
+  ],
+  [
+   0.5,
+   "0.5"
+  ],
+  [
+   1234567.0,
+   "1.23457e+06"
+  ],
+  [
+   7.25,
+   "7.25"
+  ],
+  [
+   100.0,
+   "100"
+  ],
+  [
+   1e-05,
+   "1e-05"
+  ]
+ ],
+ "pors_yaz": "Az=150; 1,5=280.5"
+}

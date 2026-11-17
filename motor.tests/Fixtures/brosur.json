@@ -1,0 +1,182 @@
+{
+ "liste": "•Anne Köftesi Yarım Ekmek 250 TL\n3 Parça 400 TL\n•Tavuk Bonfile Yarım Ekmek 150 TL\n•Mangalda Sucuklu Kumru 150 TL\n•cheddar ve ranch sos ile tatlandırmak isterseniz 10 TL fark bulunmaktadır.\n•Tavuklu Pilav Tek 150 TL\nBuçuk 225 TL\nDuble 300 TL\n•Anne Köftesi 200 gram Porsiyon 500 TL\n•Acılı Şalgam 50 TL\n•Patates Kızartması 150 TL\n•Kola 60 TL\nÖDEME: Sodexo\nTüm yemek kartları ve banka kartları geçerlidir.",
+ "sonuc": "# A\nAnne Köftesi | x | 250 | 3 Parça=400\nNohutlu Tavuklu Pilav | x | 150 | Buçuk=225\nYarım Ekmek Köfte + Patates + Kola | x | 350\nKola | x | 60",
+ "eksik": [
+  "Tavuk Bonfile Yarım Ekmek",
+  "Mangalda Sucuklu Kumru",
+  "Anne Köftesi 200 gram Porsiyon",
+  "Acılı Şalgam",
+  "Patates Kızartması"
+ ],
+ "veri": {
+  "urunler": [
+   {
+    "kategori": "Izgara & Et Ürünleri",
+    "pisme": "Izgara",
+    "tip": "Sadece Yemek",
+    "ad": "Anne Köftesi",
+    "arama": "köfte ekmek arası",
+    "fiyat": 250,
+    "porsiyonlar": [
+     {
+      "ad": "3 Parça",
+      "fiyat": 400
+     }
+    ],
+    "resim": {
+     "sayfa": 1,
+     "kutu": [
+      325,
+      218,
+      390,
+      282
+     ]
+    }
+   },
+   {
+    "kategori": "Izgara & Et Ürünleri",
+    "pisme": "Izgara",
+    "tip": "Sadece Yemek",
+    "ad": "Anne Köftesi Porsiyon (200 gr)",
+    "arama": "köfte | porsiyon",
+    "fiyat": "500,00",
+    "porsiyonlar": [],
+    "resim": null
+   },
+   {
+    "kategori": "Pilav Çeşitleri",
+    "pisme": "Haşlama",
+    "tip": "sadece yemek",
+    "ad": "Nohutlu Tavuklu Pilav",
+    "fiyat": 150.0,
+    "porsiyonlar": [
+     {
+      "ad": "buçuk",
+      "fiyat": 225
+     },
+     {
+      "ad": "Duble"
+     },
+     {
+      "fiyat": 9
+     }
+    ],
+    "resim": {
+     "sayfa": 2,
+     "kutu": [
+      655,
+      218,
+      722,
+      285
+     ]
+    }
+   },
+   {
+    "kategori": "",
+    "pisme": null,
+    "tip": "MENÜ",
+    "ad": "Yarım Ekmek Köfte + Patates + Kola",
+    "arama": "",
+    "fiyat": 0,
+    "resim": {
+     "sayfa": 3,
+     "kutu": [
+      1,
+      2,
+      3,
+      4
+     ]
+    }
+   },
+   {
+    "kategori": "Menüler",
+    "pisme": "Kızartma",
+    "tip": "Menü",
+    "ad": "Çıtır Tabağı + Kola",
+    "arama": "çıtır tabağı",
+    "fiyat": 250.5,
+    "resim": {
+     "sayfa": 1,
+     "kutu": [
+      700,
+      818,
+      "x",
+      940
+     ]
+    }
+   },
+   {
+    "kategori": "Pilav Çeşitleri",
+    "pisme": "Haşlama",
+    "tip": "Sadece Yemek",
+    "ad": "Ciğerli Pilav",
+    "fiyat": null
+   },
+   {
+    "ad": "  "
+   }
+  ],
+  "odeme": [
+   "Ticket",
+   "Setcard",
+   " ",
+   "Kredi Kartı"
+  ],
+  "farklar": [
+   "Acılı Şalgam sadece listede",
+   ""
+  ]
+ },
+ "dosyalar": [
+  "a.jpg",
+  "b.jpg"
+ ],
+ "metin": "# Izgara & Et Ürünleri\n## Izgara\n### Sadece Yemek\nAnne Köftesi | köfte ekmek arası | 250 | 3 Parça=400\nAnne Köftesi Porsiyon (200 gr) | köfte   porsiyon | 500\n\n# Pilav Çeşitleri\n## Haşlama\n### Sadece Yemek\nNohutlu Tavuklu Pilav | Nohutlu Tavuklu Pilav | 150 | Buçuk=225; Duble\nCiğerli Pilav | Ciğerli Pilav\n\n# Genel\n## Hazır\n### Menü\nYarım Ekmek Köfte + Patates + Kola | Yarım Ekmek Köfte + Patates + Kola\n\n# Menüler\n## Kızartma\n### Menü\nÇıtır Tabağı + Kola | çıtır tabağı | 250.5\n\nÖDEME: Ticket, Setcard, Kredi Kartı",
+ "kirp": {
+  "anne koftesi": [
+   "a.jpg",
+   [
+    325.0,
+    218.0,
+    390.0,
+    282.0
+   ]
+  ],
+  "nohutlu tavuklu pilav": [
+   "b.jpg",
+   [
+    655.0,
+    218.0,
+    722.0,
+    285.0
+   ]
+  ]
+ },
+ "farklar": [
+  "Acılı Şalgam sadece listede"
+ ],
+ "json_coz": [
+  [
+   "```json\n{\"a\": 1, \"b\": [1,2,],}\n```",
+   {
+    "a": 1,
+    "b": [
+     1,
+     2
+    ]
+   }
+  ],
+  [
+   "Önce açıklama {\"urunler\": []} sonra",
+   {
+    "urunler": []
+   }
+  ],
+  [
+   "{\"x\": \"y\"}",
+   {
+    "x": "y"
+   }
+  ]
+ ]
+}

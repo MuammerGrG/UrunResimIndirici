@@ -1,0 +1,66 @@
+{
+ "zip": "klasor.zip",
+ "kategoriler": [
+  [
+   "Genel",
+   [
+    [
+     "Kök Resim",
+     "Kök Resim",
+     null,
+     []
+    ]
+   ]
+  ],
+  [
+   "Dönerler/Izgara/Sadece Yemek",
+   [
+    [
+     "Et Dürüm",
+     "Et Dürüm - 180",
+     180.0,
+     [
+      [
+       "Duble",
+       260.0
+      ]
+     ]
+    ]
+   ]
+  ],
+  [
+   "İçecekler",
+   [
+    [
+     "Şalgam",
+     "Şalgam",
+     null,
+     []
+    ]
+   ]
+  ],
+  [
+   "Burgerler",
+   [
+    [
+     "Cheeseburger",
+     "Cheeseburger 250 TL",
+     250.0,
+     []
+    ],
+    [
+     "Çıtır Tavuk Burger",
+     "Çıtır Tavuk Burger",
+     null,
+     []
+    ]
+   ]
+  ]
+ ],
+ "anahtarlar": [
+  "Genel",
+  "Dönerler/Izgara/Sadece Yemek",
+  "İçecekler",
+  "Burgerler"
+ ]
+}

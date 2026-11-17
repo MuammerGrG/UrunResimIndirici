@@ -1,0 +1,140 @@
+{
+ "arama": [
+  [
+   "Turp",
+   "Turp",
+   "Sebzeler",
+   "kırmızı turp sebze -ameliyat -prostat -hastane -urology"
+  ],
+  [
+   "Roka",
+   "",
+   "Yeşillikler",
+   "roka yeşillik demet -gözlük -güneş"
+  ],
+  [
+   "Limon lamas yatak",
+   "Limon lamas yatak",
+   "Meyveler",
+   "lamas limonu meyve -yatak -örtü -nevresim"
+  ],
+  [
+   "Mazoma biber",
+   "Mazoma biber",
+   "Sebzeler",
+   "Mazoma biber sebze"
+  ],
+  [
+   "Elma starking",
+   "Elma starking",
+   "Meyveler",
+   "starking elma"
+  ],
+  [
+   "Cheeseburger",
+   "Cheeseburger",
+   "Burger/Izgara/Sadece Yemek",
+   "Cheeseburger"
+  ],
+  [
+   "Ayran",
+   "Ayran",
+   "İçecekler/Hazır/Sadece Yemek",
+   "Ayran içecek"
+  ],
+  [
+   "Kola",
+   "kola kutu",
+   "İçecekler",
+   "kola kutu"
+  ],
+  [
+   "Yatak Ürünü",
+   "",
+   "Diğer",
+   "Ürünü"
+  ],
+  [
+   "Künefe",
+   "",
+   "Tatlılar",
+   "Künefe tatlı"
+  ],
+  [
+   "Kayısı",
+   "",
+   "Kuruyemiş",
+   "Kayısı kuruyemiş"
+  ]
+ ],
+ "puan": [
+  [
+   {
+    "title": "Roka Güneş Gözlüğü",
+    "url": ""
+   },
+   "Roka",
+   -1
+  ],
+  [
+   {
+    "title": "Lamas Yatak Örtüsü Sarı",
+    "url": ""
+   },
+   "Limon lamas yatak",
+   -1
+  ],
+  [
+   {
+    "title": "Types of TURP prostate",
+    "url": "https://lybrate.com"
+   },
+   "Turp",
+   -1
+  ],
+  [
+   {
+    "title": "Taze Roka Demet",
+    "url": "x",
+    "width": "800",
+    "height": 800
+   },
+   "Roka",
+   3
+  ],
+  [
+   {
+    "title": "Kırmızı turp",
+    "image": "a.jpg",
+    "width": "900 px",
+    "height": "850"
+   },
+   "Turp",
+   3
+  ],
+  [
+   {
+    "title": "x"
+   },
+   "Domates",
+   0
+  ],
+  [
+   {
+    "title": "Domates sebze",
+    "url": "https://www.memorial.com.tr/a"
+   },
+   "Domates",
+   -1
+  ],
+  [
+   {
+    "title": "Çiğ Köfte",
+    "width": 300,
+    "height": 300
+   },
+   "Çiğ köfte dürüm",
+   4
+  ]
+ ]
+}

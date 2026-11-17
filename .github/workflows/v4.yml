@@ -1,0 +1,65 @@
+# v4 (C# motor + Electron arayüz) geliştirme dalı: derle + test. Yayın yapmaz.
+name: v4 derle ve test
+
+on:
+  push:
+    branches: [v4]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  motor:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Motor test
+        id: test
+        shell: pwsh
+        continue-on-error: true
+        run: |
+          dotnet test motor.tests/Motor.Tests.csproj -c Release --logger "console;verbosity=normal" 2>&1 | Tee-Object -FilePath ci.txt
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+
+      - name: Motor yayın (tek exe)
+        id: yayin
+        if: steps.test.outcome == 'success'
+        shell: pwsh
+        continue-on-error: true
+        run: |
+          dotnet publish motor/Motor.csproj -c Release -r win-x64 -o motor-cikti 2>&1 | Tee-Object -FilePath yayin.txt
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+          Get-ChildItem motor-cikti | Format-Table Name, Length | Out-String | Tee-Object -FilePath yayin.txt -Append
+          '{"id":1,"komut":"ayristir","arg":{"metin":"# Döner\nTavuk Döner Az 150\nTavuk Döner Tam 200"}}' | ./motor-cikti/Motor.exe | Tee-Object -FilePath yayin.txt -Append
+
+      - name: Sonuçları ci-log dalına yaz
+        if: always()
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force cilog | Out-Null
+          if (Test-Path ci.txt) { Copy-Item ci.txt cilog/ }
+          if (Test-Path yayin.txt) { Copy-Item yayin.txt cilog/ }
+          "test=${{ steps.test.outcome }} yayin=${{ steps.yayin.outcome }} sha=${{ github.sha }}" | Set-Content cilog/durum.txt
+          cd cilog
+          git init -q
+          git config user.name "ci"
+          git config user.email "ci@users.noreply.github.com"
+          git add -A
+          git commit -q -m "ci ${{ github.sha }}"
+          git push -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" HEAD:ci-log
+
+      - name: Test sonucu
+        if: steps.test.outcome != 'success' || steps.yayin.outcome == 'failure'
+        run: exit 1
+
+      - uses: actions/upload-artifact@v4
+        if: steps.yayin.outcome == 'success'
+        with:
+          name: motor
+          path: motor-cikti/Motor.exe
