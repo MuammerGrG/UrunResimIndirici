@@ -1,6 +1,6 @@
 // Ürün Resim İndirici — arayüz mantığı
 'use strict';
-const api = window.api;
+// window.api: preload.js (contextBridge)
 const $ = (s, k = document) => k.querySelector(s);
 const $$ = (s, k = document) => [...k.querySelectorAll(s)];
 
