@@ -862,5 +862,4 @@ SADECE şu JSON'u döndür:
                 return BrosurJsonMetne(JsonCoz(await Mistral(ilk6, s.MistralAnahtar, istem, log, t, jsonMod: true)), ilk6) with { Kirpmalar = new() };
             });
     }
-    }
 }
