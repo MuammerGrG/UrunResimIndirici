@@ -13,3 +13,4 @@ dist/
 *.spec
 __pycache__/
 _guncelle_tmp.cmd
+son_log.txt

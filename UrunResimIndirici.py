@@ -48,7 +48,7 @@ BOYUT = 600
 KLASOR = (os.path.dirname(sys.executable) if getattr(sys, "frozen", False)
           else os.path.dirname(os.path.abspath(__file__)))
 AYAR_DOSYASI = os.path.join(KLASOR, "ayarlar.json")
-SURUM = "2.6"
+SURUM = "2.7"
 GITHUB_REPO = "MuammerGrG/UrunResimIndirici"     # ayarlar.json > "github_repo" ile değiştirilebilir
 GEMINI_MODELLER = ["gemini-2.5-flash", "gemini-flash-latest", "gemini-2.5-flash-lite"]   # yedek; asıl liste Google'dan çekilir
 _GEMINI_CACHE = {}
@@ -502,6 +502,8 @@ def menu_dosyalarini_topla(yollar):
 def _gemini(grup, api_key, model_tercih, istem=MENU_PROMPT, log=print, json_mod=False, resim_boyu=1600):
     """Gemini'ye istek atar. Her adımı log'a yazar; takılı kalmaz (süre sınırlı)."""
     parcalar = []
+    if grup:
+        log(f"   {len(grup)} resim hazırlanıyor...")
     for g in grup:
         mime, veri = _dosya_hazirla(g, resim_boyu)
         parcalar.append({"inline_data": {"mime_type": mime, "data": veri}})
@@ -524,18 +526,30 @@ def _gemini(grup, api_key, model_tercih, istem=MENU_PROMPT, log=print, json_mod=
         for deneme in range(3):
             log(f"   → {model} deneniyor" + (f" (tekrar {deneme})" if deneme else "") + "...")
             baslangic = time.time()
+            bitti = threading.Event()
+
+            def nabiz(m=model, t0=baslangic):
+                while not bitti.wait(20):
+                    log(f"   … {m} cevap bekleniyor ({int(time.time() - t0)} sn)")
+            threading.Thread(target=nabiz, daemon=True).start()
             try:
                 r = requests.post(url, params={"key": api_key}, json=govde, timeout=(15, zaman))
             except requests.Timeout:
+                bitti.set()
                 log(f"   {model}: {zaman} sn içinde cevap vermedi, sonraki modele geçiliyor.")
                 hatalar.append(f"{model}: zaman aşımı")
                 r = None
                 break
             except requests.RequestException as e:
+                bitti.set()
                 log(f"   {model}: bağlantı hatası ({e.__class__.__name__}).")
                 hatalar.append(f"{model}: bağlantı")
                 r = None
                 break
+            except Exception:
+                bitti.set()
+                raise
+            bitti.set()
             sure = int(time.time() - baslangic)
             if r.status_code == 429:             # ücretsiz kota (dakikalık/günlük)
                 gun = "per day" in r.text.lower() or "PerDay" in r.text
@@ -2564,9 +2578,23 @@ def pencere():
                    variable=yenile_var).pack(side="left", padx=12)
     a_cer.columnconfigure(1, weight=1)
 
-    log_kutu = scrolledtext.ScrolledText(kok, height=9, font=("Consolas", 9), state="disabled")
+    log_kutu = scrolledtext.ScrolledText(kok, height=7, font=("Consolas", 9), state="disabled")
+
+    log_dosyasi = os.path.join(KLASOR, "son_log.txt")
+    try:
+        open(log_dosyasi, "w", encoding="utf-8").write(f"Ürün Resim İndirici v{SURUM}  "
+                                                     f"{time.strftime('%Y-%m-%d %H:%M:%S')}\n")
+    except OSError:
+        log_dosyasi = None
 
     def log(msg):
+        if log_dosyasi:
+            try:
+                with open(log_dosyasi, "a", encoding="utf-8") as f:
+                    f.write(time.strftime("%H:%M:%S ") + str(msg) + "\n")
+            except OSError:
+                pass
+
         def yaz():
             log_kutu.configure(state="normal")
             log_kutu.insert("end", msg + "\n")
@@ -2943,7 +2971,8 @@ def pencere():
              fg="#555").grid(row=2, column=0, columnspan=2, sticky="w", padx=4)
 
     mod_degisti()
-    log_kutu.pack(fill="both", expand=False, padx=10, pady=(4, 10))
+    # Log önce yer alsın (alta sabit); pencere küçükse ürün listesi kutusu küçülür, log ezilmez
+    log_kutu.pack(side="bottom", fill="x", padx=10, pady=(4, 10), before=m_cer)
     kok.mainloop()
 
 
