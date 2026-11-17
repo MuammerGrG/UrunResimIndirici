@@ -1,0 +1,72 @@
+{
+  "name": "urun-resim-indirici",
+  "productName": "Ürün Resim İndirici",
+  "version": "4.0.0",
+  "description": "Menüden ürün listesi, 600x600 ürün resimleri ve POS veritabanı hazırlar",
+  "main": "main.js",
+  "author": "MuammerGrG",
+  "license": "UNLICENSED",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win nsis --publish never"
+  },
+  "dependencies": {
+    "@fontsource/bricolage-grotesque": "5.1.0",
+    "@fontsource/figtree": "5.1.1",
+    "@fontsource/jetbrains-mono": "5.1.1",
+    "electron-updater": "6.3.9"
+  },
+  "devDependencies": {
+    "electron": "33.4.11",
+    "electron-builder": "25.1.8"
+  },
+  "build": {
+    "appId": "com.muammergrg.urunresimindirici",
+    "productName": "Ürün Resim İndirici",
+    "executableName": "UrunResim",
+    "artifactName": "UrunResimIndirici-Kurulum-${version}.${ext}",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "src/**/*",
+      "!src/_test.html",
+      "package.json",
+      "build/icon.ico"
+    ],
+    "extraResources": [
+      {
+        "from": "../motor-cikti/Motor.exe",
+        "to": "motor/Motor.exe"
+      }
+    ],
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "icon": "build/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Ürün Resim İndirici",
+      "runAfterFinish": true,
+      "include": "build/installer.nsh",
+      "language": "1055"
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "MuammerGrG",
+        "repo": "UrunResimIndirici"
+      }
+    ]
+  }
+}

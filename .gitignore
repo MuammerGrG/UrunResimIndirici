@@ -14,3 +14,13 @@ dist/
 __pycache__/
 _guncelle_tmp.cmd
 son_log.txt
+
+# v4
+!motor.tests/Fixtures/*.sql
+bin/
+obj/
+node_modules/
+motor-cikti/
+arayuz/dist/
+arayuz/src/_test.html
+!arayuz/build/

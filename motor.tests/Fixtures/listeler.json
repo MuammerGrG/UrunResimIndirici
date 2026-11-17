@@ -1,0 +1,849 @@
+{
+ "vakalar": [
+  {
+   "metin": "Domates\nSalatalik\nHavuc\nHavuc\nMandalin\nYerli muz.\nTavuk döner dürüm menü\nCheeseburger\nMiso ramen\nEfes Pilsen 50 cl\nCoca Cola kutu\nKünefe\nAyran 30 TL\nÖDEME: Sodexo, Multinet, Ticket",
+   "basliksiz": true,
+   "ayristir": [
+    [
+     "Genel",
+     [
+      [
+       "Domates",
+       "Domates",
+       null,
+       []
+      ],
+      [
+       "Salatalik",
+       "Salatalik",
+       null,
+       []
+      ],
+      [
+       "Havuc",
+       "Havuc",
+       null,
+       []
+      ],
+      [
+       "Mandalin",
+       "Mandalin",
+       null,
+       []
+      ],
+      [
+       "Yerli muz",
+       "Yerli muz",
+       null,
+       []
+      ],
+      [
+       "Tavuk döner dürüm menü",
+       "Tavuk döner dürüm menü",
+       null,
+       []
+      ],
+      [
+       "Cheeseburger",
+       "Cheeseburger",
+       null,
+       []
+      ],
+      [
+       "Miso ramen",
+       "Miso ramen",
+       null,
+       []
+      ],
+      [
+       "Efes Pilsen 50 cl",
+       "Efes Pilsen 50 cl",
+       null,
+       []
+      ],
+      [
+       "Coca Cola kutu",
+       "Coca Cola kutu",
+       null,
+       []
+      ],
+      [
+       "Künefe",
+       "Künefe",
+       null,
+       []
+      ],
+      [
+       "Ayran",
+       "Ayran",
+       30.0,
+       []
+      ]
+     ]
+    ]
+   ],
+   "odeme": [
+    "SODEXO",
+    "MULTINET",
+    "SMARTICKET"
+   ],
+   "yerel": "# Sebzeler\nDomates\nSalatalık\nHavuç\n\n# Meyveler\nMandalina\nYerli muz\n\n# Döner\n## Izgara\n### Menü\nTavuk döner dürüm menü\n\n# Burger\n## Izgara\n### Sadece Yemek\nCheeseburger\n\n# Uzak Doğu\n## Haşlama\n### Sadece Yemek\nMiso ramen\n\n# Alkollü İçecekler\n## Hazır\n### Sadece Yemek\nEfes Pilsen 50 cl\n\n# İçecekler\n## Hazır\n### Sadece Yemek\nCoca Cola kutu\nAyran | Ayran | 30\n\n# Tatlılar\n## Hazır\n### Sadece Yemek\nKünefe\n\nÖDEME: Sodexo, Multinet, Ticket",
+   "yerel_ayristir": [
+    [
+     "Sebzeler",
+     [
+      [
+       "Domates",
+       "Domates",
+       null,
+       []
+      ],
+      [
+       "Salatalık",
+       "Salatalık",
+       null,
+       []
+      ],
+      [
+       "Havuç",
+       "Havuç",
+       null,
+       []
+      ]
+     ]
+    ],
+    [
+     "Meyveler",
+     [
+      [
+       "Mandalina",
+       "Mandalina",
+       null,
+       []
+      ],
+      [
+       "Yerli muz",
+       "Yerli muz",
+       null,
+       []
+      ]
+     ]
+    ],
+    [
+     "Döner/Izgara/Menü",
+     [
+      [
+       "Tavuk döner dürüm menü",
+       "Tavuk döner dürüm menü",
+       null,
+       []
+      ]
+     ]
+    ],
+    [
+     "Burger/Izgara/Sadece Yemek",
+     [
+      [
+       "Cheeseburger",
+       "Cheeseburger",
+       null,
+       []
+      ]
+     ]
+    ],
+    [
+     "Uzak Doğu/Haşlama/Sadece Yemek",
+     [
+      [
+       "Miso ramen",
+       "Miso ramen",
+       null,
+       []
+      ]
+     ]
+    ],
+    [
+     "Alkollü İçecekler/Hazır/Sadece Yemek",
+     [
+      [
+       "Efes Pilsen 50 cl",
+       "Efes Pilsen 50 cl",
+       null,
+       []
+      ]
+     ]
+    ],
+    [
+     "İçecekler/Hazır/Sadece Yemek",
+     [
+      [
+       "Coca Cola kutu",
+       "Coca Cola kutu",
+       null,
+       []
+      ],
+      [
+       "Ayran",
+       "Ayran",
+       30.0,
+       []
+      ]
+     ]
+    ],
+    [
+     "Tatlılar/Hazır/Sadece Yemek",
+     [
+      [
+       "Künefe",
+       "Künefe",
+       null,
+       []
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "metin": "Tavuk Döner Az 150 TL\nTavuk Döner Tam 200 TL\nTavuk Döner 1,5 280 TL\nEt Döner Porsiyon - 250\nEt Döner 1.5 Porsiyon - 350\nEt Döner Duble Porsiyon - 450\nİskender Yarım Porsiyon - 200\nİskender 1 Porsiyon - 300\nLahmacun Küçük - 60\nLahmacun Büyük - 90\nYarım Ekmek Antakya - 160\nTam Ekmek Antakya - 320\nSu 0,5 lt - 15\nPatates kızartması 40\nÇoban salata\nAdana kebap menü\nÇiğ köfte dürüm\nMaydanoz\nRoka\nTaze soğan\nTatlı kıl biber\nKuru kayısı\nBilinmeyen Şey",
+   "basliksiz": true,
+   "ayristir": [
+    [
+     "Genel",
+     [
+      [
+       "Tavuk Döner",
+       "Tavuk Döner",
+       200.0,
+       [
+        [
+         "Az",
+         150.0
+        ],
+        [
+         "1,5",
+         280.0
+        ]
+       ]
+      ],
+      [
+       "Et Döner Porsiyon",
+       "Et Döner Porsiyon",
+       250.0,
+       [
+        [
+         "1,5",
+         350.0
+        ],
+        [
+         "Duble",
+         450.0
+        ]
+       ]
+      ],
+      [
+       "İskender",
+       "İskender",
+       300.0,
+       [
+        [
+         "Yarım",
+         200.0
+        ]
+       ]
+      ],
+      [
+       "Lahmacun",
+       "Lahmacun",
+       60.0,
+       [
+        [
+         "Büyük",
+         90.0
+        ]
+       ]
+      ],
+      [
+       "Yarım Ekmek Antakya",
+       "Yarım Ekmek Antakya",
+       160.0,
+       []
+      ],
+      [
+       "Tam Ekmek Antakya",
+       "Tam Ekmek Antakya",
+       320.0,
+       []
+      ],
+      [
+       "Su 0,5 lt",
+       "Su 0,5 lt",
+       15.0,
+       []
+      ],
+      [
+       "Patates kızartması 40",
+       "Patates kızartması 40",
+       null,
+       []
+      ],
+      [
+       "Çoban salata",
+       "Çoban salata",
+       null,
+       []
+      ],
+      [
+       "Adana kebap menü",
+       "Adana kebap menü",
+       null,
+       []
+      ],
+      [
+       "Çiğ köfte dürüm",
+       "Çiğ köfte dürüm",
+       null,
+       []
+      ],
+      [
+       "Maydanoz",
+       "Maydanoz",
+       null,
+       []
+      ],
+      [
+       "Roka",
+       "Roka",
+       null,
+       []
+      ],
+      [
+       "Taze soğan",
+       "Taze soğan",
+       null,
+       []
+      ],
+      [
+       "Tatlı kıl biber",
+       "Tatlı kıl biber",
+       null,
+       []
+      ],
+      [
+       "Kuru kayısı",
+       "Kuru kayısı",
+       null,
+       []
+      ],
+      [
+       "Bilinmeyen Şey",
+       "Bilinmeyen Şey",
+       null,
+       []
+      ]
+     ]
+    ]
+   ],
+   "odeme": [],
+   "yerel": "# Döner\n## Izgara\n### Sadece Yemek\nTavuk Döner | Tavuk Döner | 200 | Az=150; 1,5=280\nEt Döner Porsiyon | Et Döner Porsiyon | 250 | 1,5=350; Duble=450\nİskender | İskender | 300 | Yarım=200\n\n# Pide & Lahmacun\n## Fırın\n### Sadece Yemek\nLahmacun | Lahmacun | 60 | Büyük=90\n\n# Yan Ürünler\n## Diğer\n### Sadece Yemek\nYarım Ekmek Antakya | Yarım Ekmek Antakya | 160\nTam Ekmek Antakya | Tam Ekmek Antakya | 320\n## Kızartma\n### Sadece Yemek\nPatates kızartması 40\n\n# İçecekler\n## Hazır\n### Sadece Yemek\nSu 0,5 lt | Su 0,5 lt | 15\n\n# Salatalar\n## Soğuk\n### Sadece Yemek\nÇoban salata\n\n# Kebap\n## Izgara\n### Menü\nAdana kebap menü\n### Sadece Yemek\nÇiğ köfte dürüm\n\n# Yeşillikler\nMaydanoz\nRoka\nTaze soğan\n\n# Sebzeler\nTatlı kıl biber\n\n# Kuruyemiş\nKuru kayısı\n\n# Diğer\nBilinmeyen Şey",
+   "yerel_ayristir": [
+    [
+     "Döner/Izgara/Sadece Yemek",
+     [
+      [
+       "Tavuk Döner",
+       "Tavuk Döner",
+       200.0,
+       [
+        [
+         "Az",
+         150.0
+        ],
+        [
+         "1,5",
+         280.0
+        ]
+       ]
+      ],
+      [
+       "Et Döner Porsiyon",
+       "Et Döner Porsiyon",
+       250.0,
+       [
+        [
+         "1,5",
+         350.0
+        ],
+        [
+         "Duble",
+         450.0
+        ]
+       ]
+      ],
+      [
+       "İskender",
+       "İskender",
+       300.0,
+       [
+        [
+         "Yarım",
+         200.0
+        ]
+       ]
+      ]
+     ]
+    ],
+    [
+     "Pide & Lahmacun/Fırın/Sadece Yemek",
+     [
+      [
+       "Lahmacun",
+       "Lahmacun",
+       60.0,
+       [
+        [
+         "Büyük",
+         90.0
+        ]
+       ]
+      ]
+     ]
+    ],
+    [
+     "Yan Ürünler/Diğer/Sadece Yemek",
+     [
+      [
+       "Yarım Ekmek Antakya",
+       "Yarım Ekmek Antakya",
+       160.0,
+       []
+      ],
+      [
+       "Tam Ekmek Antakya",
+       "Tam Ekmek Antakya",
+       320.0,
+       []
+      ]
+     ]
+    ],
+    [
+     "Yan Ürünler/Kızartma/Sadece Yemek",
+     [
+      [
+       "Patates kızartması 40",
+       "Patates kızartması 40",
+       null,
+       []
+      ]
+     ]
+    ],
+    [
+     "İçecekler/Hazır/Sadece Yemek",
+     [
+      [
+       "Su 0,5 lt",
+       "Su 0,5 lt",
+       15.0,
+       []
+      ]
+     ]
+    ],
+    [
+     "Salatalar/Soğuk/Sadece Yemek",
+     [
+      [
+       "Çoban salata",
+       "Çoban salata",
+       null,
+       []
+      ]
+     ]
+    ],
+    [
+     "Kebap/Izgara/Menü",
+     [
+      [
+       "Adana kebap menü",
+       "Adana kebap menü",
+       null,
+       []
+      ]
+     ]
+    ],
+    [
+     "Kebap/Izgara/Sadece Yemek",
+     [
+      [
+       "Çiğ köfte dürüm",
+       "Çiğ köfte dürüm",
+       null,
+       []
+      ]
+     ]
+    ],
+    [
+     "Yeşillikler",
+     [
+      [
+       "Maydanoz",
+       "Maydanoz",
+       null,
+       []
+      ],
+      [
+       "Roka",
+       "Roka",
+       null,
+       []
+      ],
+      [
+       "Taze soğan",
+       "Taze soğan",
+       null,
+       []
+      ]
+     ]
+    ],
+    [
+     "Sebzeler",
+     [
+      [
+       "Tatlı kıl biber",
+       "Tatlı kıl biber",
+       null,
+       []
+      ]
+     ]
+    ],
+    [
+     "Kuruyemiş",
+     [
+      [
+       "Kuru kayısı",
+       "Kuru kayısı",
+       null,
+       []
+      ]
+     ]
+    ],
+    [
+     "Diğer",
+     [
+      [
+       "Bilinmeyen Şey",
+       "Bilinmeyen Şey",
+       null,
+       []
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "metin": "# Döner\n## Izgara\n### Menü\nTavuk Dürüm Menü | tavuk döner dürüm menü | 120\n### Sadece Yemek\nTavuk Dürüm\n- Et Dürüm - 150 TL\n# İçecekler\n## Hazır\n### Sadece Yemek\nEfes 50cl | efes pilsen 50 cl şişe | 90\n```\n• Ayran 30\nÖDEME: Yemek Kartı",
+   "basliksiz": false,
+   "ayristir": [
+    [
+     "Döner/Izgara/Menü",
+     [
+      [
+       "Tavuk Dürüm Menü",
+       "tavuk döner dürüm menü",
+       120.0,
+       []
+      ]
+     ]
+    ],
+    [
+     "Döner/Izgara/Sadece Yemek",
+     [
+      [
+       "Tavuk Dürüm",
+       "Tavuk Dürüm",
+       null,
+       []
+      ],
+      [
+       "Et Dürüm",
+       "Et Dürüm",
+       150.0,
+       []
+      ]
+     ]
+    ],
+    [
+     "İçecekler/Hazır/Sadece Yemek",
+     [
+      [
+       "Efes 50cl",
+       "efes pilsen 50 cl şişe",
+       90.0,
+       []
+      ],
+      [
+       "Ayran 30",
+       "Ayran 30",
+       null,
+       []
+      ]
+     ]
+    ]
+   ],
+   "odeme": [
+    "SODEXO",
+    "MULTINET",
+    "SMARTICKET",
+    "SETCARD",
+    "METROPOL"
+   ]
+  },
+  {
+   "metin": "### Tek başına alt\nÜrün A 10\n## İkinci\nÜrün B | b | | Az=5\n# Üst\nÜrün C\nÜrün C\nürün c",
+   "basliksiz": false,
+   "ayristir": [
+    [
+     "Genel/Genel/Tek başına alt",
+     [
+      [
+       "Ürün A 10",
+       "Ürün A 10",
+       null,
+       []
+      ]
+     ]
+    ],
+    [
+     "Genel/İkinci",
+     [
+      [
+       "Ürün B",
+       "b",
+       null,
+       [
+        [
+         "Az",
+         5.0
+        ]
+       ]
+      ]
+     ]
+    ],
+    [
+     "Üst",
+     [
+      [
+       "Ürün C",
+       "Ürün C",
+       null,
+       []
+      ]
+     ]
+    ]
+   ],
+   "odeme": []
+  },
+  {
+   "metin": "",
+   "basliksiz": false,
+   "ayristir": [],
+   "odeme": []
+  },
+  {
+   "metin": "Kebap Az\nKebap Tam\nKebap Duble\nPide Küçük 50\nPide Büyük 80\nPide Orta 65\nSalata\nSalata Büyük 40",
+   "basliksiz": true,
+   "ayristir": [
+    [
+     "Genel",
+     [
+      [
+       "Kebap",
+       "Kebap",
+       null,
+       [
+        [
+         "Az",
+         null
+        ],
+        [
+         "Duble",
+         null
+        ]
+       ]
+      ],
+      [
+       "Pide Küçük 50",
+       "Pide Küçük 50",
+       null,
+       []
+      ],
+      [
+       "Pide Büyük 80",
+       "Pide Büyük 80",
+       null,
+       []
+      ],
+      [
+       "Pide Orta 65",
+       "Pide Orta 65",
+       null,
+       []
+      ],
+      [
+       "Salata",
+       "Salata",
+       null,
+       []
+      ],
+      [
+       "Salata Büyük 40",
+       "Salata Büyük 40",
+       null,
+       []
+      ]
+     ]
+    ]
+   ],
+   "odeme": [],
+   "yerel": "# Kebap\n## Izgara\n### Sadece Yemek\nKebap | Kebap |  | Az; Duble\n\n# Pide & Lahmacun\n## Fırın\n### Sadece Yemek\nPide Küçük 50\nPide Büyük 80\nPide Orta 65\n\n# Salatalar\n## Soğuk\n### Sadece Yemek\nSalata\nSalata Büyük 40",
+   "yerel_ayristir": [
+    [
+     "Kebap/Izgara/Sadece Yemek",
+     [
+      [
+       "Kebap",
+       "Kebap",
+       null,
+       [
+        [
+         "Az",
+         null
+        ],
+        [
+         "Duble",
+         null
+        ]
+       ]
+      ]
+     ]
+    ],
+    [
+     "Pide & Lahmacun/Fırın/Sadece Yemek",
+     [
+      [
+       "Pide Küçük 50",
+       "Pide Küçük 50",
+       null,
+       []
+      ],
+      [
+       "Pide Büyük 80",
+       "Pide Büyük 80",
+       null,
+       []
+      ],
+      [
+       "Pide Orta 65",
+       "Pide Orta 65",
+       null,
+       []
+      ]
+     ]
+    ],
+    [
+     "Salatalar/Soğuk/Sadece Yemek",
+     [
+      [
+       "Salata",
+       "Salata",
+       null,
+       []
+      ],
+      [
+       "Salata Büyük 40",
+       "Salata Büyük 40",
+       null,
+       []
+      ]
+     ]
+    ]
+   ]
+  }
+ ],
+ "odeme": [
+  [
+   "ÖDEME: Sodexo, Multinet, Ticket",
+   [
+    "SODEXO",
+    "MULTINET",
+    "SMARTICKET"
+   ]
+  ],
+  [
+   "Ödeme: Pluxee / Edenred / Setcard / Metropol",
+   [
+    "SODEXO",
+    "SMARTICKET",
+    "SETCARD",
+    "METROPOL"
+   ]
+  ],
+  [
+   "ödeme yöntemleri: Yemek Kartı",
+   [
+    "SODEXO",
+    "MULTINET",
+    "SMARTICKET",
+    "SETCARD",
+    "METROPOL"
+   ]
+  ],
+  [
+   "ODEME: Kredi kartı, Nakit, Win-Win, Paye",
+   [
+    "PAYEKART",
+    "WINWIN",
+    "KREDIKARTI",
+    "NAKIT"
+   ]
+  ],
+  [
+   "ÖDEME: Yemek kartı (Sodexo)",
+   [
+    "SODEXO"
+   ]
+  ],
+  [
+   "Ödeme Seçenekleri = Tokenflex",
+   [
+    "TOKENFLEX"
+   ]
+  ],
+  [
+   "ÖDEME: Ticket Restaurant, SETCARD, Metropol Card, VISA, Mastercard, TOKEN FLEX, Yemek Kartı, Kredi Kartı",
+   [
+    "SMARTICKET",
+    "SETCARD",
+    "METROPOL",
+    "TOKENFLEX",
+    "KREDIKARTI"
+   ]
+  ],
+  [
+   "Ödeme: yemek çeki",
+   [
+    "SODEXO",
+    "MULTINET",
+    "SMARTICKET",
+    "SETCARD",
+    "METROPOL"
+   ]
+  ],
+  [
+   "odeme tipleri: EnKart, CIO Card, Maximum",
+   [
+    "CIOCARD",
+    "ENCARD",
+    "MAXIMUM"
+   ]
+  ]
+ ]
+}

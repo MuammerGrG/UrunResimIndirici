@@ -1,0 +1,143 @@
+# v4: C# motor + Electron arayüz.
+#  - v4 dalı: derle + test, kurulum dosyası "artifact" olarak saklanır (yayın yok)
+#  - main dalı: arayuz/package.json'daki sürüm yeni ise GitHub Releases'e yayınlar.
+#    Program açılışta oradan kendini günceller (latest.yml).
+name: Derle, test et, yayinla
+
+on:
+  push:
+    branches: [main, v4]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Surum
+        id: surum
+        shell: pwsh
+        run: |
+          $s = (Get-Content arayuz/package.json -Raw | ConvertFrom-Json).version
+          "surum=$s" >> $env:GITHUB_OUTPUT
+          $var = gh release view "v$s" 2>$null; if ($LASTEXITCODE -eq 0) { "yayinli=1" >> $env:GITHUB_OUTPUT } else { "yayinli=0" >> $env:GITHUB_OUTPUT }
+          exit 0
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Motor test
+        id: test
+        shell: pwsh
+        continue-on-error: true
+        run: |
+          dotnet test motor.tests/Motor.Tests.csproj -c Release --logger "console;verbosity=normal" 2>&1 | Tee-Object -FilePath ci.txt
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+
+      - name: Motor (tek exe)
+        id: motor
+        if: steps.test.outcome == 'success'
+        shell: pwsh
+        continue-on-error: true
+        run: |
+          dotnet publish motor/Motor.csproj -c Release -r win-x64 -o motor-cikti 2>&1 | Tee-Object -FilePath derle.txt
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+          $cevap = '{"id":1,"komut":"ayristir","arg":{"metin":"# Döner\nTavuk Döner Az 150\nTavuk Döner Tam 200"}}' | ./motor-cikti/Motor.exe
+          $cevap | Tee-Object -FilePath derle.txt -Append
+          if (-not ($cevap -match '"tamam":true')) { Write-Host "Motor cevap vermedi"; exit 1 }
+
+      - name: Arayüz + kurulum
+        id: kurulum
+        if: steps.motor.outcome == 'success'
+        shell: pwsh
+        continue-on-error: true
+        working-directory: arayuz
+        run: |
+          npm ci --no-audit --no-fund 2>&1 | Tee-Object -FilePath ../derle.txt -Append
+          npx electron-builder --win nsis --x64 --publish never 2>&1 | Tee-Object -FilePath ../derle.txt -Append
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+          Get-ChildItem dist | Format-Table Name, Length | Out-String | Tee-Object -FilePath ../derle.txt -Append
+          if (-not (Test-Path "dist/latest.yml")) { Write-Host "latest.yml yok"; exit 1 }
+
+      - name: Kurulum sessiz deneme
+        id: deneme
+        if: steps.kurulum.outcome == 'success'
+        shell: pwsh
+        continue-on-error: true
+        run: |
+          $kur = Get-ChildItem arayuz/dist/*.exe | Select-Object -First 1
+          Start-Process -FilePath $kur.FullName -ArgumentList "/S" -Wait
+          $exe = $null
+          for ($i = 0; $i -lt 60 -and -not $exe; $i++) {
+            Start-Sleep -Seconds 2
+            $exe = (Get-ChildItem "$env:LOCALAPPDATA\Programs" -Recurse -Filter UrunResim.exe -ErrorAction SilentlyContinue | Select-Object -First 1).FullName
+          }
+          Start-Sleep -Seconds 5
+          "Kurulan: $exe" | Tee-Object -FilePath derle.txt -Append
+          $motor = Join-Path (Split-Path $exe) "resources\motor\Motor.exe"
+          if (-not (Test-Path $motor)) { "Motor kurulumda yok" | Tee-Object -FilePath derle.txt -Append; exit 1 }
+          $p = Start-Process -FilePath $exe -PassThru
+          Start-Sleep -Seconds 12
+          $calisiyor = -not $p.HasExited
+          "Program 12 sn sonra açık: $calisiyor" | Tee-Object -FilePath derle.txt -Append
+          Add-Type -AssemblyName System.Windows.Forms, System.Drawing
+          $b = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds
+          $bmp = New-Object System.Drawing.Bitmap $b.Width, $b.Height
+          [System.Drawing.Graphics]::FromImage($bmp).CopyFromScreen($b.Location, [System.Drawing.Point]::Empty, $b.Size)
+          $bmp.Save("$PWD\ekran.png", [System.Drawing.Imaging.ImageFormat]::Png)
+          Get-Process | Where-Object { $_.ProcessName -match "^(Motor|UrunResim)$" } | Format-Table ProcessName, Id | Out-String | Tee-Object -FilePath derle.txt -Append
+          $log = Join-Path $env:APPDATA "Ürün Resim İndirici\son_log.txt"
+          if (Test-Path $log) { Get-Content $log | Tee-Object -FilePath derle.txt -Append }
+          Get-Process | Where-Object { $_.ProcessName -match "^(Motor|UrunResim)$" } | Stop-Process -Force
+          if (-not $calisiyor) { exit 1 }
+
+      - name: Sonuçları ci-log dalına yaz
+        if: always()
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force cilog | Out-Null
+          foreach ($f in 'ci.txt','derle.txt','ekran.png') { if (Test-Path $f) { Copy-Item $f cilog/ } }
+          "test=${{ steps.test.outcome }} motor=${{ steps.motor.outcome }} kurulum=${{ steps.kurulum.outcome }} deneme=${{ steps.deneme.outcome }} sha=${{ github.sha }}" | Set-Content cilog/durum.txt
+          cd cilog
+          git init -q
+          git config user.name "ci"
+          git config user.email "ci@users.noreply.github.com"
+          git add -A
+          git commit -q -m "ci ${{ github.sha }}"
+          git push -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" HEAD:ci-log
+
+      - name: Başarısızsa dur
+        if: steps.test.outcome != 'success' || steps.motor.outcome != 'success' || steps.kurulum.outcome != 'success' || steps.deneme.outcome != 'success'
+        run: exit 1
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: kurulum
+          path: |
+            arayuz/dist/*.exe
+            arayuz/dist/*.blockmap
+            arayuz/dist/latest.yml
+
+      - name: GitHub Releases'e yayınla
+        if: github.ref == 'refs/heads/main' && steps.surum.outputs.yayinli == '0'
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $s = "${{ steps.surum.outputs.surum }}"
+          $mesaj = git log -1 --pretty=%B
+          $notlar = ($mesaj -split "`n" | Where-Object { $_ -notmatch '^\s*(co-authored-by|claude-session|signed-off-by)\s*:' -and $_ -notmatch 'claude\.ai/code' }) -join "`n"
+          Set-Content -Path notlar.md -Value $notlar.Trim() -Encoding utf8
+          $dosyalar = @(Get-ChildItem arayuz/dist/*.exe) + @(Get-ChildItem arayuz/dist/*.blockmap) + @(Get-Item arayuz/dist/latest.yml)
+          gh release create "v$s" $dosyalar.FullName --title "v$s" --notes-file notlar.md --latest

@@ -1,0 +1,2292 @@
+{
+ "vakalar": [
+  {
+   "ad": "pro1",
+   "metin": "# Döner\n## Izgara\n### Sadece Yemek\nTavuk Döner | Tavuk Döner | 200 | Az=150; 1,5=280\nEt Döner Porsiyon | Et Döner Porsiyon | 250 | 1,5=350; Duble=450\nİskender | İskender | 300 | Yarım=200\n\n# Pide & Lahmacun\n## Fırın\n### Sadece Yemek\nLahmacun | Lahmacun | 60 | Büyük=90\n\n# Yan Ürünler\n## Diğer\n### Sadece Yemek\nYarım Ekmek Antakya | Yarım Ekmek Antakya | 160\nTam Ekmek Antakya | Tam Ekmek Antakya | 320\n## Kızartma\n### Sadece Yemek\nPatates kızartması 40\n\n# İçecekler\n## Hazır\n### Sadece Yemek\nSu 0,5 lt | Su 0,5 lt | 15\n\n# Salatalar\n## Soğuk\n### Sadece Yemek\nÇoban salata\n\n# Kebap\n## Izgara\n### Menü\nAdana kebap menü\n### Sadece Yemek\nÇiğ köfte dürüm\n\n# Yeşillikler\nMaydanoz\nRoka\nTaze soğan\n\n# Sebzeler\nTatlı kıl biber\n\n# Kuruyemiş\nKuru kayısı\n\n# Diğer\nBilinmeyen Şey",
+   "seviye": 1,
+   "opsiyon": "Soğanlı, Soğansız, Domatesli, Domatessiz, Marullu, Marulsuz, Soslu, Sossuz, Patatesli, Patatessiz, Turşulu, Turşusuz, Mayonezli, Mayonezsiz, Ketçaplı, Ketçapsız, Acılı, Acısız",
+   "icecek": false,
+   "demo": true,
+   "ek": [
+    "SODEXO"
+   ],
+   "resimli": [
+    "Ayran",
+    "Domates",
+    "Efes 50cl",
+    "Künefe",
+    "Tavuk Döner",
+    "Tavuk Dürüm Menü"
+   ],
+   "tablolar": {
+    "categories": [
+     {
+      "id": 2,
+      "name": "DÖNER",
+      "image": "C:\\Users\\kasa pc\\AppData\\Roaming\\siparismatik-pro\\product-images\\prod_X_k1.jpg",
+      "kdv": 10,
+      "sort_order": 1,
+      "remote_id": 0,
+      "kiosk_visible": 1,
+      "kiosk_sort": 1,
+      "printer_id": null,
+      "printer_ids": "",
+      "updated_at": "ZAMAN"
+     },
+     {
+      "id": 3,
+      "name": "PİDE & LAHMACUN",
+      "image": "",
+      "kdv": 10,
+      "sort_order": 2,
+      "remote_id": 0,
+      "kiosk_visible": 1,
+      "kiosk_sort": 2,
+      "printer_id": null,
+      "printer_ids": "",
+      "updated_at": "ZAMAN"
+     },
+     {
+      "id": 4,
+      "name": "YAN ÜRÜNLER",
+      "image": "",
+      "kdv": 10,
+      "sort_order": 3,
+      "remote_id": 0,
+      "kiosk_visible": 1,
+      "kiosk_sort": 3,
+      "printer_id": null,
+      "printer_ids": "",
+      "updated_at": "ZAMAN"
+     },
+     {
+      "id": 5,
+      "name": "İÇECEKLER",
+      "image": "",
+      "kdv": 10,
+      "sort_order": 4,
+      "remote_id": 0,
+      "kiosk_visible": 1,
+      "kiosk_sort": 4,
+      "printer_id": null,
+      "printer_ids": "",
+      "updated_at": "ZAMAN"
+     },
+     {
+      "id": 6,
+      "name": "SALATALAR",
+      "image": "",
+      "kdv": 10,
+      "sort_order": 5,
+      "remote_id": 0,
+      "kiosk_visible": 1,
+      "kiosk_sort": 5,
+      "printer_id": null,
+      "printer_ids": "",
+      "updated_at": "ZAMAN"
+     },
+     {
+      "id": 7,
+      "name": "KEBAP",
+      "image": "",
+      "kdv": 10,
+      "sort_order": 6,
+      "remote_id": 0,
+      "kiosk_visible": 1,
+      "kiosk_sort": 6,
+      "printer_id": null,
+      "printer_ids": "",
+      "updated_at": "ZAMAN"
+     },
+     {
+      "id": 8,
+      "name": "YEŞİLLİKLER",
+      "image": "",
+      "kdv": 10,
+      "sort_order": 7,
+      "remote_id": 0,
+      "kiosk_visible": 1,
+      "kiosk_sort": 7,
+      "printer_id": null,
+      "printer_ids": "",
+      "updated_at": "ZAMAN"
+     },
+     {
+      "id": 9,
+      "name": "SEBZELER",
+      "image": "",
+      "kdv": 10,
+      "sort_order": 8,
+      "remote_id": 0,
+      "kiosk_visible": 1,
+      "kiosk_sort": 8,
+      "printer_id": null,
+      "printer_ids": "",
+      "updated_at": "ZAMAN"
+     },
+     {
+      "id": 10,
+      "name": "KURUYEMİŞ",
+      "image": "",
+      "kdv": 10,
+      "sort_order": 9,
+      "remote_id": 0,
+      "kiosk_visible": 1,
+      "kiosk_sort": 9,
+      "printer_id": null,
+      "printer_ids": "",
+      "updated_at": "ZAMAN"
+     },
+     {
+      "id": 11,
+      "name": "DİĞER",
+      "image": "",
+      "kdv": 10,
+      "sort_order": 10,
+      "remote_id": 0,
+      "kiosk_visible": 1,
+      "kiosk_sort": 10,
+      "printer_id": null,
+      "printer_ids": "",
+      "updated_at": "ZAMAN"
+     }
+    ],
+    "products": [
+     {
+      "id": 3,
+      "category_id": 2,
+      "name": "TAVUK DÖNER",
+      "price": 200.0,
+      "kdv": 10,
+      "active": 1,
+      "wp_show": 1,
+      "image": "C:\\Users\\kasa pc\\AppData\\Roaming\\siparismatik-pro\\product-images\\prod_X_u1.jpg",
+      "sort_order": 1,
+      "variants": "[{\"name\": \"AZ\", \"price\": -50.0}, {\"name\": \"1,5\", \"price\": 80.0}]",
+      "remote_id": 0,
+      "kiosk_visible": 1,
+      "salon_show": 1,
+      "paket_show": 1,
+      "updated_at": "ZAMAN"
+     },
+     {
+      "id": 4,
+      "category_id": 2,
+      "name": "ET DÖNER PORSİYON",
+      "price": 250.0,
+      "kdv": 10,
+      "active": 1,
+      "wp_show": 1,
+      "image": "",
+      "sort_order": 2,
+      "variants": "[{\"name\": \"1,5\", \"price\": 100.0}, {\"name\": \"DUBLE\", \"price\": 200.0}]",
+      "remote_id": 0,
+      "kiosk_visible": 1,
+      "salon_show": 1,
+      "paket_show": 1,
+      "updated_at": "ZAMAN"
+     },
+     {
+      "id": 5,
+      "category_id": 2,
+      "name": "İSKENDER",
+      "price": 300.0,
+      "kdv": 10,
+      "active": 1,
+      "wp_show": 1,
+      "image": "",
+      "sort_order": 3,
+      "variants": "[{\"name\": \"YARIM\", \"price\": -100.0}]",
+      "remote_id": 0,
+      "kiosk_visible": 1,
+      "salon_show": 1,
+      "paket_show": 1,
+      "updated_at": "ZAMAN"
+     },
+     {
+      "id": 6,
+      "category_id": 3,
+      "name": "LAHMACUN",
+      "price": 60.0,
+      "kdv": 10,
+      "active": 1,
+      "wp_show": 1,
+      "image": "",
+      "sort_order": 1,
+      "variants": "[{\"name\": \"BÜYÜK\", \"price\": 30.0}]",
+      "remote_id": 0,
+      "kiosk_visible": 1,
+      "salon_show": 1,
+      "paket_show": 1,
+      "updated_at": "ZAMAN"
+     },
+     {
+      "id": 7,
+      "category_id": 4,
+      "name": "YARIM EKMEK ANTAKYA",
+      "price": 160.0,
+      "kdv": 10,
+      "active": 1,
+      "wp_show": 1,
+      "image": "",
+      "sort_order": 1,
+      "variants": "",
+      "remote_id": 0,
+      "kiosk_visible": 1,
+      "salon_show": 1,
+      "paket_show": 1,
+      "updated_at": "ZAMAN"
+     },
+     {
+      "id": 8,
+      "category_id": 4,
+      "name": "TAM EKMEK ANTAKYA",
+      "price": 320.0,
+      "kdv": 10,
+      "active": 1,
+      "wp_show": 1,
+      "image": "",
+      "sort_order": 2,
+      "variants": "",
+      "remote_id": 0,
+      "kiosk_visible": 1,
+      "salon_show": 1,
+      "paket_show": 1,
+      "updated_at": "ZAMAN"
+     },
+     {
+      "id": 9,
+      "category_id": 4,
+      "name": "PATATES KIZARTMASI 40",
+      "price": 1.0,
+      "kdv": 10,
+      "active": 1,
+      "wp_show": 1,
+      "image": "",
+      "sort_order": 3,
+      "variants": "",
+      "remote_id": 0,
+      "kiosk_visible": 1,
+      "salon_show": 1,
+      "paket_show": 1,
+      "updated_at": "ZAMAN"
+     },
+     {
+      "id": 10,
+      "category_id": 5,
+      "name": "SU 0,5 LT",
+      "price": 15.0,
+      "kdv": 10,
+      "active": 1,
+      "wp_show": 1,
+      "image": "",
+      "sort_order": 1,
+      "variants": "",
+      "remote_id": 0,
+      "kiosk_visible": 1,
+      "salon_show": 1,
+      "paket_show": 1,
+      "updated_at": "ZAMAN"
+     },
+     {
+      "id": 11,
+      "category_id": 6,
+      "name": "ÇOBAN SALATA",
+      "price": 1.0,
+      "kdv": 10,
+      "active": 1,
+      "wp_show": 1,
+      "image": "",
+      "sort_order": 1,
+      "variants": "",
+      "remote_id": 0,
+      "kiosk_visible": 1,
+      "salon_show": 1,
+      "paket_show": 1,
+      "updated_at": "ZAMAN"
+     },
+     {
+      "id": 12,
+      "category_id": 7,
+      "name": "ADANA KEBAP MENÜ",
+      "price": 1.0,
+      "kdv": 10,
+      "active": 1,
+      "wp_show": 1,
+      "image": "",
+      "sort_order": 1,
+      "variants": "",
+      "remote_id": 0,
+      "kiosk_visible": 1,
+      "salon_show": 1,
+      "paket_show": 1,
+      "updated_at": "ZAMAN"
+     },
+     {
+      "id": 13,
+      "category_id": 7,
+      "name": "ÇİĞ KÖFTE DÜRÜM",
+      "price": 1.0,
+      "kdv": 10,
+      "active": 1,
+      "wp_show": 1,
+      "image": "",
+      "sort_order": 2,
+      "variants": "",
+      "remote_id": 0,
+      "kiosk_visible": 1,
+      "salon_show": 1,
+      "paket_show": 1,
+      "updated_at": "ZAMAN"
+     },
+     {
+      "id": 14,
+      "category_id": 8,
+      "name": "MAYDANOZ",
+      "price": 1.0,
+      "kdv": 10,
+      "active": 1,
+      "wp_show": 1,
+      "image": "",
+      "sort_order": 1,
+      "variants": "",
+      "remote_id": 0,
+      "kiosk_visible": 1,
+      "salon_show": 1,
+      "paket_show": 1,
+      "updated_at": "ZAMAN"
+     },
+     {
+      "id": 15,
+      "category_id": 8,
+      "name": "ROKA",
+      "price": 1.0,
+      "kdv": 10,
+      "active": 1,
+      "wp_show": 1,
+      "image": "",
+      "sort_order": 2,
+      "variants": "",
+      "remote_id": 0,
+      "kiosk_visible": 1,
+      "salon_show": 1,
+      "paket_show": 1,
+      "updated_at": "ZAMAN"
+     },
+     {
+      "id": 16,
+      "category_id": 8,
+      "name": "TAZE SOĞAN",
+      "price": 1.0,
+      "kdv": 10,
+      "active": 1,
+      "wp_show": 1,
+      "image": "",
+      "sort_order": 3,
+      "variants": "",
+      "remote_id": 0,
+      "kiosk_visible": 1,
+      "salon_show": 1,
+      "paket_show": 1,
+      "updated_at": "ZAMAN"
+     },
+     {
+      "id": 17,
+      "category_id": 9,
+      "name": "TATLI KIL BİBER",
+      "price": 1.0,
+      "kdv": 10,
+      "active": 1,
+      "wp_show": 1,
+      "image": "",
+      "sort_order": 1,
+      "variants": "",
+      "remote_id": 0,
+      "kiosk_visible": 1,
+      "salon_show": 1,
+      "paket_show": 1,
+      "updated_at": "ZAMAN"
+     },
+     {
+      "id": 18,
+      "category_id": 10,
+      "name": "KURU KAYISI",
+      "price": 1.0,
+      "kdv": 10,
+      "active": 1,
+      "wp_show": 1,
+      "image": "",
+      "sort_order": 1,
+      "variants": "",
+      "remote_id": 0,
+      "kiosk_visible": 1,
+      "salon_show": 1,
+      "paket_show": 1,
+      "updated_at": "ZAMAN"
+     },
+     {
+      "id": 19,
+      "category_id": 11,
+      "name": "BİLİNMEYEN ŞEY",
+      "price": 1.0,
+      "kdv": 10,
+      "active": 1,
+      "wp_show": 1,
+      "image": "",
+      "sort_order": 1,
+      "variants": "",
+      "remote_id": 0,
+      "kiosk_visible": 1,
+      "salon_show": 1,
+      "paket_show": 1,
+      "updated_at": "ZAMAN"
+     }
+    ],
+    "detaylar": [
+     {
+      "id": 1,
+      "name": "SOĞANSIZ",
+      "sira": 1,
+      "updated_at": "ZAMAN",
+      "remote_id": 0
+     },
+     {
+      "id": 2,
+      "name": "SOĞANLI",
+      "sira": 2,
+      "updated_at": "ZAMAN",
+      "remote_id": 0
+     },
+     {
+      "id": 3,
+      "name": "DOMATESLİ",
+      "sira": 3,
+      "updated_at": "ZAMAN",
+      "remote_id": 0
+     },
+     {
+      "id": 4,
+      "name": "DOMATESSİZ",
+      "sira": 4,
+      "updated_at": "ZAMAN",
+      "remote_id": 0
+     },
+     {
+      "id": 5,
+      "name": "MARULLU",
+      "sira": 5,
+      "updated_at": "ZAMAN",
+      "remote_id": 0
+     },
+     {
+      "id": 6,
+      "name": "MARULSUZ",
+      "sira": 6,
+      "updated_at": "ZAMAN",
+      "remote_id": 0
+     },
+     {
+      "id": 7,
+      "name": "SOSLU",
+      "sira": 7,
+      "updated_at": "ZAMAN",
+      "remote_id": 0
+     },
+     {
+      "id": 8,
+      "name": "SOSSUZ",
+      "sira": 8,
+      "updated_at": "ZAMAN",
+      "remote_id": 0
+     },
+     {
+      "id": 9,
+      "name": "PATATESLİ",
+      "sira": 9,
+      "updated_at": "ZAMAN",
+      "remote_id": 0
+     },
+     {
+      "id": 10,
+      "name": "PATATESSİZ",
+      "sira": 10,
+      "updated_at": "ZAMAN",
+      "remote_id": 0
+     },
+     {
+      "id": 11,
+      "name": "TURŞULU",
+      "sira": 11,
+      "updated_at": "ZAMAN",
+      "remote_id": 0
+     },
+     {
+      "id": 12,
+      "name": "TURŞUSUZ",
+      "sira": 12,
+      "updated_at": "ZAMAN",
+      "remote_id": 0
+     },
+     {
+      "id": 13,
+      "name": "MAYONEZLİ",
+      "sira": 13,
+      "updated_at": "ZAMAN",
+      "remote_id": 0
+     },
+     {
+      "id": 14,
+      "name": "MAYONEZSİZ",
+      "sira": 14,
+      "updated_at": "ZAMAN",
+      "remote_id": 0
+     },
+     {
+      "id": 15,
+      "name": "KETÇAPLI",
+      "sira": 15,
+      "updated_at": "ZAMAN",
+      "remote_id": 0
+     },
+     {
+      "id": 16,
+      "name": "KETÇAPSIZ",
+      "sira": 16,
+      "updated_at": "ZAMAN",
+      "remote_id": 0
+     },
+     {
+      "id": 17,
+      "name": "ACILI",
+      "sira": 17,
+      "updated_at": "ZAMAN",
+      "remote_id": 0
+     },
+     {
+      "id": 18,
+      "name": "ACISIZ",
+      "sira": 18,
+      "updated_at": "ZAMAN",
+      "remote_id": 0
+     }
+    ],
+    "urun_detaylar": [
+     {
+      "product_id": 3,
+      "detay_id": 2
+     },
+     {
+      "product_id": 3,
+      "detay_id": 1
+     },
+     {
+      "product_id": 3,
+      "detay_id": 3
+     },
+     {
+      "product_id": 3,
+      "detay_id": 4
+     },
+     {
+      "product_id": 3,
+      "detay_id": 5
+     },
+     {
+      "product_id": 3,
+      "detay_id": 6
+     },
+     {
+      "product_id": 3,
+      "detay_id": 7
+     },
+     {
+      "product_id": 3,
+      "detay_id": 8
+     },
+     {
+      "product_id": 3,
+      "detay_id": 9
+     },
+     {
+      "product_id": 3,
+      "detay_id": 10
+     },
+     {
+      "product_id": 3,
+      "detay_id": 11
+     },
+     {
+      "product_id": 3,
+      "detay_id": 12
+     },
+     {
+      "product_id": 3,
+      "detay_id": 13
+     },
+     {
+      "product_id": 3,
+      "detay_id": 14
+     },
+     {
+      "product_id": 3,
+      "detay_id": 15
+     },
+     {
+      "product_id": 3,
+      "detay_id": 16
+     },
+     {
+      "product_id": 3,
+      "detay_id": 17
+     },
+     {
+      "product_id": 3,
+      "detay_id": 18
+     },
+     {
+      "product_id": 4,
+      "detay_id": 2
+     },
+     {
+      "product_id": 4,
+      "detay_id": 1
+     },
+     {
+      "product_id": 4,
+      "detay_id": 3
+     },
+     {
+      "product_id": 4,
+      "detay_id": 4
+     },
+     {
+      "product_id": 4,
+      "detay_id": 5
+     },
+     {
+      "product_id": 4,
+      "detay_id": 6
+     },
+     {
+      "product_id": 4,
+      "detay_id": 7
+     },
+     {
+      "product_id": 4,
+      "detay_id": 8
+     },
+     {
+      "product_id": 4,
+      "detay_id": 9
+     },
+     {
+      "product_id": 4,
+      "detay_id": 10
+     },
+     {
+      "product_id": 4,
+      "detay_id": 11
+     },
+     {
+      "product_id": 4,
+      "detay_id": 12
+     },
+     {
+      "product_id": 4,
+      "detay_id": 13
+     },
+     {
+      "product_id": 4,
+      "detay_id": 14
+     },
+     {
+      "product_id": 4,
+      "detay_id": 15
+     },
+     {
+      "product_id": 4,
+      "detay_id": 16
+     },
+     {
+      "product_id": 4,
+      "detay_id": 17
+     },
+     {
+      "product_id": 4,
+      "detay_id": 18
+     },
+     {
+      "product_id": 5,
+      "detay_id": 2
+     },
+     {
+      "product_id": 5,
+      "detay_id": 1
+     },
+     {
+      "product_id": 5,
+      "detay_id": 3
+     },
+     {
+      "product_id": 5,
+      "detay_id": 4
+     },
+     {
+      "product_id": 5,
+      "detay_id": 5
+     },
+     {
+      "product_id": 5,
+      "detay_id": 6
+     },
+     {
+      "product_id": 5,
+      "detay_id": 7
+     },
+     {
+      "product_id": 5,
+      "detay_id": 8
+     },
+     {
+      "product_id": 5,
+      "detay_id": 9
+     },
+     {
+      "product_id": 5,
+      "detay_id": 10
+     },
+     {
+      "product_id": 5,
+      "detay_id": 11
+     },
+     {
+      "product_id": 5,
+      "detay_id": 12
+     },
+     {
+      "product_id": 5,
+      "detay_id": 13
+     },
+     {
+      "product_id": 5,
+      "detay_id": 14
+     },
+     {
+      "product_id": 5,
+      "detay_id": 15
+     },
+     {
+      "product_id": 5,
+      "detay_id": 16
+     },
+     {
+      "product_id": 5,
+      "detay_id": 17
+     },
+     {
+      "product_id": 5,
+      "detay_id": 18
+     },
+     {
+      "product_id": 6,
+      "detay_id": 2
+     },
+     {
+      "product_id": 6,
+      "detay_id": 1
+     },
+     {
+      "product_id": 6,
+      "detay_id": 3
+     },
+     {
+      "product_id": 6,
+      "detay_id": 4
+     },
+     {
+      "product_id": 6,
+      "detay_id": 5
+     },
+     {
+      "product_id": 6,
+      "detay_id": 6
+     },
+     {
+      "product_id": 6,
+      "detay_id": 7
+     },
+     {
+      "product_id": 6,
+      "detay_id": 8
+     },
+     {
+      "product_id": 6,
+      "detay_id": 9
+     },
+     {
+      "product_id": 6,
+      "detay_id": 10
+     },
+     {
+      "product_id": 6,
+      "detay_id": 11
+     },
+     {
+      "product_id": 6,
+      "detay_id": 12
+     },
+     {
+      "product_id": 6,
+      "detay_id": 13
+     },
+     {
+      "product_id": 6,
+      "detay_id": 14
+     },
+     {
+      "product_id": 6,
+      "detay_id": 15
+     },
+     {
+      "product_id": 6,
+      "detay_id": 16
+     },
+     {
+      "product_id": 6,
+      "detay_id": 17
+     },
+     {
+      "product_id": 6,
+      "detay_id": 18
+     },
+     {
+      "product_id": 7,
+      "detay_id": 2
+     },
+     {
+      "product_id": 7,
+      "detay_id": 1
+     },
+     {
+      "product_id": 7,
+      "detay_id": 3
+     },
+     {
+      "product_id": 7,
+      "detay_id": 4
+     },
+     {
+      "product_id": 7,
+      "detay_id": 5
+     },
+     {
+      "product_id": 7,
+      "detay_id": 6
+     },
+     {
+      "product_id": 7,
+      "detay_id": 7
+     },
+     {
+      "product_id": 7,
+      "detay_id": 8
+     },
+     {
+      "product_id": 7,
+      "detay_id": 9
+     },
+     {
+      "product_id": 7,
+      "detay_id": 10
+     },
+     {
+      "product_id": 7,
+      "detay_id": 11
+     },
+     {
+      "product_id": 7,
+      "detay_id": 12
+     },
+     {
+      "product_id": 7,
+      "detay_id": 13
+     },
+     {
+      "product_id": 7,
+      "detay_id": 14
+     },
+     {
+      "product_id": 7,
+      "detay_id": 15
+     },
+     {
+      "product_id": 7,
+      "detay_id": 16
+     },
+     {
+      "product_id": 7,
+      "detay_id": 17
+     },
+     {
+      "product_id": 7,
+      "detay_id": 18
+     },
+     {
+      "product_id": 8,
+      "detay_id": 2
+     },
+     {
+      "product_id": 8,
+      "detay_id": 1
+     },
+     {
+      "product_id": 8,
+      "detay_id": 3
+     },
+     {
+      "product_id": 8,
+      "detay_id": 4
+     },
+     {
+      "product_id": 8,
+      "detay_id": 5
+     },
+     {
+      "product_id": 8,
+      "detay_id": 6
+     },
+     {
+      "product_id": 8,
+      "detay_id": 7
+     },
+     {
+      "product_id": 8,
+      "detay_id": 8
+     },
+     {
+      "product_id": 8,
+      "detay_id": 9
+     },
+     {
+      "product_id": 8,
+      "detay_id": 10
+     },
+     {
+      "product_id": 8,
+      "detay_id": 11
+     },
+     {
+      "product_id": 8,
+      "detay_id": 12
+     },
+     {
+      "product_id": 8,
+      "detay_id": 13
+     },
+     {
+      "product_id": 8,
+      "detay_id": 14
+     },
+     {
+      "product_id": 8,
+      "detay_id": 15
+     },
+     {
+      "product_id": 8,
+      "detay_id": 16
+     },
+     {
+      "product_id": 8,
+      "detay_id": 17
+     },
+     {
+      "product_id": 8,
+      "detay_id": 18
+     },
+     {
+      "product_id": 9,
+      "detay_id": 2
+     },
+     {
+      "product_id": 9,
+      "detay_id": 1
+     },
+     {
+      "product_id": 9,
+      "detay_id": 3
+     },
+     {
+      "product_id": 9,
+      "detay_id": 4
+     },
+     {
+      "product_id": 9,
+      "detay_id": 5
+     },
+     {
+      "product_id": 9,
+      "detay_id": 6
+     },
+     {
+      "product_id": 9,
+      "detay_id": 7
+     },
+     {
+      "product_id": 9,
+      "detay_id": 8
+     },
+     {
+      "product_id": 9,
+      "detay_id": 9
+     },
+     {
+      "product_id": 9,
+      "detay_id": 10
+     },
+     {
+      "product_id": 9,
+      "detay_id": 11
+     },
+     {
+      "product_id": 9,
+      "detay_id": 12
+     },
+     {
+      "product_id": 9,
+      "detay_id": 13
+     },
+     {
+      "product_id": 9,
+      "detay_id": 14
+     },
+     {
+      "product_id": 9,
+      "detay_id": 15
+     },
+     {
+      "product_id": 9,
+      "detay_id": 16
+     },
+     {
+      "product_id": 9,
+      "detay_id": 17
+     },
+     {
+      "product_id": 9,
+      "detay_id": 18
+     },
+     {
+      "product_id": 11,
+      "detay_id": 2
+     },
+     {
+      "product_id": 11,
+      "detay_id": 1
+     },
+     {
+      "product_id": 11,
+      "detay_id": 3
+     },
+     {
+      "product_id": 11,
+      "detay_id": 4
+     },
+     {
+      "product_id": 11,
+      "detay_id": 5
+     },
+     {
+      "product_id": 11,
+      "detay_id": 6
+     },
+     {
+      "product_id": 11,
+      "detay_id": 7
+     },
+     {
+      "product_id": 11,
+      "detay_id": 8
+     },
+     {
+      "product_id": 11,
+      "detay_id": 9
+     },
+     {
+      "product_id": 11,
+      "detay_id": 10
+     },
+     {
+      "product_id": 11,
+      "detay_id": 11
+     },
+     {
+      "product_id": 11,
+      "detay_id": 12
+     },
+     {
+      "product_id": 11,
+      "detay_id": 13
+     },
+     {
+      "product_id": 11,
+      "detay_id": 14
+     },
+     {
+      "product_id": 11,
+      "detay_id": 15
+     },
+     {
+      "product_id": 11,
+      "detay_id": 16
+     },
+     {
+      "product_id": 11,
+      "detay_id": 17
+     },
+     {
+      "product_id": 11,
+      "detay_id": 18
+     },
+     {
+      "product_id": 12,
+      "detay_id": 2
+     },
+     {
+      "product_id": 12,
+      "detay_id": 1
+     },
+     {
+      "product_id": 12,
+      "detay_id": 3
+     },
+     {
+      "product_id": 12,
+      "detay_id": 4
+     },
+     {
+      "product_id": 12,
+      "detay_id": 5
+     },
+     {
+      "product_id": 12,
+      "detay_id": 6
+     },
+     {
+      "product_id": 12,
+      "detay_id": 7
+     },
+     {
+      "product_id": 12,
+      "detay_id": 8
+     },
+     {
+      "product_id": 12,
+      "detay_id": 9
+     },
+     {
+      "product_id": 12,
+      "detay_id": 10
+     },
+     {
+      "product_id": 12,
+      "detay_id": 11
+     },
+     {
+      "product_id": 12,
+      "detay_id": 12
+     },
+     {
+      "product_id": 12,
+      "detay_id": 13
+     },
+     {
+      "product_id": 12,
+      "detay_id": 14
+     },
+     {
+      "product_id": 12,
+      "detay_id": 15
+     },
+     {
+      "product_id": 12,
+      "detay_id": 16
+     },
+     {
+      "product_id": 12,
+      "detay_id": 17
+     },
+     {
+      "product_id": 12,
+      "detay_id": 18
+     },
+     {
+      "product_id": 13,
+      "detay_id": 2
+     },
+     {
+      "product_id": 13,
+      "detay_id": 1
+     },
+     {
+      "product_id": 13,
+      "detay_id": 3
+     },
+     {
+      "product_id": 13,
+      "detay_id": 4
+     },
+     {
+      "product_id": 13,
+      "detay_id": 5
+     },
+     {
+      "product_id": 13,
+      "detay_id": 6
+     },
+     {
+      "product_id": 13,
+      "detay_id": 7
+     },
+     {
+      "product_id": 13,
+      "detay_id": 8
+     },
+     {
+      "product_id": 13,
+      "detay_id": 9
+     },
+     {
+      "product_id": 13,
+      "detay_id": 10
+     },
+     {
+      "product_id": 13,
+      "detay_id": 11
+     },
+     {
+      "product_id": 13,
+      "detay_id": 12
+     },
+     {
+      "product_id": 13,
+      "detay_id": 13
+     },
+     {
+      "product_id": 13,
+      "detay_id": 14
+     },
+     {
+      "product_id": 13,
+      "detay_id": 15
+     },
+     {
+      "product_id": 13,
+      "detay_id": 16
+     },
+     {
+      "product_id": 13,
+      "detay_id": 17
+     },
+     {
+      "product_id": 13,
+      "detay_id": 18
+     },
+     {
+      "product_id": 14,
+      "detay_id": 2
+     },
+     {
+      "product_id": 14,
+      "detay_id": 1
+     },
+     {
+      "product_id": 14,
+      "detay_id": 3
+     },
+     {
+      "product_id": 14,
+      "detay_id": 4
+     },
+     {
+      "product_id": 14,
+      "detay_id": 5
+     },
+     {
+      "product_id": 14,
+      "detay_id": 6
+     },
+     {
+      "product_id": 14,
+      "detay_id": 7
+     },
+     {
+      "product_id": 14,
+      "detay_id": 8
+     },
+     {
+      "product_id": 14,
+      "detay_id": 9
+     },
+     {
+      "product_id": 14,
+      "detay_id": 10
+     },
+     {
+      "product_id": 14,
+      "detay_id": 11
+     },
+     {
+      "product_id": 14,
+      "detay_id": 12
+     },
+     {
+      "product_id": 14,
+      "detay_id": 13
+     },
+     {
+      "product_id": 14,
+      "detay_id": 14
+     },
+     {
+      "product_id": 14,
+      "detay_id": 15
+     },
+     {
+      "product_id": 14,
+      "detay_id": 16
+     },
+     {
+      "product_id": 14,
+      "detay_id": 17
+     },
+     {
+      "product_id": 14,
+      "detay_id": 18
+     },
+     {
+      "product_id": 15,
+      "detay_id": 2
+     },
+     {
+      "product_id": 15,
+      "detay_id": 1
+     },
+     {
+      "product_id": 15,
+      "detay_id": 3
+     },
+     {
+      "product_id": 15,
+      "detay_id": 4
+     },
+     {
+      "product_id": 15,
+      "detay_id": 5
+     },
+     {
+      "product_id": 15,
+      "detay_id": 6
+     },
+     {
+      "product_id": 15,
+      "detay_id": 7
+     },
+     {
+      "product_id": 15,
+      "detay_id": 8
+     },
+     {
+      "product_id": 15,
+      "detay_id": 9
+     },
+     {
+      "product_id": 15,
+      "detay_id": 10
+     },
+     {
+      "product_id": 15,
+      "detay_id": 11
+     },
+     {
+      "product_id": 15,
+      "detay_id": 12
+     },
+     {
+      "product_id": 15,
+      "detay_id": 13
+     },
+     {
+      "product_id": 15,
+      "detay_id": 14
+     },
+     {
+      "product_id": 15,
+      "detay_id": 15
+     },
+     {
+      "product_id": 15,
+      "detay_id": 16
+     },
+     {
+      "product_id": 15,
+      "detay_id": 17
+     },
+     {
+      "product_id": 15,
+      "detay_id": 18
+     },
+     {
+      "product_id": 16,
+      "detay_id": 2
+     },
+     {
+      "product_id": 16,
+      "detay_id": 1
+     },
+     {
+      "product_id": 16,
+      "detay_id": 3
+     },
+     {
+      "product_id": 16,
+      "detay_id": 4
+     },
+     {
+      "product_id": 16,
+      "detay_id": 5
+     },
+     {
+      "product_id": 16,
+      "detay_id": 6
+     },
+     {
+      "product_id": 16,
+      "detay_id": 7
+     },
+     {
+      "product_id": 16,
+      "detay_id": 8
+     },
+     {
+      "product_id": 16,
+      "detay_id": 9
+     },
+     {
+      "product_id": 16,
+      "detay_id": 10
+     },
+     {
+      "product_id": 16,
+      "detay_id": 11
+     },
+     {
+      "product_id": 16,
+      "detay_id": 12
+     },
+     {
+      "product_id": 16,
+      "detay_id": 13
+     },
+     {
+      "product_id": 16,
+      "detay_id": 14
+     },
+     {
+      "product_id": 16,
+      "detay_id": 15
+     },
+     {
+      "product_id": 16,
+      "detay_id": 16
+     },
+     {
+      "product_id": 16,
+      "detay_id": 17
+     },
+     {
+      "product_id": 16,
+      "detay_id": 18
+     },
+     {
+      "product_id": 17,
+      "detay_id": 2
+     },
+     {
+      "product_id": 17,
+      "detay_id": 1
+     },
+     {
+      "product_id": 17,
+      "detay_id": 3
+     },
+     {
+      "product_id": 17,
+      "detay_id": 4
+     },
+     {
+      "product_id": 17,
+      "detay_id": 5
+     },
+     {
+      "product_id": 17,
+      "detay_id": 6
+     },
+     {
+      "product_id": 17,
+      "detay_id": 7
+     },
+     {
+      "product_id": 17,
+      "detay_id": 8
+     },
+     {
+      "product_id": 17,
+      "detay_id": 9
+     },
+     {
+      "product_id": 17,
+      "detay_id": 10
+     },
+     {
+      "product_id": 17,
+      "detay_id": 11
+     },
+     {
+      "product_id": 17,
+      "detay_id": 12
+     },
+     {
+      "product_id": 17,
+      "detay_id": 13
+     },
+     {
+      "product_id": 17,
+      "detay_id": 14
+     },
+     {
+      "product_id": 17,
+      "detay_id": 15
+     },
+     {
+      "product_id": 17,
+      "detay_id": 16
+     },
+     {
+      "product_id": 17,
+      "detay_id": 17
+     },
+     {
+      "product_id": 17,
+      "detay_id": 18
+     },
+     {
+      "product_id": 18,
+      "detay_id": 2
+     },
+     {
+      "product_id": 18,
+      "detay_id": 1
+     },
+     {
+      "product_id": 18,
+      "detay_id": 3
+     },
+     {
+      "product_id": 18,
+      "detay_id": 4
+     },
+     {
+      "product_id": 18,
+      "detay_id": 5
+     },
+     {
+      "product_id": 18,
+      "detay_id": 6
+     },
+     {
+      "product_id": 18,
+      "detay_id": 7
+     },
+     {
+      "product_id": 18,
+      "detay_id": 8
+     },
+     {
+      "product_id": 18,
+      "detay_id": 9
+     },
+     {
+      "product_id": 18,
+      "detay_id": 10
+     },
+     {
+      "product_id": 18,
+      "detay_id": 11
+     },
+     {
+      "product_id": 18,
+      "detay_id": 12
+     },
+     {
+      "product_id": 18,
+      "detay_id": 13
+     },
+     {
+      "product_id": 18,
+      "detay_id": 14
+     },
+     {
+      "product_id": 18,
+      "detay_id": 15
+     },
+     {
+      "product_id": 18,
+      "detay_id": 16
+     },
+     {
+      "product_id": 18,
+      "detay_id": 17
+     },
+     {
+      "product_id": 18,
+      "detay_id": 18
+     },
+     {
+      "product_id": 19,
+      "detay_id": 2
+     },
+     {
+      "product_id": 19,
+      "detay_id": 1
+     },
+     {
+      "product_id": 19,
+      "detay_id": 3
+     },
+     {
+      "product_id": 19,
+      "detay_id": 4
+     },
+     {
+      "product_id": 19,
+      "detay_id": 5
+     },
+     {
+      "product_id": 19,
+      "detay_id": 6
+     },
+     {
+      "product_id": 19,
+      "detay_id": 7
+     },
+     {
+      "product_id": 19,
+      "detay_id": 8
+     },
+     {
+      "product_id": 19,
+      "detay_id": 9
+     },
+     {
+      "product_id": 19,
+      "detay_id": 10
+     },
+     {
+      "product_id": 19,
+      "detay_id": 11
+     },
+     {
+      "product_id": 19,
+      "detay_id": 12
+     },
+     {
+      "product_id": 19,
+      "detay_id": 13
+     },
+     {
+      "product_id": 19,
+      "detay_id": 14
+     },
+     {
+      "product_id": 19,
+      "detay_id": 15
+     },
+     {
+      "product_id": 19,
+      "detay_id": 16
+     },
+     {
+      "product_id": 19,
+      "detay_id": 17
+     },
+     {
+      "product_id": 19,
+      "detay_id": 18
+     }
+    ],
+    "silinen_kayitlar": [
+     {
+      "id": 1,
+      "tur": "urun",
+      "kayit_id": 1,
+      "remote_id": 88,
+      "silindi_at": "ZAMAN",
+      "gonderildi_at": ""
+     },
+     {
+      "id": 2,
+      "tur": "urun",
+      "kayit_id": 2,
+      "remote_id": 0,
+      "silindi_at": "ZAMAN",
+      "gonderildi_at": ""
+     },
+     {
+      "id": 3,
+      "tur": "kategori",
+      "kayit_id": 1,
+      "remote_id": 77,
+      "silindi_at": "ZAMAN",
+      "gonderildi_at": ""
+     }
+    ],
+    "payment_methods": [
+     {
+      "id": 1,
+      "name": "Nakit",
+      "active": 1
+     },
+     {
+      "id": 2,
+      "name": "Kredi Kartı",
+      "active": 1
+     },
+     {
+      "id": 3,
+      "name": "Yemek Kartı (Sodexo)",
+      "active": 1
+     },
+     {
+      "id": 4,
+      "name": "Online",
+      "active": 1
+     }
+    ],
+    "users": [
+     {
+      "id": 1,
+      "name": "Admin",
+      "role": "Yönetici",
+      "pin": "1234",
+      "created_at": "2026-01-01T09:00:00.000Z"
+     },
+     {
+      "id": 3,
+      "name": "Gerçek Kasiyer",
+      "role": "Kasiyer",
+      "pin": "2222",
+      "created_at": "2026-02-01T10:00:00.000Z"
+     }
+    ],
+    "orders": [
+     {
+      "id": 4,
+      "total": 55.0,
+      "created_at": "2026-03-01T10:00:00.000Z"
+     }
+    ],
+    "order_items": [
+     {
+      "id": 4,
+      "order_id": 4,
+      "name": "x"
+     }
+    ],
+    "payments": [
+     {
+      "id": 4,
+      "order_id": 4,
+      "amount": 1.0
+     }
+    ],
+    "shifts": [
+     {
+      "id": 2,
+      "baslangic": "2026-03-01T08:00:00.000Z"
+     }
+    ],
+    "sms_history": [],
+    "members": [
+     {
+      "id": 2,
+      "name": "Gerçek Üye",
+      "created_at": "2026-03-01"
+     }
+    ],
+    "member_adresleri": [
+     {
+      "id": 2,
+      "member_id": 2,
+      "adres": "y"
+     }
+    ],
+    "firmalar": [],
+    "printers": [],
+    "yazici_eslesme": []
+   },
+   "resimler": [
+    "prod_X_k1.jpg",
+    "prod_X_u1.jpg"
+   ],
+   "loglar": [
+    "Demo temizliği: order_items 3, payments 3, orders 3, shifts 1, sms_history 1, member_adresleri 1, members 1, firmalar 1, users 1, yazici_eslesme 1, printers 2  (yönetici hesabına dokunulmadı)",
+    "Eski menü silindi: 1 kategori, 2 ürün (panele silme olarak gönderilecek).",
+    "Pro veritabanı yazıldı: /tmp/tmp38v407rp/out/siparismatik.db  (10 kategori, 17 ürün, 6 porsiyon, 18 opsiyon / 288 bağ, 7 ürün menü fiyatıyla, 10 ürün 1 TL)",
+    "Resimler: /tmp/tmp38v407rp/out/product-images  → müşteride C:\\Users\\kasa pc\\AppData\\Roaming\\siparismatik-pro\\product-images",
+    "KURULUM: Pro'yu kapat → AppData\\Roaming\\siparismatik-pro içindeki siparismatik.db, siparismatik.db-wal ve siparismatik.db-shm'yi yedeğe al → bu siparismatik.db'yi ve product-images klasörünü oraya kopyala → Pro'yu aç.",
+    "Resmi olmayan 16 ürün: Et Döner Porsiyon, İskender, Lahmacun, Yarım Ekmek Antakya, Tam Ekmek Antakya, Patates kızartması 40, Su 0,5 lt, Çoban salata, Adana kebap menü, Çiğ köfte dürüm, Maydanoz, Roka, Taze soğan, Tatlı kıl biber, Kuru kayısı ..."
+   ]
+  },
+  {
+   "ad": "pro2",
+   "metin": "# Döner\n## Izgara\n### Menü\nTavuk Dürüm Menü | tavuk döner dürüm menü | 120\n### Sadece Yemek\nTavuk Dürüm\n- Et Dürüm - 150 TL\n# İçecekler\n## Hazır\n### Sadece Yemek\nEfes 50cl | efes pilsen 50 cl şişe | 90\n```\n• Ayran 30\nÖDEME: Yemek Kartı",
+   "seviye": 3,
+   "opsiyon": "Acılı; Acısız\nsoğansız",
+   "icecek": true,
+   "demo": false,
+   "ek": [],
+   "resimli": [
+    "Ayran",
+    "Domates",
+    "Efes 50cl",
+    "Künefe",
+    "Tavuk Döner",
+    "Tavuk Dürüm Menü"
+   ],
+   "tablolar": {
+    "categories": [
+     {
+      "id": 2,
+      "name": "DÖNER IZGARA MENÜ",
+      "image": "C:\\Users\\kasa pc\\AppData\\Roaming\\siparismatik-pro\\product-images\\prod_X_k1.jpg",
+      "kdv": 10,
+      "sort_order": 1,
+      "remote_id": 0,
+      "kiosk_visible": 1,
+      "kiosk_sort": 1,
+      "printer_id": null,
+      "printer_ids": "",
+      "updated_at": "ZAMAN"
+     },
+     {
+      "id": 3,
+      "name": "DÖNER IZGARA SADECE YEMEK",
+      "image": "",
+      "kdv": 10,
+      "sort_order": 2,
+      "remote_id": 0,
+      "kiosk_visible": 1,
+      "kiosk_sort": 2,
+      "printer_id": null,
+      "printer_ids": "",
+      "updated_at": "ZAMAN"
+     },
+     {
+      "id": 4,
+      "name": "İÇECEKLER HAZIR SADECE YEMEK",
+      "image": "C:\\Users\\kasa pc\\AppData\\Roaming\\siparismatik-pro\\product-images\\prod_X_k3.jpg",
+      "kdv": 10,
+      "sort_order": 3,
+      "remote_id": 0,
+      "kiosk_visible": 1,
+      "kiosk_sort": 3,
+      "printer_id": null,
+      "printer_ids": "",
+      "updated_at": "ZAMAN"
+     }
+    ],
+    "products": [
+     {
+      "id": 3,
+      "category_id": 2,
+      "name": "TAVUK DÜRÜM MENÜ",
+      "price": 120.0,
+      "kdv": 10,
+      "active": 1,
+      "wp_show": 1,
+      "image": "C:\\Users\\kasa pc\\AppData\\Roaming\\siparismatik-pro\\product-images\\prod_X_u1.jpg",
+      "sort_order": 1,
+      "variants": "",
+      "remote_id": 0,
+      "kiosk_visible": 1,
+      "salon_show": 1,
+      "paket_show": 1,
+      "updated_at": "ZAMAN"
+     },
+     {
+      "id": 4,
+      "category_id": 3,
+      "name": "TAVUK DÜRÜM",
+      "price": 1.0,
+      "kdv": 10,
+      "active": 1,
+      "wp_show": 1,
+      "image": "",
+      "sort_order": 1,
+      "variants": "",
+      "remote_id": 0,
+      "kiosk_visible": 1,
+      "salon_show": 1,
+      "paket_show": 1,
+      "updated_at": "ZAMAN"
+     },
+     {
+      "id": 5,
+      "category_id": 3,
+      "name": "ET DÜRÜM",
+      "price": 150.0,
+      "kdv": 10,
+      "active": 1,
+      "wp_show": 1,
+      "image": "",
+      "sort_order": 2,
+      "variants": "",
+      "remote_id": 0,
+      "kiosk_visible": 1,
+      "salon_show": 1,
+      "paket_show": 1,
+      "updated_at": "ZAMAN"
+     },
+     {
+      "id": 6,
+      "category_id": 4,
+      "name": "EFES 50CL",
+      "price": 90.0,
+      "kdv": 10,
+      "active": 1,
+      "wp_show": 1,
+      "image": "C:\\Users\\kasa pc\\AppData\\Roaming\\siparismatik-pro\\product-images\\prod_X_u4.jpg",
+      "sort_order": 1,
+      "variants": "",
+      "remote_id": 0,
+      "kiosk_visible": 1,
+      "salon_show": 1,
+      "paket_show": 1,
+      "updated_at": "ZAMAN"
+     },
+     {
+      "id": 7,
+      "category_id": 4,
+      "name": "AYRAN 30",
+      "price": 1.0,
+      "kdv": 10,
+      "active": 1,
+      "wp_show": 1,
+      "image": "",
+      "sort_order": 2,
+      "variants": "",
+      "remote_id": 0,
+      "kiosk_visible": 1,
+      "salon_show": 1,
+      "paket_show": 1,
+      "updated_at": "ZAMAN"
+     }
+    ],
+    "detaylar": [
+     {
+      "id": 1,
+      "name": "SOĞANSIZ",
+      "sira": 1,
+      "updated_at": "ZAMAN",
+      "remote_id": 0
+     },
+     {
+      "id": 2,
+      "name": "ACILI",
+      "sira": 2,
+      "updated_at": "ZAMAN",
+      "remote_id": 0
+     },
+     {
+      "id": 3,
+      "name": "ACISIZ",
+      "sira": 3,
+      "updated_at": "ZAMAN",
+      "remote_id": 0
+     }
+    ],
+    "urun_detaylar": [
+     {
+      "product_id": 3,
+      "detay_id": 2
+     },
+     {
+      "product_id": 3,
+      "detay_id": 3
+     },
+     {
+      "product_id": 3,
+      "detay_id": 1
+     },
+     {
+      "product_id": 4,
+      "detay_id": 2
+     },
+     {
+      "product_id": 4,
+      "detay_id": 3
+     },
+     {
+      "product_id": 4,
+      "detay_id": 1
+     },
+     {
+      "product_id": 5,
+      "detay_id": 2
+     },
+     {
+      "product_id": 5,
+      "detay_id": 3
+     },
+     {
+      "product_id": 5,
+      "detay_id": 1
+     },
+     {
+      "product_id": 6,
+      "detay_id": 2
+     },
+     {
+      "product_id": 6,
+      "detay_id": 3
+     },
+     {
+      "product_id": 6,
+      "detay_id": 1
+     },
+     {
+      "product_id": 7,
+      "detay_id": 2
+     },
+     {
+      "product_id": 7,
+      "detay_id": 3
+     },
+     {
+      "product_id": 7,
+      "detay_id": 1
+     }
+    ],
+    "silinen_kayitlar": [
+     {
+      "id": 1,
+      "tur": "urun",
+      "kayit_id": 1,
+      "remote_id": 88,
+      "silindi_at": "ZAMAN",
+      "gonderildi_at": ""
+     },
+     {
+      "id": 2,
+      "tur": "urun",
+      "kayit_id": 2,
+      "remote_id": 0,
+      "silindi_at": "ZAMAN",
+      "gonderildi_at": ""
+     },
+     {
+      "id": 3,
+      "tur": "kategori",
+      "kayit_id": 1,
+      "remote_id": 77,
+      "silindi_at": "ZAMAN",
+      "gonderildi_at": ""
+     }
+    ],
+    "payment_methods": [
+     {
+      "id": 1,
+      "name": "Nakit",
+      "active": 1
+     },
+     {
+      "id": 2,
+      "name": "Kredi Kartı",
+      "active": 1
+     },
+     {
+      "id": 3,
+      "name": "Yemek Kartı (Sodexo)",
+      "active": 0
+     },
+     {
+      "id": 4,
+      "name": "Online",
+      "active": 1
+     }
+    ],
+    "users": [
+     {
+      "id": 1,
+      "name": "Admin",
+      "role": "Yönetici",
+      "pin": "1234",
+      "created_at": "2026-01-01T09:00:00.000Z"
+     },
+     {
+      "id": 2,
+      "name": "Demo Garson",
+      "role": "Garson",
+      "pin": "1111",
+      "created_at": "2026-01-01T09:00:00.000Z"
+     },
+     {
+      "id": 3,
+      "name": "Gerçek Kasiyer",
+      "role": "Kasiyer",
+      "pin": "2222",
+      "created_at": "2026-02-01T10:00:00.000Z"
+     }
+    ],
+    "orders": [
+     {
+      "id": 1,
+      "total": 100.0,
+      "created_at": "2025-12-30T10:00:00.000Z"
+     },
+     {
+      "id": 2,
+      "total": 101.0,
+      "created_at": "2025-12-31T10:00:00.000Z"
+     },
+     {
+      "id": 3,
+      "total": 102.0,
+      "created_at": "2025-12-32T10:00:00.000Z"
+     },
+     {
+      "id": 4,
+      "total": 55.0,
+      "created_at": "2026-03-01T10:00:00.000Z"
+     }
+    ],
+    "order_items": [
+     {
+      "id": 1,
+      "order_id": 1,
+      "name": "x"
+     },
+     {
+      "id": 2,
+      "order_id": 2,
+      "name": "x"
+     },
+     {
+      "id": 3,
+      "order_id": 3,
+      "name": "x"
+     },
+     {
+      "id": 4,
+      "order_id": 4,
+      "name": "x"
+     }
+    ],
+    "payments": [
+     {
+      "id": 1,
+      "order_id": 1,
+      "amount": 1.0
+     },
+     {
+      "id": 2,
+      "order_id": 2,
+      "amount": 1.0
+     },
+     {
+      "id": 3,
+      "order_id": 3,
+      "amount": 1.0
+     },
+     {
+      "id": 4,
+      "order_id": 4,
+      "amount": 1.0
+     }
+    ],
+    "shifts": [
+     {
+      "id": 1,
+      "baslangic": "2025-12-30T08:00:00.000Z"
+     },
+     {
+      "id": 2,
+      "baslangic": "2026-03-01T08:00:00.000Z"
+     }
+    ],
+    "sms_history": [
+     {
+      "id": 1,
+      "created_at": "2025-12-30T08:00:00.000Z"
+     }
+    ],
+    "members": [
+     {
+      "id": 1,
+      "name": "Demo Üye",
+      "created_at": "2026-01-01T09:00:00.000Z"
+     },
+     {
+      "id": 2,
+      "name": "Gerçek Üye",
+      "created_at": "2026-03-01"
+     }
+    ],
+    "member_adresleri": [
+     {
+      "id": 1,
+      "member_id": 1,
+      "adres": "x"
+     },
+     {
+      "id": 2,
+      "member_id": 2,
+      "adres": "y"
+     }
+    ],
+    "firmalar": [
+     {
+      "id": 1,
+      "name": "Demo Firma",
+      "created_at": "2026-01-01T09:00:00.000Z"
+     }
+    ],
+    "printers": [
+     {
+      "id": 1,
+      "name": "Adisyon"
+     },
+     {
+      "id": 2,
+      "name": "Mutfak"
+     }
+    ],
+    "yazici_eslesme": []
+   },
+   "resimler": [
+    "prod_X_k1.jpg",
+    "prod_X_k3.jpg",
+    "prod_X_u1.jpg",
+    "prod_X_u4.jpg"
+   ],
+   "loglar": [
+    "Eski menü silindi: 1 kategori, 2 ürün (panele silme olarak gönderilecek).",
+    "Pro veritabanı yazıldı: /tmp/tmp0vqw1560/out/siparismatik.db  (3 kategori, 5 ürün, 0 porsiyon, 3 opsiyon / 15 bağ, 3 ürün menü fiyatıyla, 2 ürün 1 TL)",
+    "Resimler: /tmp/tmp0vqw1560/out/product-images  → müşteride C:\\Users\\kasa pc\\AppData\\Roaming\\siparismatik-pro\\product-images",
+    "KURULUM: Pro'yu kapat → AppData\\Roaming\\siparismatik-pro içindeki siparismatik.db, siparismatik.db-wal ve siparismatik.db-shm'yi yedeğe al → bu siparismatik.db'yi ve product-images klasörünü oraya kopyala → Pro'yu aç.",
+    "Resmi olmayan 3 ürün: Tavuk Dürüm, Et Dürüm, Ayran 30"
+   ]
+  }
+ ],
+ "firma": "Test Döner Evi"
+}

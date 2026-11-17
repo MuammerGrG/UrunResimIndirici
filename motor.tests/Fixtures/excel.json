@@ -1,0 +1,20 @@
+{
+ "vakalar": [
+  [
+   "x_a.xlsx",
+   "# Dürümler\nTavuk Dürüm | Tavuk Dürüm | 150\nEt Dürüm | Et Dürüm | 220.5\n\n# İçecekler\nAyran | Ayran | 30\nKola | Kola | 60"
+  ],
+  [
+   "x_b.xlsx",
+   "Domates | Domates | 45\nSalatalık | Salatalık | 30\nTavuk Döner Az | Tavuk Döner Az | 150\nTavuk Döner Tam | Tavuk Döner Tam | 200\nNar"
+  ],
+  [
+   "x_c.xlsx",
+   "# Pizzalar\nKarışık Pizza | Karışık Pizza | 250 | Büyük=350\n\n# Tatlılar\nKünefe | Künefe | 120"
+  ],
+  [
+   "x_d.xlsx",
+   "# Döner\n## Izgara\n### Sadece Yemek\nTavuk Döner | Tavuk Döner | 200 | Az = 150 TL; 1,5 = 280 TL\n### Menü\nDöner Menü | Döner Menü | 260\n## Kızartma\n### Sadece Yemek\nÇıtır Tavuk | Çıtır Tavuk | 180\n\n# İçecekler\nAyran | Ayran | 30\n## Hazır\n### Menü\nAyran Menü | Ayran Menü | 35"
+  ]
+ ]
+}
