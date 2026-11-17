@@ -78,8 +78,12 @@ jobs:
         run: |
           $kur = Get-ChildItem arayuz/dist/*.exe | Select-Object -First 1
           Start-Process -FilePath $kur.FullName -ArgumentList "/S" -Wait
-          $exe = Join-Path $env:LOCALAPPDATA "Programs\urun-resim-indirici\UrunResim.exe"
-          if (-not (Test-Path $exe)) { $exe = (Get-ChildItem "$env:LOCALAPPDATA\Programs" -Recurse -Filter UrunResim.exe | Select-Object -First 1).FullName }
+          $exe = $null
+          for ($i = 0; $i -lt 60 -and -not $exe; $i++) {
+            Start-Sleep -Seconds 2
+            $exe = (Get-ChildItem "$env:LOCALAPPDATA\Programs" -Recurse -Filter UrunResim.exe -ErrorAction SilentlyContinue | Select-Object -First 1).FullName
+          }
+          Start-Sleep -Seconds 5
           "Kurulan: $exe" | Tee-Object -FilePath derle.txt -Append
           $motor = Join-Path (Split-Path $exe) "resources\motor\Motor.exe"
           if (-not (Test-Path $motor)) { "Motor kurulumda yok" | Tee-Object -FilePath derle.txt -Append; exit 1 }
