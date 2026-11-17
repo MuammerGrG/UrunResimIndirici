@@ -40,7 +40,7 @@ public static class Fx
         null => "null",
         JsonArray a => "[" + string.Join(",", a.Select(Normal)) + "]",
         JsonObject o => "{" + string.Join(",", o.OrderBy(x => x.Key, StringComparer.Ordinal).Select(x => JsonSerializer.Serialize(x.Key) + ":" + Normal(x.Value))) + "}",
-        JsonValue v when v.GetValueKind() == JsonValueKind.Number => v.GetValue<double>().ToString("R", CultureInfo.InvariantCulture),
+        JsonValue v when v.GetValueKind() == JsonValueKind.Number => double.Parse(v.ToJsonString(), CultureInfo.InvariantCulture).ToString("R", CultureInfo.InvariantCulture),
         JsonValue v when v.GetValueKind() == JsonValueKind.String => JsonSerializer.Serialize(v.GetValue<string>()),
         _ => n.ToJsonString(),
     };

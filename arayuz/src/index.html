@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' resim: data:; style-src 'self' 'unsafe-inline'; font-src 'self'; script-src 'self'">
+<title>Ürün Resim İndirici</title>
+<link rel="stylesheet" href="../node_modules/@fontsource/bricolage-grotesque/600.css">
+<link rel="stylesheet" href="../node_modules/@fontsource/bricolage-grotesque/800.css">
+<link rel="stylesheet" href="../node_modules/@fontsource/figtree/400.css">
+<link rel="stylesheet" href="../node_modules/@fontsource/figtree/600.css">
+<link rel="stylesheet" href="../node_modules/@fontsource/jetbrains-mono/400.css">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<div class="uygulama">
+
+  <!-- Adımlar: fiş şeridi -->
+  <nav class="fis" aria-label="Adımlar">
+    <div class="fis-bas">
+      <div class="logo" aria-hidden="true">
+        <svg viewBox="0 0 32 32"><rect x="5" y="3" width="22" height="26" rx="2"/><path d="M10 10h12M10 15h12M10 20h7"/></svg>
+      </div>
+      <div>
+        <div class="fis-ad">Ürün Resim İndirici</div>
+        <div class="fis-surum" id="surum">v4</div>
+      </div>
+    </div>
+    <ol class="adimlar">
+      <li><button class="adim" data-adim="kaynak"><span class="no">1</span><span class="adim-ad">Kaynak</span><span class="adim-bilgi" id="b-kaynak">menü, liste ya da Excel</span></button></li>
+      <li><button class="adim" data-adim="liste"><span class="no">2</span><span class="adim-ad">Ürün listesi</span><span class="adim-bilgi" id="b-liste">boş</span></button></li>
+      <li><button class="adim" data-adim="resim"><span class="no">3</span><span class="adim-ad">Resimler</span><span class="adim-bilgi" id="b-resim">indirilmedi</span></button></li>
+      <li><button class="adim" data-adim="cikti"><span class="no">4</span><span class="adim-ad">POS çıktısı</span><span class="adim-bilgi" id="b-cikti">hazırlanmadı</span></button></li>
+    </ol>
+    <div class="fis-toplam" aria-live="polite">
+      <div><span>Kategori</span><b id="t-kat">0</b></div>
+      <div><span>Ürün</span><b id="t-urun">0</b></div>
+      <div><span>Porsiyon</span><b id="t-pors">0</b></div>
+      <div><span>Resmi olan</span><b id="t-resim">–</b></div>
+    </div>
+    <div class="fis-alt">
+      <button class="hafif" id="btn-ayarlar">Ayarlar</button>
+      <button class="hafif" id="btn-yeni">Yeni müşteri</button>
+    </div>
+  </nav>
+
+  <div class="ana">
+    <header class="ust">
+      <label class="firma">
+        <span>Firma</span>
+        <input id="firma" placeholder="Boşsa SQL / Pro dosyasındaki firma adı kullanılır" autocomplete="off">
+      </label>
+      <button class="hafif" id="btn-firma-klasor" title="Bu firmanın çıktı klasörünü aç">Firma klasörü</button>
+      <div class="guncelleme" id="guncelleme" hidden></div>
+    </header>
+
+    <main class="sahne">
+
+      <!-- 1 Kaynak -->
+      <section class="panel" data-panel="kaynak">
+        <h1>Müşteriden ne geldi?</h1>
+        <p class="aciklama">Menü fotoğrafı, broşür, PDF ya da yazılı liste. İkisi birden geldiyse ikisini de ver: broşürdeki fotoğraflar kesilir, fiyatlar yazılı listeden alınır.</p>
+        <div class="kaynak-izgara">
+          <div class="kart birak" id="birak" tabindex="0">
+            <h2>Menü / broşür</h2>
+            <div class="birak-alan">
+              <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 34v6h32v-6M24 8v24M15 17l9-9 9 9"/></svg>
+              <p>Resimleri, PDF'i ya da klasörü buraya sürükle</p>
+              <div class="sira">
+                <button id="btn-menu-dosya">Dosya seç</button>
+                <button id="btn-menu-klasor" class="hafif">Klasör seç</button>
+              </div>
+            </div>
+            <ul class="dosyalar" id="dosyalar"></ul>
+            <div class="sira sag">
+              <button class="birincil" id="btn-oku" disabled>Menüyü oku</button>
+            </div>
+          </div>
+          <div class="kart">
+            <h2>Yazılı liste</h2>
+            <p class="ipucu">WhatsApp mesajı, not, e-posta… olduğu gibi yapıştır.</p>
+            <textarea id="liste" class="kod" spellcheck="false" placeholder="Tavuk Döner Az 150 TL&#10;Tavuk Döner Tam 200 TL&#10;Ayran 30&#10;ÖDEME: Sodexo, Multinet"></textarea>
+            <div class="sira">
+              <button id="btn-liste-aktar">Ürün listesine aktar</button>
+              <button class="hafif" id="btn-liste-temizle">Temizle</button>
+              <span class="ipucu" id="liste-not"></span>
+            </div>
+          </div>
+        </div>
+        <div class="diger">
+          <button class="satir-btn" id="btn-excel-oku"><b>Excel dosyası</b><span>Ürün, fiyat, kategori sütunları otomatik bulunur</span></button>
+          <button class="satir-btn" id="btn-txt-oku"><b>Metin dosyası</b><span>Daha önce kaydedilmiş .txt liste</span></button>
+          <button class="satir-btn" id="btn-hazir-klasor"><b>Hazır resim klasörü ya da zip</b><span>Klasör = kategori, dosya adı = ürün; resim indirmeden direkt POS çıktısı</span></button>
+        </div>
+      </section>
+
+      <!-- 2 Liste -->
+      <section class="panel" data-panel="liste" hidden>
+        <div class="baslik-sira">
+          <h1>Ürün listesi</h1>
+          <div class="sira">
+            <button class="hafif" id="btn-txt-kaydet">Kaydet (.txt)</button>
+            <button class="hafif" id="btn-excel-yaz">Excel'e aktar</button>
+            <button class="hafif" id="btn-metin-temizle">Temizle</button>
+          </div>
+        </div>
+        <div class="uyari" id="basliksiz" hidden>
+          <p>Liste kategorisiz yazılmış. Kategorilere ayırmadan resim de indirebilirsin, o zaman yerleşik sınıflandırıcı kullanılır.</p>
+          <button id="btn-siniflandir">Kategorilere ayır</button>
+        </div>
+        <div class="liste-izgara">
+          <div class="editor">
+            <textarea id="metin" class="kod" spellcheck="false" placeholder="# Döner&#10;## Izgara&#10;### Sadece Yemek&#10;Tavuk Döner | tavuk döner porsiyon | 200 | Az=150; 1,5=280"></textarea>
+            <p class="ipucu sozdizim"><code># Kategori</code> <code>## Pişme şekli</code> <code>### Menü</code> ya da <code>### Sadece Yemek</code>, altında <code>Ürün | arama | fiyat | Az=150; 1,5=280</code></p>
+          </div>
+          <div class="onizleme" id="onizleme" aria-live="polite"></div>
+        </div>
+        <div class="sira sag alt-bosluk">
+          <button class="birincil" id="btn-resime-gec">Resimlere geç</button>
+        </div>
+      </section>
+
+      <!-- 3 Resimler -->
+      <section class="panel" data-panel="resim" hidden>
+        <div class="baslik-sira">
+          <h1>Resimler</h1>
+          <div class="sira">
+            <button class="hafif" id="btn-kutuphane">Resim klasörünü aç</button>
+            <button class="birincil" id="btn-indir">Resimleri indir</button>
+          </div>
+        </div>
+        <div class="secenekler">
+          <label>Ürün başına <input type="number" id="adet" min="1" max="10" value="1"> resim</label>
+          <label class="genis">Aramaya ek <input id="ek" placeholder="ör. beyaz arka plan"></label>
+          <label class="kutu"><input type="checkbox" id="klasorArama"> Klasör adlarını aramaya ekle</label>
+          <label class="kutu"><input type="checkbox" id="yenile"> Var olanları yeniden indir</label>
+          <label class="kutu"><input type="checkbox" id="otomatikCikti"> Bitince POS çıktısını da oluştur</label>
+        </div>
+        <div class="ilerleme" id="ilerleme" hidden><div class="cubuk"><i id="ilerleme-cubuk"></i></div><span id="ilerleme-yazi"></span></div>
+        <div class="galeri" id="galeri"></div>
+      </section>
+
+      <!-- 4 Çıktı -->
+      <section class="panel" data-panel="cikti" hidden>
+        <h1>POS çıktısı</h1>
+        <div class="anahtar" role="radiogroup" aria-label="Çıktı türü">
+          <button role="radio" data-mod="sql">SiparişMatik (.sql)</button>
+          <button role="radio" data-mod="pro">SiparişMatik Pro (siparismatik.db)</button>
+        </div>
+        <div class="cikti-izgara">
+          <div class="kart">
+            <div data-mod-alan="sql">
+              <label class="alan">SQL yedeği
+                <span class="dosya-sec"><input id="sql" placeholder="Müşterinin boş/eski SQL yedeği (.sql)"><button class="hafif" id="btn-sql-sec">Seç</button></span>
+              </label>
+            </div>
+            <div data-mod-alan="pro">
+              <label class="alan">Pro veritabanı
+                <span class="dosya-sec"><input id="proDb" placeholder="Yeni kurulumun siparismatik.db dosyası"><button class="hafif" id="btn-pro-sec">Seç</button></span>
+              </label>
+              <label class="alan">Kurulacak bilgisayarın Windows kullanıcı adı <input id="proKullanici"></label>
+              <label class="alan">Opsiyonlar <textarea id="proOpsiyonlar" rows="3"></textarea></label>
+              <label class="kutu"><input type="checkbox" id="proIcecekOpsiyon"> İçeceklere de opsiyon ekle</label>
+              <label class="kutu"><input type="checkbox" id="proDemoTemizle"> Demo verileri temizle (yönetici hesabı kalır)</label>
+            </div>
+            <div class="uc-alan">
+              <label class="alan">Fiyatı olmayanlara (TL) <input id="fiyat" inputmode="decimal"></label>
+              <label class="alan">KDV % <input id="kdv" inputmode="decimal"></label>
+              <label class="alan">Kategori
+                <select id="seviye"><option value="1">Sadece kategori (Döner)</option><option value="3">Kategori + pişme + menü</option></select>
+              </label>
+            </div>
+            <div class="kaynak-secim">
+              <span>Ürünler</span>
+              <label class="kutu"><input type="radio" name="kaynak" value="liste" checked> Ürün listesinden</label>
+              <label class="kutu"><input type="radio" name="kaynak" value="klasor"> Hazır resim klasöründen</label>
+              <span class="dosya-sec" id="klasor-alan" hidden><input id="hazirKlasor" placeholder="Klasör ya da .zip"><button class="hafif" id="btn-klasor-sec">Klasör</button><button class="hafif" id="btn-zip-sec">Zip</button></span>
+            </div>
+            <div class="sira sag">
+              <button class="hafif" id="btn-demo-temizle" data-mod-alan="pro">Kurulu Pro'da demo temizle…</button>
+              <button class="birincil" id="btn-olustur">SQL oluştur</button>
+            </div>
+          </div>
+          <div class="sonuc" id="sonuc" aria-live="polite">
+            <p class="bos">Çıktı, firma klasörüne kaydedilir. Resimler indirilmeden de oluşturulabilir; resmi olmayan ürünler resimsiz yazılır.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Kayıt -->
+    <footer class="kayit" id="kayit">
+      <button class="kayit-bas" id="kayit-ac" aria-expanded="false">
+        <span class="nokta" id="mesgul-nokta"></span>
+        <span class="son" id="kayit-son">Hazır.</span>
+        <span class="kayit-dugme">Kayıt</span>
+      </button>
+      <div class="kayit-govde" id="kayit-govde" hidden>
+        <pre id="kayit-metin"></pre>
+        <div class="sira">
+          <button class="hafif" id="btn-kayit-kopyala">Kopyala</button>
+          <button class="hafif" id="btn-kayit-dosya">Kayıt dosyasını aç</button>
+          <button class="hafif" id="btn-kayit-temizle">Temizle</button>
+        </div>
+      </div>
+    </footer>
+  </div>
+</div>
+
+<!-- Durdur -->
+<div class="mesgul" id="mesgul" hidden>
+  <span id="mesgul-yazi"></span>
+  <button id="btn-durdur">Durdur</button>
+</div>
+
+<!-- Ayarlar -->
+<dialog id="ayarlar">
+  <form method="dialog" class="ayar-form">
+    <h2>Ayarlar</h2>
+    <p class="uyari-kisa" id="ayar-uyari" hidden></p>
+    <fieldset>
+      <legend>Menü okuma</legend>
+      <div class="anahtar kucuk" role="radiogroup">
+        <button type="button" role="radio" data-saglayici="gemini">Gemini (internet)</button>
+        <button type="button" role="radio" data-saglayici="ollama">Ollama (bu bilgisayarda)</button>
+      </div>
+      <label class="alan">Gemini API anahtarı
+        <input type="password" id="geminiAnahtar" autocomplete="off" placeholder="Ücretsiz: aistudio.google.com/apikey">
+      </label>
+      <p class="ipucu">Google hesabınla <a href="https://aistudio.google.com/apikey" target="_blank">aistudio.google.com/apikey</a> sayfasına gir, "Create API key"e bas. Kart gerekmez.</p>
+      <label class="alan">Yedek: Mistral anahtarı (isteğe bağlı) <input type="password" id="mistralAnahtar" autocomplete="off"></label>
+      <label class="alan">Model (boş = en yeni uygun model) <input id="model" placeholder="otomatik"></label>
+      <label class="alan">Ollama modeli <input id="ollamaModel" placeholder="qwen2.5vl:7b"></label>
+    </fieldset>
+    <fieldset>
+      <legend>Klasörler</legend>
+      <label class="alan">Resim kütüphanesi (tüm firmalar için ortak)
+        <span class="dosya-sec"><input id="cikti"><button type="button" class="hafif" data-klasor-sec="cikti">Seç</button></span>
+      </label>
+      <label class="alan">Firma çıktıları
+        <span class="dosya-sec"><input id="firmalar"><button type="button" class="hafif" data-klasor-sec="firmalar">Seç</button></span>
+      </label>
+    </fieldset>
+    <fieldset>
+      <legend>Görünüm ve sürüm</legend>
+      <div class="anahtar kucuk" role="radiogroup">
+        <button type="button" role="radio" data-tema="sistem">Sistem</button>
+        <button type="button" role="radio" data-tema="acik">Açık</button>
+        <button type="button" role="radio" data-tema="koyu">Koyu</button>
+      </div>
+      <div class="sira">
+        <button type="button" class="hafif" id="btn-eski-aktar">Eski sürümün ayarlarını içe aktar</button>
+        <button type="button" class="hafif" id="btn-guncelleme">Güncellemeyi denetle</button>
+        <span class="ipucu" id="ayar-surum"></span>
+      </div>
+    </fieldset>
+    <div class="sira sag">
+      <button value="iptal" class="hafif">Vazgeç</button>
+      <button value="kaydet" class="birincil" id="btn-ayar-kaydet">Kaydet</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="soru">
+  <form method="dialog" class="soru-form">
+    <p id="soru-metin"></p>
+    <div class="sira sag" id="soru-dugmeler"></div>
+  </form>
+</dialog>
+
+<script src="app.js"></script>
+</body>
+</html>

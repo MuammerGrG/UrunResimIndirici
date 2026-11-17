@@ -16,13 +16,18 @@ public static class Klasor
         var gecici = Path.Combine(Path.GetTempPath(), "menu_" + Guid.NewGuid().ToString("N")[..10]);
         Directory.CreateDirectory(gecici);
         var kokTam = Path.GetFullPath(gecici) + Path.DirectorySeparatorChar;
-        using (var z = new ZipArchive(File.OpenRead(zip), ZipArchiveMode.Read, false, Encoding.GetEncoding(857)))
+        // .NET, UTF-8 bayrağı olmayan eski Windows zip'lerinde de adları tek kodlamayla okur:
+        // adı önce UTF-8 dene, geçersizse (Türkçe Windows zip'i) cp857 ile oku.
+        using (var z = new ZipArchive(File.OpenRead(zip), ZipArchiveMode.Read, false, new UTF8Encoding(false, false)))
+        using (var z857 = new ZipArchive(File.OpenRead(zip), ZipArchiveMode.Read, false, Encoding.GetEncoding(857)))
         {
-            foreach (var e in z.Entries)
+            for (int i = 0; i < z.Entries.Count; i++)
             {
-                var ad = e.FullName.Replace('\\', '/');
+                var e = z.Entries[i];
+                var ad = e.FullName.Contains('\uFFFD') && i < z857.Entries.Count ? z857.Entries[i].FullName : e.FullName;
+                ad = ad.Replace('\\', '/');
                 var hedef = Path.GetFullPath(Path.Combine(gecici, ad.Replace('/', Path.DirectorySeparatorChar)));
-                if (!hedef.StartsWith(kokTam, StringComparison.OrdinalIgnoreCase) && hedef + Path.DirectorySeparatorChar != kokTam) continue;
+                if (!hedef.StartsWith(kokTam, StringComparison.OrdinalIgnoreCase)) continue;
                 if (ad.EndsWith("/", StringComparison.Ordinal)) { Directory.CreateDirectory(hedef); continue; }
                 Directory.CreateDirectory(Path.GetDirectoryName(hedef));
                 e.ExtractToFile(hedef, true);
