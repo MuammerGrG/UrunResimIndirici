@@ -92,14 +92,14 @@ textarea.kod { font: 13px/1.55 var(--kod); tab-size: 2; }
 .alt-bosluk { margin-top: 14px; }
 
 /* ------------------------------------------------ iskelet */
-.uygulama { display: grid; grid-template-columns: 248px 1fr; height: 100vh; }
+.uygulama { display: grid; grid-template-columns: 248px minmax(0, 1fr); height: 100vh; }
 .ana { display: grid; grid-template-rows: auto 1fr auto; min-width: 0; min-height: 0; }
 
 /* ------------------------------------------------ fiş şeridi */
 .fis {
   position: relative; margin: 14px 0 22px 14px; padding: 18px 16px 30px;
   background: var(--fis); box-shadow: var(--golge);
-  display: flex; flex-direction: column; gap: 18px; min-height: 0; overflow: auto;
+  display: flex; flex-direction: column; gap: 14px; min-height: 0; overflow: auto; scrollbar-width: thin;
   border-radius: var(--r) var(--r) 0 0;
 }
 /* yırtık fiş kenarı */
@@ -235,7 +235,7 @@ textarea.kod { font: 13px/1.55 var(--kod); tab-size: 2; }
 /* kayıt */
 .kayit { border-top: 1px solid var(--cizgi); background: var(--yuzey); }
 .kayit-bas { width: 100%; display: flex; align-items: center; gap: 10px; border: 0; border-radius: 0; padding: 8px 28px; background: transparent; font-weight: 400; text-align: left; }
-.kayit-bas .son { flex: 1; font: 12.5px var(--kod); color: var(--soluk); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.kayit-bas .son { flex: 1; min-width: 0; font: 12.5px var(--kod); color: var(--soluk); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .kayit-bas .kayit-dugme { font-size: 13px; font-weight: 600; color: var(--soluk); }
 .nokta { width: 8px; height: 8px; border-radius: 50%; background: var(--zeytin); flex: none; }
 .nokta.mesgul { background: var(--safran); animation: nabiz 1.2s ease-in-out infinite; }
@@ -265,6 +265,13 @@ legend { font: 600 15px var(--baslik); padding: 0 8px 0 0; }
   .diger { grid-template-columns: 1fr; }
   .editor textarea { min-height: 320px; }
   .onizleme { max-height: none; }
+}
+@media (max-height: 760px) {
+  .fis { padding-top: 14px; gap: 10px; }
+  .fis-bas { padding-bottom: 10px; }
+  .adim { padding: 6px 8px; }
+  .fis-toplam { gap: 1px; }
+  h1 { font-size: 26px; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
