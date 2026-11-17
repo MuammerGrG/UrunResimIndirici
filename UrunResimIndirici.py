@@ -48,7 +48,7 @@ BOYUT = 600
 KLASOR = (os.path.dirname(sys.executable) if getattr(sys, "frozen", False)
           else os.path.dirname(os.path.abspath(__file__)))
 AYAR_DOSYASI = os.path.join(KLASOR, "ayarlar.json")
-SURUM = "2.9"
+SURUM = "3.0"
 GITHUB_REPO = "MuammerGrG/UrunResimIndirici"     # ayarlar.json > "github_repo" ile değiştirilebilir
 GEMINI_MODELLER = ["gemini-flash-latest", "gemini-flash-lite-latest"]   # yedek; asıl liste Google'dan çekilir
 _GEMINI_CACHE = {}
@@ -502,17 +502,22 @@ def menu_dosyalarini_topla(yollar):
 _GEMINI_KAPALI = set()        # bu oturumda 404 "artık kullanılamıyor" dönen modeller
 
 
-def _gemini_akis(url, api_key, govde, log, model, okuma_sn=120, toplam_sn=600):
+def _gemini_akis(url, api_key, govde, log, model, okuma_sn=240, toplam_sn=900):
     """streamGenerateContent (SSE): cevap parça parça gelir. Model yazdıkça bağlantı kesilmez;
     sadece 'okuma_sn' boyunca HİÇ veri gelmezse zaman aşımı olur. Dönen: (durum_kodu, metin, ham_hata, neden)"""
     baslangic = time.time()
-    gelen = [0]
+    gelen, dusunce = [0], [0]
     bitti = threading.Event()
 
     def nabiz():
         while not bitti.wait(20):
-            ek = f", {gelen[0]} karakter geldi" if gelen[0] else ""
-            log(f"   … {model} çalışıyor ({int(time.time() - baslangic)} sn{ek})")
+            sn = int(time.time() - baslangic)
+            if gelen[0]:
+                log(f"   … {model} yazıyor ({sn} sn, {gelen[0]} karakter geldi)")
+            elif dusunce[0]:
+                log(f"   … {model} düşünüyor ({sn} sn)")
+            else:
+                log(f"   … {model} bekleniyor ({sn} sn)")
     threading.Thread(target=nabiz, daemon=True).start()
     try:
         with requests.post(url, params={"key": api_key, "alt": "sse"}, json=govde, stream=True,
@@ -531,7 +536,9 @@ def _gemini_akis(url, api_key, govde, log, model, okuma_sn=120, toplam_sn=600):
                     continue
                 for aday in veri.get("candidates", []) or []:
                     for p in (aday.get("content") or {}).get("parts", []) or []:
-                        if p.get("text") and not p.get("thought"):
+                        if p.get("thought"):
+                            dusunce[0] += len(p.get("text") or "") or 1
+                        elif p.get("text"):
                             parcalar.append(p["text"])
                             gelen[0] += len(p["text"])
                     neden = aday.get("finishReason") or neden
@@ -564,8 +571,11 @@ def _gemini(grup, api_key, model_tercih, istem=MENU_PROMPT, log=print, json_mod=
         if json_mod:
             config["responseMimeType"] = "application/json"
         # "Düşünme" menü okumayı çok yavaşlatıyor: kapat ya da en aza indir
-        dusunme = [{"thinkingBudget": 0}] if "2.5" in model else [{"thinkingLevel": "minimal"},
-                                                                  {"thinkingLevel": "low"}]
+        # includeThoughts: model düşünürken de özet gönderir → bağlantı kopmaz, log'da "düşünüyor" görünür
+        dusunme = [{"thinkingBudget": 0}] if "2.5" in model else [
+            {"thinkingLevel": "minimal", "includeThoughts": True},
+            {"thinkingLevel": "low", "includeThoughts": True},
+            {"thinkingLevel": "low"}]
         dusunme.append(None)
         url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:streamGenerateContent"
         meşgul = 0
@@ -580,7 +590,7 @@ def _gemini(grup, api_key, model_tercih, istem=MENU_PROMPT, log=print, json_mod=
             try:
                 kod, metin, ham, neden = _gemini_akis(url, api_key, govde, log, model)
             except requests.Timeout:
-                log(f"   {model}: uzun süre hiç veri gelmedi, sonraki modele geçiliyor.")
+                log(f"   {model}: 4 dakika boyunca hiç veri gelmedi, sonraki modele geçiliyor.")
                 hatalar.append(f"{model}: zaman aşımı")
                 break
             except requests.RequestException as e:
@@ -595,8 +605,9 @@ def _gemini(grup, api_key, model_tercih, istem=MENU_PROMPT, log=print, json_mod=
                 log(f"   {model}: boş cevap ({neden or 'bilinmiyor'}), sonraki modele geçiliyor.")
                 hatalar.append(f"{model}: {neden or 'boş'}")
                 break
-            if kod == 400 and "thinking" in ham.lower() and len(dusunme) > 1:
+            if kod == 400 and ("thinking" in ham.lower() or "thought" in ham.lower()) and len(dusunme) > 1:
                 dusunme.pop(0)                  # bu model bu düşünme ayarını kabul etmiyor
+                log(f"   ({model} bu düşünme ayarını desteklemiyor, bir sonrakiyle deneniyor)")
                 continue
             if kod in (400, 401, 403) and "API key" in ham:
                 raise RuntimeError("API_KEY_HATALI: anahtar geçersiz — 'API anahtarını değiştir' ile yeniden gir.")
