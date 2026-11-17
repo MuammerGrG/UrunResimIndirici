@@ -66,7 +66,7 @@ public static class Py
                 if (i + 1 < s.Length && s[i + 1] == '\n') i++;
             }
             else if (c == '\n' || c == '\v' || c == '\f' || c == '\x1c' || c == '\x1d' || c == '\x1e' ||
-                     c == '\x85' || c == ' ' || c == ' ')
+                     c == '\x85' || c == '\u2028' || c == '\u2029')
             {
                 sonuc.Add(sb.ToString()); sb.Clear();
             }
