@@ -197,13 +197,13 @@ document.addEventListener('drop', (e) => e.preventDefault());
 
 function saglayici() {
   const a = D.ayar;
-  return { ad: a.saglayici || 'gemini', geminiAnahtar: a.geminiAnahtar || '', mistralAnahtar: a.mistralAnahtar || '',
+  return { ad: a.saglayici || 'gemini', geminiAnahtar: a.geminiAnahtar || '', groqAnahtar: a.groqAnahtar || '', mistralAnahtar: a.mistralAnahtar || '',
     model: a.saglayici === 'ollama' ? a.ollamaModel || '' : a.model || '' };
 }
 
 $('#btn-oku').onclick = async () => {
   const s = saglayici();
-  if (s.ad === 'gemini' && !s.geminiAnahtar && !s.mistralAnahtar) {
+  if (s.ad === 'gemini' && !s.geminiAnahtar && !s.groqAnahtar && !s.mistralAnahtar) {
     ayarlariAc('Menüyü okumak için ücretsiz Gemini anahtarını bir kez gir.');
     return;
   }
@@ -594,7 +594,7 @@ async function ayarKaydet(yeni) { D.ayar = await api.ayar.kaydet(yeni); }
 
 function ayarlariFormaYaz() {
   const a = D.ayar;
-  for (const id of ['geminiAnahtar', 'mistralAnahtar', 'model', 'ollamaModel', 'cikti', 'firmalar']) $('#' + id).value = a[id] || '';
+  for (const id of ['geminiAnahtar', 'groqAnahtar', 'mistralAnahtar', 'model', 'ollamaModel', 'cikti', 'firmalar']) $('#' + id).value = a[id] || '';
   for (const b of $$('[data-saglayici]')) b.setAttribute('aria-checked', String(b.dataset.saglayici === (a.saglayici || 'gemini')));
   for (const b of $$('[data-tema]')) b.setAttribute('aria-checked', String(b.dataset.tema === (a.tema || 'sistem')));
 }
@@ -618,7 +618,7 @@ for (const b of $$('[data-klasor-sec]')) b.onclick = async () => {
 $('#ayarlar').addEventListener('close', async () => {
   if ($('#ayarlar').returnValue !== 'kaydet') { temaUygula(D.ayar.tema); return; }
   const yeni = {};
-  for (const id of ['geminiAnahtar', 'mistralAnahtar', 'model', 'ollamaModel', 'cikti', 'firmalar']) yeni[id] = $('#' + id).value.trim();
+  for (const id of ['geminiAnahtar', 'groqAnahtar', 'mistralAnahtar', 'model', 'ollamaModel', 'cikti', 'firmalar']) yeni[id] = $('#' + id).value.trim();
   yeni.saglayici = $('[data-saglayici][aria-checked="true"]')?.dataset.saglayici || 'gemini';
   yeni.tema = $('[data-tema][aria-checked="true"]')?.dataset.tema || 'sistem';
   await ayarKaydet(yeni);
@@ -735,7 +735,7 @@ document.addEventListener('keydown', (e) => {
     formuDoldur();
     log(`Eski sürümün ayarları aktarıldı (${eski.sayi} ayar): ${eski.klasor}`);
   }
-  if ((D.ayar.saglayici || 'gemini') === 'gemini' && !D.ayar.geminiAnahtar && !D.ayar.mistralAnahtar)
+  if ((D.ayar.saglayici || 'gemini') === 'gemini' && !D.ayar.geminiAnahtar && !D.ayar.groqAnahtar && !D.ayar.mistralAnahtar)
     log('Menü resmi okumak için Ayarlar\'dan ücretsiz Gemini anahtarını gir. Yazılı liste ve Excel anahtarsız da çalışır.');
   console.warn('arayüz hazır');
   } catch (e) { console.error('açılış hatası: ' + (e && e.stack || e)); log('HATA: ' + (e && e.message || e)); }

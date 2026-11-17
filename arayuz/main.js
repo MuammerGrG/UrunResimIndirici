@@ -14,7 +14,7 @@ let pencere = null;
 const ayarYolu = () => path.join(app.getPath('userData'), 'ayarlar.json');
 const belgeler = () => path.join(app.getPath('documents'), 'UrunResimIndirici');
 const VARSAYILAN = () => ({
-  saglayici: 'gemini', geminiAnahtar: '', mistralAnahtar: '', model: '', ollamaModel: '',
+  saglayici: 'gemini', geminiAnahtar: '', groqAnahtar: '', mistralAnahtar: '', model: '', ollamaModel: '',
   cikti: path.join(belgeler(), 'Urun_Resimleri'), firmalar: path.join(belgeler(), 'Firmalar'),
   ek: '', adet: 1, klasorArama: false, otomatikCikti: true,
   ciktiModu: 'sql', sql: '', proDb: '', proKullanici: os.userInfo().username || '',

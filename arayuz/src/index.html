@@ -227,7 +227,11 @@
         <input type="password" id="geminiAnahtar" autocomplete="off" placeholder="Ücretsiz: aistudio.google.com/apikey">
       </label>
       <p class="ipucu">Google hesabınla <a href="https://aistudio.google.com/apikey" target="_blank">aistudio.google.com/apikey</a> sayfasına gir, "Create API key"e bas. Kart gerekmez.</p>
-      <label class="alan">Yedek: Mistral anahtarı (isteğe bağlı) <input type="password" id="mistralAnahtar" autocomplete="off"></label>
+      <label class="alan">Yedek: Groq API anahtarı (ücretsiz, önerilir)
+        <input type="password" id="groqAnahtar" autocomplete="off" placeholder="gsk_…">
+      </label>
+      <p class="ipucu">Gemini yoğunken ya da model kapandığında devreye girer. <a href="https://console.groq.com/keys" target="_blank">console.groq.com/keys</a> sayfasından Google hesabınla "Create API Key". Kart gerekmez.</p>
+      <label class="alan">Yedek: Mistral anahtarı (ücretli, isteğe bağlı) <input type="password" id="mistralAnahtar" autocomplete="off"></label>
       <label class="alan">Model (boş = en yeni uygun model) <input id="model" placeholder="otomatik"></label>
       <label class="alan">Ollama modeli <input id="ollamaModel" placeholder="qwen2.5vl:7b"></label>
     </fieldset>

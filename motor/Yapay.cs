@@ -108,6 +108,10 @@ SADECE şu JSON'u döndür:
 """;
 
     public static readonly string[] GeminiYedek = { "gemini-flash-latest", "gemini-flash-lite-latest" };
+    /// <summary>Google'ın açık modeli: aynı anahtarla, Flash'tan ayrı kotayla çalışır, düşünme yapmaz.</summary>
+    public static readonly string[] GemmaYedek = { "gemma-4-31b-it", "gemma-4-26b-a4b-it" };
+    public const string GroqModel = "qwen/qwen3.8-27b";
+    public const int GroqResimSiniri = 3;
     public const string OllamaModel = "qwen2.5vl:7b";
     public const string OllamaUrl = "http://localhost:11434";
     static readonly HashSet<string> GeminiKapali = new();
@@ -162,7 +166,7 @@ SADECE şu JSON'u döndür:
 
     // ------------------------------------------------------------------ Gemini
     static async Task<(int kod, string metin, string ham, string neden)> GeminiAkis(string model, string anahtar, JsonObject govde,
-        Action<string> log, CancellationToken t, int okumaSn = 240, int toplamSn = 900)
+        Action<string> log, CancellationToken t, int okumaSn = 120, int toplamSn = 600)
     {
         using var nabiz = new Nabiz(log, (n, sn) => n.Gelen > 0 ? $"   … {model} yazıyor ({sn} sn, {n.Gelen} karakter geldi)"
             : n.Dusunce > 0 ? $"   … {model} düşünüyor ({sn} sn)" : $"   … {model} bekleniyor ({sn} sn)");
@@ -208,6 +212,7 @@ SADECE şu JSON'u döndür:
     {
         lock (ModelOnbellek) if (ModelOnbellek.TryGetValue(anahtar, out var o)) return o;
         var adaylar = new HashSet<string>();
+        var gemmalar = new HashSet<string>();
         try
         {
             using var cts = CancellationTokenSource.CreateLinkedTokenSource(t);
@@ -221,11 +226,22 @@ SADECE şu JSON'u döndür:
                     if (yontem != null && yontem.Any(x => x?.GetValue<string>() == "generateContent") && ad.Contains("flash") &&
                         !new[] { "image", "tts", "audio", "live", "embedding", "thinking", "exp", "preview", "8b" }.Any(ad.Contains))
                         adaylar.Add(ad);
+                    else if (yontem != null && yontem.Any(x => x?.GetValue<string>() == "generateContent") &&
+                             Regex.IsMatch(ad, @"^gemma-([4-9]|\d\d)") && ad.EndsWith("-it", StringComparison.Ordinal) && !Regex.IsMatch(ad, @"-e\d+b"))
+                        gemmalar.Add(ad);
                 }
         }
         catch (Exception) when (!t.IsCancellationRequested) { }
         var sirali = adaylar.OrderBy(x => x, StringComparer.Ordinal).OrderByDescending(x => x, new ModelSirasi()).ToList();
-        var liste = sirali.Take(5).Concat(GeminiYedek.Where(m => !sirali.Contains(m))).ToList();
+        // En yeni Flash'lar yoğunlukta takılabiliyor: en iyi 2 Flash + 1 Lite, sonra Gemma (ayrı kota).
+        var flash = sirali.Where(m => !m.Contains("lite")).Take(2).Concat(sirali.Where(m => m.Contains("lite")).Take(1)).ToList();
+        if (flash.Count == 0) flash.AddRange(GeminiYedek);
+        else if (!flash.Contains("gemini-flash-latest") && !adaylar.Any(m => !m.Contains("lite") && m.EndsWith("-latest", StringComparison.Ordinal)))
+            flash.Add("gemini-flash-latest");
+        var gemma = gemmalar.OrderByDescending(m => Regex.Match(m, @"(\d+)b").Success ? int.Parse(Regex.Match(m, @"(\d+)b").Groups[1].Value) : 0)
+            .ThenBy(m => m, StringComparer.Ordinal).Take(2).ToList();
+        if (gemma.Count == 0) gemma.AddRange(GemmaYedek);
+        var liste = flash.Concat(gemma).Distinct().ToList();
         lock (ModelOnbellek) ModelOnbellek[anahtar] = liste;
         return liste;
     }
@@ -262,7 +278,8 @@ SADECE şu JSON'u döndür:
         }
         parcalar.Add(new JsonObject { ["text"] = istem });
         log("   Uygun Gemini modelleri soruluyor...");
-        var modeller = !string.IsNullOrWhiteSpace(modelTercih) ? new List<string> { modelTercih.Trim() } : new List<string>(await GeminiModelleri(anahtar, t));
+        var modeller = new List<string>(await GeminiModelleri(anahtar, t));
+        if (!string.IsNullOrWhiteSpace(modelTercih)) { modeller.Remove(modelTercih.Trim()); modeller.Insert(0, modelTercih.Trim()); }
         List<string> acik;
         lock (GeminiKapali) acik = modeller.Where(m => !GeminiKapali.Contains(m)).ToList();
         if (acik.Count > 0) modeller = acik;
@@ -270,9 +287,11 @@ SADECE şu JSON'u döndür:
         for (int i = 0; i < modeller.Count; i++)
         {
             var model = modeller[i];
-            var config = new JsonObject { ["temperature"] = 0.1, ["maxOutputTokens"] = 32768 };
-            if (jsonMod) config["responseMimeType"] = "application/json";
-            var dusunme = model.Contains("2.5")
+            bool gemmaMi = model.StartsWith("gemma", StringComparison.Ordinal);
+            var config = new JsonObject { ["temperature"] = 0.1, ["maxOutputTokens"] = gemmaMi ? 8192 : 32768 };
+            if (jsonMod && !gemmaMi) config["responseMimeType"] = "application/json";
+            if (gemmaMi) log($"   (Gemini Flash olmadı; Google'ın Gemma modeli deneniyor, kotası ayrı)");
+            var dusunme = gemmaMi ? new List<JsonObject>() : model.Contains("2.5")
                 ? new List<JsonObject> { new() { ["thinkingBudget"] = 0 } }
                 : new List<JsonObject>
                 {
@@ -298,7 +317,7 @@ SADECE şu JSON'u döndür:
                 try { c = await GeminiAkis(model, anahtar, govde, log, t); }
                 catch (ZamanAsimi)
                 {
-                    log($"   {model}: 4 dakika boyunca hiç veri gelmedi, sonraki modele geçiliyor.");
+                    log($"   {model}: 2 dakika boyunca hiç veri gelmedi, sonraki modele geçiliyor.");
                     hatalar.Add($"{model}: zaman aşımı");
                     break;
                 }
@@ -317,6 +336,11 @@ SADECE şu JSON'u döndür:
                     break;
                 }
                 var hamK = c.ham.ToLowerInvariant();
+                if (c.kod == 400 && config.ContainsKey("responseMimeType") && (hamK.Contains("mime") || hamK.Contains("json mode")))
+                {
+                    config.Remove("responseMimeType");
+                    continue;
+                }
                 if (c.kod == 400 && (hamK.Contains("thinking") || hamK.Contains("thought")) && dusunme.Count > 1)
                 {
                     dusunme.RemoveAt(0);
@@ -467,6 +491,85 @@ SADECE şu JSON'u döndür:
         throw new HataMesaji("Mistral de okuyamadı → " + string.Join(" | ", hatalar.Count > 0 ? hatalar : new List<string> { "?" }));
     }
 
+    // ------------------------------------------------------------------ Groq (ücretsiz, hızlı yedek)
+    static readonly Regex Dusunce = new(@"<think>.*?</think>", RegexOptions.Singleline | RegexOptions.CultureInvariant);
+
+    public static async Task<string> Groq(IList<string> grup, string anahtar, string istem, Action<string> log, CancellationToken t,
+        bool jsonMod = false)
+    {
+        if (grup.Any(g => g.EndsWith(".pdf", StringComparison.OrdinalIgnoreCase)))
+            throw new HataMesaji("Groq PDF okuyamaz; menüyü resim (jpg/png) olarak ver.");
+        int boy = 1536;
+        bool dusunmeAyari = true, jsonAyari = jsonMod;
+        for (int deneme = 0; deneme < 5; deneme++)
+        {
+            var icerik = new JsonArray(new JsonObject { ["type"] = "text", ["text"] = istem });
+            foreach (var g in grup)
+                icerik.Add(new JsonObject
+                {
+                    ["type"] = "image_url",
+                    ["image_url"] = new JsonObject { ["url"] = "data:image/jpeg;base64," + Resim.DosyaHazirla(g, boy).b64 },
+                });
+            var govde = new JsonObject
+            {
+                ["model"] = GroqModel, ["temperature"] = 0.1, ["max_completion_tokens"] = 16384,
+                ["messages"] = new JsonArray(new JsonObject { ["role"] = "user", ["content"] = icerik }),
+            };
+            if (dusunmeAyari) govde["reasoning_effort"] = "none";
+            if (jsonAyari) govde["response_format"] = new JsonObject { ["type"] = "json_object" };
+            log($"   → Groq {GroqModel} deneniyor" + (deneme > 0 ? $" (tekrar {deneme})" : "") + "...");
+            var sw = Stopwatch.StartNew();
+            int kod; string ham; HttpResponseMessage c;
+            using (var nabiz = new Nabiz(log, (n, sn) => $"   … Groq çalışıyor ({sn} sn)"))
+            {
+                try
+                {
+                    using var istek = new HttpRequestMessage(HttpMethod.Post, "https://api.groq.com/openai/v1/chat/completions")
+                    { Content = new StringContent(govde.ToJsonString(), Encoding.UTF8, "application/json") };
+                    istek.Headers.Authorization = new("Bearer", anahtar.Trim());
+                    using var cts = CancellationTokenSource.CreateLinkedTokenSource(t);
+                    cts.CancelAfter(TimeSpan.FromSeconds(150));
+                    c = await Http.SendAsync(istek, cts.Token);
+                    kod = (int)c.StatusCode;
+                    ham = await c.Content.ReadAsStringAsync(cts.Token);
+                }
+                catch (Exception e) when (e is HttpRequestException || (e is OperationCanceledException && !t.IsCancellationRequested))
+                {
+                    throw new HataMesaji($"Groq'a ulaşılamadı ({e.GetType().Name})");
+                }
+            }
+            using (c)
+            {
+                if (kod == 200)
+                {
+                    var metin = JsonNode.Parse(ham)?["choices"]?[0]?["message"]?["content"]?.GetValue<string>() ?? "";
+                    metin = Dusunce.Replace(metin, "").Trim();
+                    if (metin.Length == 0) throw new HataMesaji("Groq boş cevap verdi");
+                    log($"   ✓ Groq cevap verdi ({(int)sw.Elapsed.TotalSeconds} sn).");
+                    return metin;
+                }
+                var hamK = ham.ToLowerInvariant();
+                if (kod is 401 or 403) throw new AnahtarHatasi("Groq anahtarı geçersiz — Ayarlar'dan yeniden gir.");
+                if (kod == 400 && dusunmeAyari && hamK.Contains("reasoning")) { dusunmeAyari = false; continue; }
+                if (kod == 400 && jsonAyari && (hamK.Contains("json") || hamK.Contains("response_format"))) { jsonAyari = false; continue; }
+                if ((kod == 413 || (kod == 400 && (hamK.Contains("too large") || hamK.Contains("size")))) && boy > 800) { boy = boy * 2 / 3; continue; }
+                if (kod == 429 || kod >= 500)
+                {
+                    var bekle = 6 * (deneme + 1);
+                    if (c.Headers.RetryAfter?.Delta is TimeSpan ra) bekle = (int)Math.Ceiling(ra.TotalSeconds) + 1;
+                    if (kod == 429 && (bekle > 60 || hamK.Contains("per day") || hamK.Contains("tokens per day")))
+                        throw new HataMesaji("Groq günlük ücretsiz sınırı doldu");
+                    if (deneme >= 2) throw new HataMesaji($"Groq yoğun (HTTP {kod})");
+                    log($"   Groq {(kod == 429 ? "dakikalık sınır" : "yoğun")}, {bekle} sn bekleniyor...");
+                    await Task.Delay(bekle * 1000, t);
+                    continue;
+                }
+                throw new HataMesaji($"Groq HTTP {kod}: {Regex.Replace(ham.Length > 200 ? ham[..200] : ham, @"\s+", " ")}");
+            }
+        }
+        throw new HataMesaji("Groq okuyamadı");
+    }
+
     // ------------------------------------------------------------------ Ollama (yerel)
     public static async Task<string> Ollama(IList<string> grup, string model, string istem, CancellationToken t)
     {
@@ -496,22 +599,46 @@ SADECE şu JSON'u döndür:
     }
 
     // ------------------------------------------------------------------ üst seviye
-    public sealed record Saglayici(string Ad, string GeminiAnahtar, string Model, string MistralAnahtar);
+    public sealed record Saglayici(string Ad, string GeminiAnahtar, string Model, string MistralAnahtar, string GroqAnahtar = "");
+
+    /// <summary>Sırayla: Gemini Flash → Gemma (aynı anahtar) → Groq → Mistral. Biri olmazsa sonrakine geçer.</summary>
+    static async Task<T> Zincir<T>(Saglayici s, Action<string> log, CancellationToken t,
+        Func<Task<T>> gemini, Func<Task<T>> groq, Func<Task<T>> mistral)
+    {
+        var adimlar = new List<(string ad, Func<Task<T>> f)>();
+        if (!string.IsNullOrWhiteSpace(s.GeminiAnahtar)) adimlar.Add(("Gemini", gemini));
+        if (!string.IsNullOrWhiteSpace(s.GroqAnahtar)) adimlar.Add(("Groq", groq));
+        if (!string.IsNullOrWhiteSpace(s.MistralAnahtar)) adimlar.Add(("Mistral", mistral));
+        if (adimlar.Count == 0) throw new AnahtarHatasi("Yapay zekâ anahtarı yok — Ayarlar'dan ücretsiz Gemini (ya da Groq) anahtarını gir.");
+        var hatalar = new List<string>();
+        AnahtarHatasi anahtarHatasi = null;
+        for (int i = 0; i < adimlar.Count; i++)
+        {
+            var (ad, f) = adimlar[i];
+            if (i > 0) log($"   Yedek: {ad} ile okunuyor...");
+            try { return await f(); }
+            catch (OperationCanceledException) when (t.IsCancellationRequested) { throw; }
+            catch (AnahtarHatasi e) { anahtarHatasi = e; hatalar.Add(e.Message); log("   " + e.Message); }
+            catch (HataMesaji e) { hatalar.Add(e.Message); log($"   {ad} okuyamadı ({(e.Message.Length > 160 ? e.Message[..160] : e.Message)})."); }
+        }
+        if (anahtarHatasi != null && hatalar.Count == 1) throw anahtarHatasi;
+        throw new HataMesaji("Yapay zekâ okuyamadı: " + string.Join(" | ", hatalar.Select(h => h.Length > 120 ? h[..120] : h)));
+    }
 
     static async Task<string> Sor(IList<string> grup, Saglayici s, string istem, Action<string> log, CancellationToken t)
     {
         if (s.Ad == "ollama") return await Ollama(grup, s.Model, istem, t);
-        if (!string.IsNullOrWhiteSpace(s.GeminiAnahtar))
-        {
-            try { return await Gemini(grup, s.GeminiAnahtar, s.Model, istem, log, t); }
-            catch (HataMesaji e) when (!string.IsNullOrWhiteSpace(s.MistralAnahtar))
+        return await Zincir(s, log, t,
+            () => Gemini(grup, s.GeminiAnahtar, s.Model, istem, log, t),
+            async () =>
             {
-                log($"   Gemini okuyamadı ({(e.Message.Length > 120 ? e.Message[..120] : e.Message)}).");
-            }
-        }
-        if (string.IsNullOrWhiteSpace(s.MistralAnahtar)) throw new AnahtarHatasi("Gemini anahtarı yok — Ayarlar'dan ücretsiz anahtarını gir.");
-        log("   Yedek model (Mistral) ile okunuyor...");
-        return await Mistral(grup, s.MistralAnahtar, istem, log, t);
+                if (grup.Count <= GroqResimSiniri) return await Groq(grup, s.GroqAnahtar, istem, log, t);
+                var parca = new List<string>();
+                for (int i = 0; i < grup.Count; i += GroqResimSiniri)
+                    parca.Add((await Groq(grup.Skip(i).Take(GroqResimSiniri).ToList(), s.GroqAnahtar, istem, log, t)).Trim());
+                return string.Join("\n\n", parca);
+            },
+            () => Mistral(grup, s.MistralAnahtar, istem, log, t));
     }
 
     public static async Task<string> MenuyuOku(IList<string> dosyalar, Saglayici s, Action<string> log, CancellationToken t,
@@ -701,21 +828,39 @@ SADECE şu JSON'u döndür:
         log($"Broşür{(listeNotu.Length > 0 ? " + liste" : "")} okunuyor ({ilk6.Count} resim)...");
         if (s.Ad == "ollama")
             return BrosurJsonMetne(JsonCoz(await Ollama(ilk6, s.Model, istem, t)), ilk6) with { Kirpmalar = new() };
-        if (!string.IsNullOrWhiteSpace(s.GeminiAnahtar))
-        {
-            try
+        return await Zincir(s, log, t,
+            async () => BrosurJsonMetne(JsonCoz(await Gemini(ilk6, s.GeminiAnahtar, s.Model, istem, log, t, jsonMod: true, resimBoyu: 2048)), ilk6),
+            async () =>
             {
-                var cevap = await Gemini(ilk6, s.GeminiAnahtar, s.Model, istem, log, t, jsonMod: true, resimBoyu: 2048);
-                return BrosurJsonMetne(JsonCoz(cevap), ilk6);
-            }
-            catch (HataMesaji e) when (!string.IsNullOrWhiteSpace(s.MistralAnahtar))
+                log("   (Groq ile broşür fotoğrafları kesilmez, resimler internetten bulunur)");
+                var birlesik = new JsonObject { ["urunler"] = new JsonArray(), ["odeme"] = new JsonArray(), ["farklar"] = new JsonArray() };
+                var gorulen = new HashSet<string>();
+                for (int i = 0; i < ilk6.Count; i += GroqResimSiniri)
+                {
+                    var grup = ilk6.Skip(i).Take(GroqResimSiniri).ToList();
+                    var ist = BirlesikPrompt.Replace("{n}", grup.Count.ToString()).Replace("{liste_notu}", listeNotu);
+                    if (JsonCoz(await Groq(grup, s.GroqAnahtar, ist, log, t, jsonMod: true)) is not JsonObject v) continue;
+                    if (v["urunler"] is JsonArray us)
+                        foreach (var u in us.ToList())
+                        {
+                            if (u is not JsonObject uo) continue;
+                            var anahtar = Metin.Norm(uo["ad"] is JsonValue av && av.GetValueKind() == JsonValueKind.String ? av.GetValue<string>() : "");
+                            if (anahtar.Length == 0 || !gorulen.Add(anahtar)) continue;
+                            us.Remove(uo);
+                            uo["resim"] = null;
+                            ((JsonArray)birlesik["urunler"]).Add(uo);
+                        }
+                    foreach (var k in new[] { "odeme", "farklar" })
+                        if (v[k] is JsonArray d)
+                            foreach (var x in d.ToList()) { d.Remove(x); ((JsonArray)birlesik[k]).Add(x); }
+                }
+                return BrosurJsonMetne(birlesik, ilk6) with { Kirpmalar = new() };
+            },
+            async () =>
             {
-                log($"   Gemini okuyamadı ({(e.Message.Length > 120 ? e.Message[..120] : e.Message)}).");
-            }
-        }
-        if (string.IsNullOrWhiteSpace(s.MistralAnahtar)) throw new AnahtarHatasi("Gemini anahtarı yok — Ayarlar'dan ücretsiz anahtarını gir.");
-        log("   Yedek model (Mistral) ile okunuyor — broşür fotoğrafları kesilmeyecek, internetten bulunacak.");
-        var c2 = await Mistral(ilk6, s.MistralAnahtar, istem, log, t, jsonMod: true);
-        return BrosurJsonMetne(JsonCoz(c2), ilk6) with { Kirpmalar = new() };
+                log("   (Mistral ile broşür fotoğrafları kesilmez, resimler internetten bulunur)");
+                return BrosurJsonMetne(JsonCoz(await Mistral(ilk6, s.MistralAnahtar, istem, log, t, jsonMod: true)), ilk6) with { Kirpmalar = new() };
+            });
+    }
     }
 }

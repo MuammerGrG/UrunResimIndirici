@@ -62,7 +62,7 @@ public static class Komutlar
     static Yapay.Saglayici Saglayici(JsonObject a)
     {
         var s = a["saglayici"] as JsonObject ?? new JsonObject();
-        return new Yapay.Saglayici(S(s, "ad", "gemini"), S(s, "geminiAnahtar"), S(s, "model"), S(s, "mistralAnahtar"));
+        return new Yapay.Saglayici(S(s, "ad", "gemini"), S(s, "geminiAnahtar"), S(s, "model"), S(s, "mistralAnahtar"), S(s, "groqAnahtar"));
     }
 
     static Dictionary<string, Arama.Kirpma> Kirpmalar(JsonObject a)
@@ -87,7 +87,7 @@ public static class Komutlar
     static async Task<(string metin, string yontem)> Siniflandir(string metin, Yapay.Saglayici s, Is c, bool yapayZeka)
     {
         if (!Metin.BasliksizMi(metin)) return (metin, "hazir");
-        if (yapayZeka && (s.Ad == "ollama" || !string.IsNullOrWhiteSpace(s.GeminiAnahtar) || !string.IsNullOrWhiteSpace(s.MistralAnahtar)))
+        if (yapayZeka && (s.Ad == "ollama" || !string.IsNullOrWhiteSpace(s.GeminiAnahtar) || !string.IsNullOrWhiteSpace(s.GroqAnahtar) || !string.IsNullOrWhiteSpace(s.MistralAnahtar)))
         {
             try
             {
