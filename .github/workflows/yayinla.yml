@@ -87,6 +87,11 @@ jobs:
           Start-Sleep -Seconds 12
           $calisiyor = -not $p.HasExited
           "Program 12 sn sonra açık: $calisiyor" | Tee-Object -FilePath derle.txt -Append
+          Add-Type -AssemblyName System.Windows.Forms, System.Drawing
+          $b = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds
+          $bmp = New-Object System.Drawing.Bitmap $b.Width, $b.Height
+          [System.Drawing.Graphics]::FromImage($bmp).CopyFromScreen($b.Location, [System.Drawing.Point]::Empty, $b.Size)
+          $bmp.Save("$PWD\ekran.png", [System.Drawing.Imaging.ImageFormat]::Png)
           Get-Process | Where-Object { $_.ProcessName -match "^(Motor|UrunResim)$" } | Format-Table ProcessName, Id | Out-String | Tee-Object -FilePath derle.txt -Append
           $log = Join-Path $env:APPDATA "Ürün Resim İndirici\son_log.txt"
           if (Test-Path $log) { Get-Content $log | Tee-Object -FilePath derle.txt -Append }
@@ -98,7 +103,7 @@ jobs:
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force cilog | Out-Null
-          foreach ($f in 'ci.txt','derle.txt') { if (Test-Path $f) { Copy-Item $f cilog/ } }
+          foreach ($f in 'ci.txt','derle.txt','ekran.png') { if (Test-Path $f) { Copy-Item $f cilog/ } }
           "test=${{ steps.test.outcome }} motor=${{ steps.motor.outcome }} kurulum=${{ steps.kurulum.outcome }} deneme=${{ steps.deneme.outcome }} sha=${{ github.sha }}" | Set-Content cilog/durum.txt
           cd cilog
           git init -q
