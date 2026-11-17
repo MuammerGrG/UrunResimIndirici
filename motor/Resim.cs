@@ -185,39 +185,31 @@ public static class Resim
             var kalin = Yazi(true);
             var ince = Yazi(false);
             var harf = ad.Length == 0 ? "?" : ad.StartsWith("i", StringComparison.Ordinal) ? "İ" : Py.Upper(ad.Substring(0, char.IsSurrogate(ad[0]) && ad.Length > 1 ? 2 : 1));
-            using (var f = new SKFont(kalin, 100))
-            using (var p = new SKPaint { Color = SKColors.White, IsAntialias = true })
+            SKPaint Kalem(SKTypeface tf, float boy, SKColor renk) =>
+                new SKPaint { Typeface = tf, TextSize = boy, Color = renk, IsAntialias = true, SubpixelText = true };
+            using (var p = Kalem(kalin, 100, SKColors.White))
             {
-                var w = f.MeasureText(harf);
-                c.DrawText(harf, 300 - w / 2, 105 + f.Metrics.CapHeight + 8, f, p);
+                var w = p.MeasureText(harf);
+                c.DrawText(harf, 300 - w / 2, 105 + p.FontMetrics.CapHeight + 8, p);
             }
             var satirlar = Sar(ad, 16).Take(3).ToList();
             if (satirlar.Count == 0) satirlar.Add(ad);
             int boyut = 64;
-            SKFont yf = null;
-            while (true)
+            using (var p = Kalem(kalin, boyut, new SKColor(33, 33, 33)))
             {
-                yf?.Dispose();
-                yf = new SKFont(kalin, boyut);
-                if (boyut <= 26 || satirlar.Max(s => yf.MeasureText(s)) <= 480) break;
-                boyut -= 4;
-            }
-            using (yf)
-            using (var p = new SKPaint { Color = new SKColor(33, 33, 33), IsAntialias = true })
-            {
+                while (boyut > 26 && satirlar.Max(x => p.MeasureText(x)) > 480) { boyut -= 4; p.TextSize = boyut; }
                 int y = 380 - satirlar.Count * (boyut + 12) / 2;
-                foreach (var s in satirlar)
+                foreach (var x in satirlar)
                 {
-                    var w = yf.MeasureText(s);
-                    c.DrawText(s, 300 - w / 2, y + boyut * 0.8f, yf, p);
+                    var w = p.MeasureText(x);
+                    c.DrawText(x, 300 - w / 2, y + boyut * 0.8f, p);
                     y += boyut + 12;
                 }
             }
-            using (var f2 = new SKFont(ince, 30))
-            using (var p = new SKPaint { Color = ana, IsAntialias = true })
+            using (var p = Kalem(ince, 30, ana))
             {
-                var w = f2.MeasureText(altBaslik ?? "");
-                c.DrawText(altBaslik ?? "", 300 - w / 2, 505 + 26, f2, p);
+                var w = p.MeasureText(altBaslik ?? "");
+                c.DrawText(altBaslik ?? "", 300 - w / 2, 505 + 26, p);
             }
         }
         Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(hedef)));
