@@ -1,7 +1,7 @@
 {
   "name": "urun-resim-indirici",
   "productName": "Ürün Resim İndirici",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "description": "Menüden ürün listesi, 600x600 ürün resimleri ve POS veritabanı hazırlar",
   "main": "main.js",
   "author": "MuammerGrG",

@@ -15,7 +15,7 @@ namespace UrunMotor;
 /// </summary>
 public static class Program
 {
-    public const string Surum = "4.0.0";
+    public const string Surum = "4.0.1";
 
     static readonly object YazKilit = new();
     static TextWriter _cikis;
