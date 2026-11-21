@@ -1,11 +1,10 @@
 // Ürün Resim İndirici — Electron ana süreç
 // Arayüz (src/) ↔ preload ↔ burası ↔ Motor.exe (C#, satır satır JSON)
-const { app, BrowserWindow, ipcMain, dialog, shell, protocol, net, nativeTheme } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, shell, protocol, nativeTheme } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
 const { spawn, execFile } = require('child_process');
-const { pathToFileURL } = require('url');
 
 const GITHUB = { owner: 'MuammerGrG', repo: 'UrunResimIndirici' };
 let pencere = null;
@@ -15,7 +14,7 @@ const ayarYolu = () => path.join(app.getPath('userData'), 'ayarlar.json');
 const belgeler = () => path.join(app.getPath('documents'), 'UrunResimIndirici');
 const VARSAYILAN = () => ({
   saglayici: 'gemini', geminiAnahtar: '', groqAnahtar: '', mistralAnahtar: '', model: '', ollamaModel: '',
-  cikti: path.join(belgeler(), 'Urun_Resimleri'), firmalar: path.join(belgeler(), 'Firmalar'),
+  cikti: path.join(belgeler(), 'Urun_Resimleri'), yerelArsiv: '', firmalar: path.join(belgeler(), 'Firmalar'),
   ek: '', adet: 1, klasorArama: false, otomatikCikti: true,
   ciktiModu: 'sql', sql: '', proDb: '', proKullanici: os.userInfo().username || '',
   proOpsiyonlar: 'Soğanlı, Soğansız, Domatesli, Domatessiz, Marullu, Marulsuz, Soslu, Sossuz, Patatesli, Patatessiz, Turşulu, Turşusuz, Mayonezli, Mayonezsiz, Ketçaplı, Ketçapsız, Acılı, Acısız',
@@ -163,6 +162,9 @@ async function motorIstek(komut, arg, id) {
 }
 
 // ------------------------------------------------------------------ pencere
+// Uygulama adı Türkçe karakterli; tarayıcı kimliğinde (User-Agent) kalırsa resim:// istekleri
+// "ByteString" hatasıyla düşer ve galeri resimleri görünmez. Kimliği ASCII'ye çevir.
+app.userAgentFallback = app.userAgentFallback.replace(/Ürün Resim İndirici/g, 'UrunResimIndirici').replace(/[^\x20-\x7e]/g, '');
 protocol.registerSchemesAsPrivileged([{ scheme: 'resim', privileges: { standard: true, secure: true, supportFetchAPI: true, stream: true } }]);
 
 function pencereAc() {
@@ -175,6 +177,14 @@ function pencereAc() {
   });
   pencere.setMenu(null);
   pencere.once('ready-to-show', () => pencere.show());
+  // Otomatik deneme (CI): RESIM_DENEME=<resim yolu> ise galerideki gösterim yolu sınanır
+  if (process.env.RESIM_DENEME) {
+    pencere.webContents.once('did-finish-load', async () => {
+      const url = 'resim://yerel/' + encodeURIComponent(process.env.RESIM_DENEME) + '?v=1';
+      const g = await pencere.webContents.executeJavaScript(`new Promise(c => { const i = new Image(); i.onload = () => c(i.naturalWidth); i.onerror = () => c(0); i.src = ${JSON.stringify(url)}; })`);
+      logDosya('RESIM_DENEME genislik=' + g);
+    });
+  }
   pencere.loadFile(path.join(__dirname, 'src', 'index.html'));
   pencere.webContents.setWindowOpenHandler(({ url }) => {
     if (/^https:\/\//.test(url)) shell.openExternal(url);
@@ -271,10 +281,19 @@ else {
     ayarOku();
     try { fs.writeFileSync(logYolu(), `Ürün Resim İndirici v${app.getVersion()}  ${new Date().toLocaleString('tr-TR')}\n`, 'utf8'); } catch { /* */ }
     nativeTheme.themeSource = ayar.tema === 'koyu' ? 'dark' : ayar.tema === 'acik' ? 'light' : 'system';
-    protocol.handle('resim', (istek) => {
-      const u = new URL(istek.url);
-      const yol = decodeURIComponent(u.pathname.replace(/^\//, ''));
-      return net.fetch(pathToFileURL(yol).toString());
+    // Galerideki resimler: resim://yerel/<kodlanmış tam yol>  → dosya doğrudan okunur
+    protocol.handle('resim', async (istek) => {
+      let yol = '';
+      try {
+        const m = /^resim:\/\/[^/]*\/([^?#]*)/i.exec(istek.url);
+        yol = decodeURIComponent(m ? m[1] : '');
+        const veri = await fs.promises.readFile(yol);
+        const tur = /\.png$/i.test(yol) ? 'image/png' : /\.webp$/i.test(yol) ? 'image/webp' : /\.gif$/i.test(yol) ? 'image/gif' : 'image/jpeg';
+        return new Response(veri, { headers: { 'content-type': tur, 'cache-control': 'no-store' } });
+      } catch (e) {
+        logDosya('Resim gösterilemedi: ' + yol + ' (' + e.message + ')');
+        return new Response('', { status: 404 });
+      }
     });
     ipc();
     motorBaslat();

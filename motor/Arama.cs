@@ -107,32 +107,38 @@ public static class Arama
     }
 
     // ------------------------------------------------------------------ arama motorları
-    static async Task<string> MetinAl(string url, CancellationToken t, int sn = 20, string referer = null)
+    static async Task<string> MetinAl(string url, CancellationToken t, int sn = 20, string referer = null, bool json = false)
     {
         using var cts = CancellationTokenSource.CreateLinkedTokenSource(t);
         cts.CancelAfter(TimeSpan.FromSeconds(sn));
         using var istek = new HttpRequestMessage(HttpMethod.Get, url);
         if (referer != null) istek.Headers.Referrer = new Uri(referer);
+        if (json)
+        {
+            istek.Headers.Accept.ParseAdd("*/*");
+            istek.Headers.TryAddWithoutValidation("Sec-Fetch-Dest", "empty");
+            istek.Headers.TryAddWithoutValidation("Sec-Fetch-Mode", "cors");
+            istek.Headers.TryAddWithoutValidation("Sec-Fetch-Site", "same-origin");
+        }
+        else istek.Headers.Accept.ParseAdd("text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
         using var c = await Http.SendAsync(istek, cts.Token);
         if (!c.IsSuccessStatusCode) throw new HttpRequestException($"HTTP {(int)c.StatusCode}");
         return await c.Content.ReadAsStringAsync(cts.Token);
     }
 
-    static readonly Regex Vqd = new(@"vqd=[""']?([\d-]+)[""']?", RegexOptions.CultureInvariant);
+    static readonly Regex Vqd = new(@"vqd=[""']([^""']+)[""']|vqd=([^&""'\s]+)", RegexOptions.CultureInvariant);
 
     static async Task<List<Dictionary<string, string>>> DuckDuckGo(string sorgu, int adet, CancellationToken t)
     {
         var q = Uri.EscapeDataString(sorgu);
-        var sayfa = await MetinAl($"https://duckduckgo.com/?q={q}&iax=images&ia=images", t);
+        var sayfa = await MetinAl($"https://duckduckgo.com/?q={q}", t);
         var m = Vqd.Match(sayfa);
-        if (!m.Success) throw new HttpRequestException("DuckDuckGo anahtarı (vqd) alınamadı");
+        if (!m.Success) throw new HttpRequestException("anahtar (vqd) alınamadı");
+        var vqd = Uri.EscapeDataString(m.Groups[1].Success ? m.Groups[1].Value : m.Groups[2].Value);
+        var js = await MetinAl($"https://duckduckgo.com/i.js?o=json&q={q}&l=tr-tr&vqd={vqd}&p=1&ct=AT", t, 20, "https://duckduckgo.com/", json: true);
+        using var d = JsonDocument.Parse(js);
         var sonuc = new List<Dictionary<string, string>>();
-        var url = $"https://duckduckgo.com/i.js?l=tr-tr&o=json&q={q}&vqd={m.Groups[1].Value}&f=,,,,,&p=1";
-        for (int s = 0; s < 3 && sonuc.Count < Math.Max(15, adet * 8); s++)
-        {
-            var js = await MetinAl(url, t, 20, "https://duckduckgo.com/");
-            using var d = JsonDocument.Parse(js);
-            if (!d.RootElement.TryGetProperty("results", out var rs) || rs.ValueKind != JsonValueKind.Array) break;
+        if (d.RootElement.TryGetProperty("results", out var rs) && rs.ValueKind == JsonValueKind.Array)
             foreach (var r in rs.EnumerateArray())
             {
                 var x = new Dictionary<string, string>();
@@ -140,75 +146,105 @@ public static class Arama
                     if (r.TryGetProperty(k, out var v)) x[k] = v.ValueKind == JsonValueKind.String ? v.GetString() : v.ToString();
                 if (!string.IsNullOrEmpty(x.GetValueOrDefault("image"))) sonuc.Add(x);
             }
-            if (!d.RootElement.TryGetProperty("next", out var n) || n.ValueKind != JsonValueKind.String) break;
-            url = "https://duckduckgo.com/" + n.GetString() + "&vqd=" + m.Groups[1].Value;
-        }
-        return sonuc.Take(Math.Max(15, adet * 8)).ToList();
+        return sonuc.Take(Math.Max(20, adet * 8)).ToList();
     }
 
-    static readonly Regex BingBlok = new(@"class=""iusc""[^>]*\sm=""([^""]+)""", RegexOptions.CultureInvariant);
+    // Bing'in sonuç kutuları: <a class="iusc" ... m="{...murl...}"> (öznitelik sırası değişebilir)
+    static readonly Regex BingEtiket = new(@"<a\s[^>]*\bclass=""iusc""[^>]*>", RegexOptions.CultureInvariant);
+    static readonly Regex BingM = new(@"\sm=""([^""]+)""", RegexOptions.CultureInvariant);
 
-    static async Task<List<Dictionary<string, string>>> Bing(string sorgu, int adet, CancellationToken t)
+    static List<Dictionary<string, string>> BingCoz(string html, int adet)
     {
-        var html = await MetinAl("https://www.bing.com/images/search?q=" + Uri.EscapeDataString(sorgu) +
-                                 "&form=HDRSC2&first=1&cc=tr&setlang=tr", t);
         var sonuc = new List<Dictionary<string, string>>();
-        foreach (Match m in BingBlok.Matches(html))
+        foreach (Match e in BingEtiket.Matches(html))
         {
+            var m = BingM.Match(e.Value);
+            if (!m.Success) continue;
             try
             {
                 using var d = JsonDocument.Parse(WebUtility.HtmlDecode(m.Groups[1].Value));
                 var r = d.RootElement;
                 var murl = r.TryGetProperty("murl", out var mu) ? mu.GetString() : null;
-                if (!string.IsNullOrEmpty(murl))
-                    sonuc.Add(new()
-                    {
-                        ["image"] = murl, ["title"] = r.TryGetProperty("t", out var tt) ? tt.GetString() ?? "" : "",
-                        ["url"] = r.TryGetProperty("purl", out var pu) ? pu.GetString() ?? "" : "", ["width"] = "", ["height"] = "",
-                    });
+                if (string.IsNullOrEmpty(murl)) continue;
+                sonuc.Add(new()
+                {
+                    ["image"] = murl, ["title"] = r.TryGetProperty("t", out var tt) ? tt.GetString() ?? "" : "",
+                    ["url"] = r.TryGetProperty("purl", out var pu) ? pu.GetString() ?? "" : "", ["width"] = "", ["height"] = "",
+                });
             }
             catch (JsonException) { }
-            if (sonuc.Count >= Math.Max(15, adet * 8)) break;
+            if (sonuc.Count >= Math.Max(20, adet * 8)) break;
         }
         return sonuc;
     }
 
+    static async Task<List<Dictionary<string, string>>> Bing(string sorgu, int adet, CancellationToken t)
+    {
+        var q = Uri.EscapeDataString(sorgu);
+        var sonuc = BingCoz(await MetinAl($"https://www.bing.com/images/async?q={q}&async=1&first=1&count=35&mmasync=1&setlang=tr&cc=tr", t), adet);
+        if (sonuc.Count == 0)
+            sonuc = BingCoz(await MetinAl($"https://www.bing.com/images/search?q={q}&form=HDRSC2&first=1&setlang=tr&cc=tr", t), adet);
+        return sonuc;
+    }
+
+    // DuckDuckGo arka arkaya cevap vermezse bir süre doğrudan Bing kullanılır (her üründe beklememek için)
+    static int _ddgHata;
+    static DateTime _ddgAtla = DateTime.MinValue;
+    static readonly object AramaKilit = new();
+
     public static async Task<List<Dictionary<string, string>>> ResimAra(string sorgu, int adet, Action<string> log, string ad, CancellationToken t)
     {
-        List<Dictionary<string, string>> sonuc = null;
-        for (int deneme = 0; deneme < 3; deneme++)
+        List<Dictionary<string, string>> sonuc = new();
+        var hatalar = new List<string>();
+        for (int tur = 0; tur < 2 && sonuc.Count == 0; tur++)
         {
-            try
+            if (tur > 0)
             {
-                sonuc = await DuckDuckGo(sorgu, adet, t);
-                if (sonuc.Count > 0) break;
-                throw new HttpRequestException("sonuç yok");
+                log($"   Arama sonuç vermedi ({string.Join(", ", hatalar)}), 4 sn sonra bir kez daha deneniyor...");
+                await Task.Delay(4000, t);
+                hatalar.Clear();
             }
-            catch (Exception e) when (e is not OperationCanceledException || !t.IsCancellationRequested)
+            bool ddgKullan;
+            lock (AramaKilit) ddgKullan = DateTime.UtcNow >= _ddgAtla;
+            if (ddgKullan)
             {
-                int bekle = 5 * (deneme + 1);
-                var mesaj = e.Message.Length > 80 ? e.Message[..80] : e.Message;
-                log($"   Arama hatası ({e.GetType().Name}: {mesaj}), {bekle} sn bekleniyor...");
-                if (deneme == 0)
+                try
                 {
-                    try
-                    {
-                        sonuc = await Bing(sorgu, adet, t);
-                        if (sonuc.Count > 0) { log("   Yedek arama (Bing) kullanıldı."); break; }
-                    }
-                    catch (Exception e2) when (e2 is not OperationCanceledException || !t.IsCancellationRequested)
-                    {
-                        log($"   Yedek arama da olmadı ({e2.GetType().Name}).");
-                    }
+                    sonuc = await DuckDuckGo(sorgu, adet, t);
+                    if (sonuc.Count == 0) hatalar.Add("DuckDuckGo boş");
+                    lock (AramaKilit) _ddgHata = sonuc.Count > 0 ? 0 : _ddgHata + 1;
                 }
-                await Task.Delay(bekle * 1000, t);
+                catch (Exception e) when (e is not OperationCanceledException || !t.IsCancellationRequested)
+                {
+                    hatalar.Add("DuckDuckGo " + (e is TaskCanceledException ? "zaman aşımı" : e.Message));
+                    lock (AramaKilit) _ddgHata++;
+                }
+                lock (AramaKilit)
+                    if (_ddgHata >= 2)
+                    {
+                        _ddgHata = 0;
+                        _ddgAtla = DateTime.UtcNow.AddMinutes(10);
+                        log("   (DuckDuckGo şu an cevap vermiyor; 10 dakika Bing ile aranacak)");
+                    }
+            }
+            if (sonuc.Count == 0)
+            {
+                try
+                {
+                    sonuc = await Bing(sorgu, adet, t);
+                    if (sonuc.Count == 0) hatalar.Add("Bing boş");
+                }
+                catch (Exception e) when (e is not OperationCanceledException || !t.IsCancellationRequested)
+                {
+                    hatalar.Add("Bing " + (e is TaskCanceledException ? "zaman aşımı" : e.Message));
+                }
             }
         }
-        if (sonuc == null || sonuc.Count == 0)
+        if (sonuc.Count == 0)
         {
-            try { sonuc = await Bing(sorgu, adet, t); } catch when (!t.IsCancellationRequested) { sonuc = new(); }
+            log($"   Arama sonuç vermedi ({string.Join(", ", hatalar)}).");
+            return sonuc;
         }
-        if (sonuc.Count == 0) return sonuc;
         if (ad != null)
             sonuc = sonuc.Select((r, i) => (p: Puan(r, ad), i, r)).Where(x => x.p >= 0)
                 .OrderByDescending(x => x.p).ThenBy(x => x.i).Select(x => x.r).ToList();
@@ -250,19 +286,41 @@ public static class Arama
             .OrderBy(x => x, StringComparer.Ordinal).ToList();
     }
 
-    public enum Durum { Var, Indi, Yedek, Yok, Brosur }
+    public enum Durum { Var, Indi, Yedek, Yok, Brosur, Yerel }
+    public const string YedekIsareti = "#yedek";
 
     /// <summary>Bir ürünün resmini indirir. kullanilan: daha önce indirilmiş adresler (tekrar gelmesin).</summary>
     public static async Task<(Durum durum, int sayi)> UrunIndir(string ad, string sorgu, string klasor, int adet, Action<string> log,
-        List<string> kullanilan, bool yenile, CancellationToken t)
+        List<string> kullanilan, bool yenile, CancellationToken t, string yerelArsiv = null, string kategoriYolu = null)
     {
         kullanilan ??= new();
         Directory.CreateDirectory(klasor);
         var mevcut = MevcutResimler(klasor, ad);
-        if (mevcut.Count >= adet && !yenile)
+        // Önceki çalıştırmada adı yazılı yedek kart konduysa yeniden aranır
+        bool yedekVardi = kullanilan.Remove(YedekIsareti);
+        if (mevcut.Count >= adet && !yenile && !yedekVardi)
         {
             log($"  ✓ {ad} (zaten var, atlandı)");
             return (Durum.Var, mevcut.Count);
+        }
+        bool YereldenKoy(Yerel.Eslesme e)
+        {
+            try
+            {
+                if (!Resim.KareJpegKaydet(File.ReadAllBytes(e.Yol), Path.Combine(klasor, $"{ad}.jpg"), kucukDeOlur: true)) return false;
+                kullanilan.Add("yerel:" + e.Yol);
+                log($"  ✓ {ad} (kendi arşivinden: {Path.GetFileName(e.Yol)})");
+                return true;
+            }
+            catch (Exception) { return false; }
+        }
+        Yerel.Eslesme yerel = null;
+        if (!string.IsNullOrWhiteSpace(yerelArsiv))
+        {
+            try { yerel = Yerel.Bul(yerelArsiv, ad, kategoriYolu, log); } catch (Exception e) { log($"   Arşiv okunamadı: {e.Message}"); }
+            if (yerel != null && kullanilan.Contains("yerel:" + yerel.Yol) && yenile) yerel = null;   // "Farklı resim": aynısını verme
+            // Adı birebir tutan kendi resmin internetten önce gelir
+            if (yerel != null && yerel.Birebir && !yenile && YereldenKoy(yerel)) return (Durum.Yerel, 1);
         }
         // Yenilemede eski resim yeni gelene kadar korunur; bulunamazsa yerinde kalır.
         int kaydedilen = 0;
@@ -279,8 +337,11 @@ public static class Arama
                 try
                 {
                     using var cts = CancellationTokenSource.CreateLinkedTokenSource(t);
-                    cts.CancelAfter(TimeSpan.FromSeconds(15));
-                    using var c = await Http.GetAsync(url, cts.Token);
+                    cts.CancelAfter(TimeSpan.FromSeconds(12));
+                    using var istek = new HttpRequestMessage(HttpMethod.Get, url);
+                    istek.Headers.Accept.ParseAdd("image/avif,image/webp,image/apng,image/*,*/*;q=0.8");
+                    if (Uri.TryCreate(r.GetValueOrDefault("url"), UriKind.Absolute, out var sayfa)) istek.Headers.Referrer = sayfa;
+                    using var c = await Http.SendAsync(istek, cts.Token);
                     if (c.StatusCode != HttpStatusCode.OK) continue;
                     veri = await c.Content.ReadAsByteArrayAsync(cts.Token);
                 }
@@ -297,9 +358,10 @@ public static class Arama
             }
         }
         finally { try { if (File.Exists(gecici)) File.Delete(gecici); } catch { } }
+        if (kaydedilen == 0 && yerel != null && YereldenKoy(yerel)) return (Durum.Yerel, 1);
         if (kaydedilen == 0)
         {
-            if (yenile && mevcut.Count > 0)
+            if (yenile && mevcut.Count > 0 && !yedekVardi)
             {
                 log($"  ✗ {ad}: farklı resim bulunamadı, eskisi duruyor");
                 return (Durum.Yok, 0);
@@ -307,6 +369,7 @@ public static class Arama
             try
             {
                 Resim.YedekGorsel(ad, Path.GetFileName(klasor.TrimEnd(Path.DirectorySeparatorChar)), Path.Combine(klasor, $"{ad}.jpg"));
+                kullanilan.Add(YedekIsareti);
                 log($"  ~ {ad} (bulunamadı, adı yazılı yedek görsel konuldu)");
                 return (Durum.Yedek, -1);
             }
@@ -321,7 +384,7 @@ public static class Arama
     /// <summary>Tüm ürünlerin resimlerini indirir; her ürün için olay(kategori, ürün, durum, yol) çağrılır.</summary>
     public static async Task<List<string>> HepsiniIndir(List<Kategori> kategoriler, string cikti, int adet, string ek,
         Action<string> log, Action<string, Urun, Durum, string> olay, bool klasorArama, bool yenile,
-        Dictionary<string, Kirpma> kirpmalar, CancellationToken t, string surum)
+        Dictionary<string, Kirpma> kirpmalar, CancellationToken t, string surum, string yerelArsiv = null)
     {
         int toplam = kategoriler.Sum(k => k.Urunler.Count);
         Directory.CreateDirectory(cikti);
@@ -356,11 +419,11 @@ public static class Arama
                 var sorgu = string.Join(" ", new[] { baglam, AramaOlustur(u.Ad, u.Arama, k.Yol), ek }.Where(x => !string.IsNullOrEmpty(x)));
                 var anahtar = $"{k.Yol.Replace('/', Path.DirectorySeparatorChar)}/{u.Ad}";
                 if (!kayit.TryGetValue(anahtar, out var liste)) kayit[anahtar] = liste = new();
-                var (durum, sayi) = await UrunIndir(u.Ad, sorgu, klasor, adet, log, liste, yenile, t);
+                var (durum, sayi) = await UrunIndir(u.Ad, sorgu, klasor, adet, log, liste, yenile, t, yerelArsiv, k.Yol);
                 if (sayi <= 0) basarisiz.Add($"{k.Yol.Replace("/", " / ")} / {u.Ad}");
                 KullanilanYaz(cikti, kayit);
                 olay(k.Yol, u, durum, Sql.ResimBul(klasor, u.Ad));
-                if (durum != Durum.Var) await Task.Delay(1500, t);
+                if (durum is not (Durum.Var or Durum.Yerel)) await Task.Delay(1500, t);
             }
             log("");
         }

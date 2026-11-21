@@ -15,7 +15,7 @@ namespace UrunMotor;
 /// </summary>
 public static class Program
 {
-    public const string Surum = "4.0.1";
+    public const string Surum = "4.0.2";
 
     static readonly object YazKilit = new();
     static TextWriter _cikis;
@@ -68,6 +68,9 @@ public static class Program
             gorevler.Add(Task.Run(() => Calistir(id, komut, arg, cts.Token)));
             gorevler.RemoveAll(g => g.IsCompleted);
         }
+        // Giriş kapandı: arayüz kapanmıştır, işleri durdur. (Denemede MOTOR_BEKLE=1 ise bitmelerini bekle.)
+        if (Environment.GetEnvironmentVariable("MOTOR_BEKLE") == "1")
+            try { await Task.WhenAll(gorevler).WaitAsync(TimeSpan.FromSeconds(180)); } catch { }
         foreach (var c in Isler.Values) c.Cancel();
         try { await Task.WhenAll(gorevler).WaitAsync(TimeSpan.FromSeconds(3)); } catch { }
         return 0;
