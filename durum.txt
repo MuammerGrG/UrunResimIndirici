@@ -1,0 +1,1 @@
+test=success motor=success kurulum=success deneme=success sha=ed4d322a92c12635ae969b1985805a76b3daa137
