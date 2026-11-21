@@ -410,3 +410,29 @@ public class ProtokolTestleri
         await Assert.ThrowsAsync<HataMesaji>(() => UrunMotor.Komutlar.Yurut("yok_boyle", new JsonObject(), c));
     }
 }
+
+public class YerelArsivTestleri
+{
+    [Fact]
+    public void DosyaAdindanBulur()
+    {
+        var kok = Fx.GeciciKlasor();
+        void Yap(string goreli) { var y = Path.Combine(kok, goreli); Directory.CreateDirectory(Path.GetDirectoryName(y)); Resim.YedekGorsel("x", "y", y); }
+        Yap(Path.Combine("İçecekler", "Kutu Kola.jpg"));
+        Yap(Path.Combine("İçecekler", "Cam Şişe Ayran (2).png"));
+        Yap(Path.Combine("Dönerler", "Tavuk Dürüm.jpg"));
+        Yap(Path.Combine("Dönerler", "Et Döner Porsiyon.jpg"));
+        Yerel.Temizle();
+        var e = Yerel.Bul(kok, "Kutu Kola", "İçecekler");
+        Assert.NotNull(e); Assert.True(e.Birebir); Assert.EndsWith("Kutu Kola.jpg", e.Yol);
+        e = Yerel.Bul(kok, "Cam Şişe Ayran", "İçecekler");
+        Assert.NotNull(e); Assert.True(e.Birebir);
+        e = Yerel.Bul(kok, "Kola", "İçecekler");
+        Assert.NotNull(e); Assert.False(e.Birebir);
+        e = Yerel.Bul(kok, "Et Döner", "Dönerler");
+        Assert.NotNull(e); Assert.EndsWith("Et Döner Porsiyon.jpg", e.Yol);
+        Assert.Null(Yerel.Bul(kok, "Künefe", "Tatlılar"));
+        Assert.Null(Yerel.Bul(kok, "Tavuk Şiş", "Kebap"));
+        Directory.Delete(kok, true);
+    }
+}

@@ -202,7 +202,7 @@ textarea.kod { font: 13px/1.55 var(--kod); tab-size: 2; }
 .urun-kart .ad { font-size: 13.5px; font-weight: 600; padding: 8px 10px 2px; line-height: 1.3; }
 .urun-kart .durum { font-size: 12px; color: var(--soluk); padding: 0 10px 8px; }
 .urun-kart[data-durum="yedek"] .durum, .urun-kart[data-durum="yok"] .durum { color: var(--safran); }
-.urun-kart[data-durum="brosur"] .durum { color: var(--zeytin); }
+.urun-kart[data-durum="brosur"] .durum, .urun-kart[data-durum="yerel"] .durum { color: var(--zeytin); }
 .urun-kart.calisiyor .gorsel::after { content: ""; position: absolute; inset: 0; background: color-mix(in srgb, var(--yuzey) 60%, transparent); }
 .urun-kart.calisiyor .gorsel::before { content: ""; position: absolute; z-index: 1; width: 26px; height: 26px; border-radius: 50%; border: 3px solid var(--cizgi); border-top-color: var(--sumak); animation: don 0.8s linear infinite; }
 .urun-kart .eylem { position: absolute; left: 6px; right: 6px; top: 6px; display: flex; gap: 6px; opacity: 0; transition: opacity .15s; }

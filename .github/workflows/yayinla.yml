@@ -101,6 +101,29 @@ jobs:
           if (Test-Path $log) { Get-Content $log | Tee-Object -FilePath derle.txt -Append }
           Get-Process | Where-Object { $_.ProcessName -match "^(Motor|UrunResim)$" } | Stop-Process -Force
           if (-not $calisiyor) { exit 1 }
+          # Galeri resim gösterimi (Türkçe yol)
+          $klasor = Join-Path $env:TEMP "Deneme İçecekler"
+          New-Item -ItemType Directory -Force $klasor | Out-Null
+          $resim = Join-Path $klasor "Küçük Ayran.jpg"
+          $bmp2 = New-Object System.Drawing.Bitmap 600, 600
+          $bmp2.Save($resim, [System.Drawing.Imaging.ImageFormat]::Jpeg)
+          $env:RESIM_DENEME = $resim
+          $p2 = Start-Process -FilePath $exe -PassThru
+          Start-Sleep -Seconds 10
+          Get-Process | Where-Object { $_.ProcessName -match "^(Motor|UrunResim)$" } | Stop-Process -Force
+          Remove-Item Env:RESIM_DENEME
+          $satir = Get-Content $log | Select-String "RESIM_DENEME"
+          "Galeri resmi: $satir" | Tee-Object -FilePath derle.txt -Append
+          if (-not ($satir -match "genislik=600")) { exit 1 }
+          # İnternet resim araması (bilgi amaçlı; ağ yüzünden başarısız olabilir)
+          $cikti = Join-Path $env:TEMP "arama_deneme"
+          $istek = @(
+            (@{ id = 1; komut = "resim_yenile"; arg = @{ cikti = $cikti; yol = "İçecekler"; ad = "Kutu Kola" } } | ConvertTo-Json -Compress),
+            (@{ id = 2; komut = "resim_yenile"; arg = @{ cikti = $cikti; yol = "Dönerler"; ad = "Tavuk Dürüm" } } | ConvertTo-Json -Compress)
+          ) -join "`n"
+          $env:MOTOR_BEKLE = "1"
+          $istek | & $motor 2>&1 | Select-Object -First 60 | Tee-Object -FilePath derle.txt -Append
+          Remove-Item Env:MOTOR_BEKLE
 
       - name: Sonuçları ci-log dalına yaz
         if: always()

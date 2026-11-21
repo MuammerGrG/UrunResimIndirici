@@ -187,7 +187,7 @@ public static class Komutlar
                             ["sira"] = sira, ["toplam"] = toplam,
                         });
                     },
-                    B(a, "klasorArama"), B(a, "yenile"), Kirpmalar(a), c.T, Program.Surum);
+                    B(a, "klasorArama"), B(a, "yenile"), Kirpmalar(a), c.T, Program.Surum, S(a, "yerelArsiv"));
                 return new JsonObject
                 {
                     ["metin"] = yeni, ["basarisiz"] = new JsonArray(basarisiz.Select(x => (JsonNode)x).ToArray()),
@@ -206,7 +206,7 @@ public static class Komutlar
                 var baglam = B(a, "klasorArama")
                     ? string.Join(" ", yol.Split('/').Where(p => Py.Lower(p) is not ("genel" or "sadece yemek" or "hazır"))) : "";
                 var sorgu = string.Join(" ", new[] { baglam, Arama.AramaOlustur(ad, S(a, "arama", ad), yol), S(a, "ek") }.Where(x => x.Length > 0));
-                var (durum, _) = await Arama.UrunIndir(ad, sorgu, klasor, 1, c.Log, liste, true, c.T);
+                var (durum, _) = await Arama.UrunIndir(ad, sorgu, klasor, 1, c.Log, liste, true, c.T, S(a, "yerelArsiv"), yol);
                 Arama.KullanilanYaz(cikti, kayit);
                 return new JsonObject { ["durum"] = durum.ToString().ToLowerInvariant(), ["resim"] = Sql.ResimBul(klasor, ad) };
             }
@@ -220,6 +220,9 @@ public static class Komutlar
                 foreach (var f in Arama.MevcutResimler(klasor, ad)) try { File.Delete(Path.Combine(klasor, f)); } catch { }
                 if (!Resim.KareJpegKaydet(await File.ReadAllBytesAsync(S(a, "dosya"), c.T), hedef, kucukDeOlur: true))
                     throw new HataMesaji("Seçilen dosya resim olarak açılamadı.");
+                var kayit = Arama.KullanilanOku(S(a, "cikti"));
+                if (kayit.TryGetValue($"{S(a, "yol").Replace('/', Path.DirectorySeparatorChar)}/{ad}", out var l) && l.Remove(Arama.YedekIsareti))
+                    Arama.KullanilanYaz(S(a, "cikti"), kayit);
                 c.Log($"  ✓ {ad} (elle seçilen resim konuldu)");
                 return new JsonObject { ["resim"] = hedef };
             }

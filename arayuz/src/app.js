@@ -352,7 +352,7 @@ $('#btn-resime-gec').onclick = () => adimaGit('resim');
 
 // ------------------------------------------------------------------ 3) resimler
 function kartAnahtar(yol, ad) { return yol + '/' + ad; }
-const durumYazi = { var: 'hazır', indi: 'internetten', yedek: 'bulunamadı, adı yazılı kart', yok: 'bulunamadı', brosur: 'broşürden kesildi', bekliyor: 'sırada', elle: 'elle seçildi' };
+const durumYazi = { yerel: 'kendi arşivinden', var: 'hazır', indi: 'internetten', yedek: 'bulunamadı, adı yazılı kart', yok: 'bulunamadı', brosur: 'broşürden kesildi', bekliyor: 'sırada', elle: 'elle seçildi' };
 
 async function galeriYukle() {
   if (!D.ayar.cikti) return;
@@ -399,7 +399,7 @@ function kartYap(yol, u) {
     <div class="eylem"><button data-e="yenile">Farklı resim</button><button data-e="sec">Dosya seç</button></div>`;
   $('[data-e="yenile"]', kart).onclick = () => resimYenile(yol, u, kart);
   $('[data-e="sec"]', kart).onclick = async () => {
-    const [f] = await api.dosya.ac({ baslik: u.ad + ' için resim', filtre: [{ name: 'Resim', extensions: ['jpg', 'jpeg', 'png', 'webp', 'bmp', 'gif'] }] });
+    const [f] = await api.dosya.ac({ baslik: u.ad + ' için resim', yol: D.ayar.yerelArsiv || undefined, filtre: [{ name: 'Resim', extensions: ['jpg', 'jpeg', 'png', 'webp', 'bmp', 'gif'] }] });
     if (f) resimAyarla(yol, u, kart, f);
   };
   kart.addEventListener('dragover', (e) => { e.preventDefault(); kart.classList.add('uzerinde'); });
@@ -432,7 +432,7 @@ function kartGuncelle(a, durum, resim) {
 async function resimYenile(yol, u, kart) {
   kart.classList.add('calisiyor');
   try {
-    const r = await motor('resim_yenile', { cikti: D.ayar.cikti, yol, ad: u.ad, arama: u.arama, ek: $('#ek').value, klasorArama: $('#klasorArama').checked });
+    const r = await motor('resim_yenile', { cikti: D.ayar.cikti, yol, ad: u.ad, arama: u.arama, ek: $('#ek').value, klasorArama: $('#klasorArama').checked, yerelArsiv: D.ayar.yerelArsiv || '' });
     kartGuncelle(kartAnahtar(yol, u.ad), r.durum === 'yok' ? D.galeri.get(kartAnahtar(yol, u.ad))?.durum || 'yok' : r.durum, r.resim);
   } catch { kart.classList.remove('calisiyor'); }
 }
@@ -473,7 +473,7 @@ $('#btn-indir').onclick = async () => {
   try {
     const r = await motor('indir', {
       metin: $('#metin').value, cikti: D.ayar.cikti, adet: +$('#adet').value || 1, ek: $('#ek').value,
-      klasorArama: $('#klasorArama').checked, yenile: $('#yenile').checked, kirpmalar: D.kirpmalar, saglayici: saglayici(),
+      klasorArama: $('#klasorArama').checked, yenile: $('#yenile').checked, kirpmalar: D.kirpmalar, saglayici: saglayici(), yerelArsiv: D.ayar.yerelArsiv || '',
     }, { ad: 'Resimler indiriliyor' });
     $('#metin').value = r.metin;
     $('#yenile').checked = false;
@@ -594,7 +594,7 @@ async function ayarKaydet(yeni) { D.ayar = await api.ayar.kaydet(yeni); }
 
 function ayarlariFormaYaz() {
   const a = D.ayar;
-  for (const id of ['geminiAnahtar', 'groqAnahtar', 'mistralAnahtar', 'model', 'ollamaModel', 'cikti', 'firmalar']) $('#' + id).value = a[id] || '';
+  for (const id of ['geminiAnahtar', 'groqAnahtar', 'mistralAnahtar', 'model', 'ollamaModel', 'cikti', 'firmalar', 'yerelArsiv']) $('#' + id).value = a[id] || '';
   for (const b of $$('[data-saglayici]')) b.setAttribute('aria-checked', String(b.dataset.saglayici === (a.saglayici || 'gemini')));
   for (const b of $$('[data-tema]')) b.setAttribute('aria-checked', String(b.dataset.tema === (a.tema || 'sistem')));
 }
@@ -618,7 +618,7 @@ for (const b of $$('[data-klasor-sec]')) b.onclick = async () => {
 $('#ayarlar').addEventListener('close', async () => {
   if ($('#ayarlar').returnValue !== 'kaydet') { temaUygula(D.ayar.tema); return; }
   const yeni = {};
-  for (const id of ['geminiAnahtar', 'groqAnahtar', 'mistralAnahtar', 'model', 'ollamaModel', 'cikti', 'firmalar']) yeni[id] = $('#' + id).value.trim();
+  for (const id of ['geminiAnahtar', 'groqAnahtar', 'mistralAnahtar', 'model', 'ollamaModel', 'cikti', 'firmalar', 'yerelArsiv']) yeni[id] = $('#' + id).value.trim();
   yeni.saglayici = $('[data-saglayici][aria-checked="true"]')?.dataset.saglayici || 'gemini';
   yeni.tema = $('[data-tema][aria-checked="true"]')?.dataset.tema || 'sistem';
   await ayarKaydet(yeni);
