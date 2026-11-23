@@ -343,7 +343,8 @@ public static class Arama
 
     /// <summary>Bir ürünün resmini indirir. kullanilan: daha önce indirilmiş adresler (tekrar gelmesin).</summary>
     public static async Task<(Durum durum, int sayi)> UrunIndir(string ad, string sorgu, string klasor, int adet, Action<string> log,
-        List<string> kullanilan, bool yenile, CancellationToken t, string yerelArsiv = null, string kategoriYolu = null)
+        List<string> kullanilan, bool yenile, CancellationToken t, string yerelArsiv = null, string kategoriYolu = null,
+        Func<List<string>, Task<int>> dogrula = null)
     {
         kullanilan ??= new();
         Directory.CreateDirectory(klasor);
@@ -377,12 +378,46 @@ public static class Arama
         // Yenilemede eski resim yeni gelene kadar korunur; bulunamazsa yerinde kalır.
         int kaydedilen = 0;
         log($"  … {ad}  [arama: {sorgu}]");
-        var gecici = Path.Combine(klasor, $".yeni_{Guid.NewGuid():N}");
+        var adaylar = new List<(string dosya, string url)>();
+        void Kaydet(string dosyaYolu, string url)
+        {
+            var hedef = adet == 1 ? $"{ad}.jpg" : $"{ad}_{kaydedilen + 1}.jpg";
+            if (kaydedilen == 0 && yenile)
+                foreach (var f in mevcut) try { File.Delete(Path.Combine(klasor, f)); } catch { }
+            File.Move(dosyaYolu, Path.Combine(klasor, hedef), true);
+            kaydedilen++;
+            kullanilan.Add(url);
+        }
+        // Yapay zekâ kontrolü: adaylardan ürüne uyanı seçtirir (0 = hiçbiri, -1 = kontrol yapılamadı)
+        async Task<bool> AdaylariDegerlendir()
+        {
+            if (adaylar.Count == 0) return false;
+            int secim = -1;
+            try { secim = await dogrula(adaylar.Select(x => x.dosya).ToList()); }
+            catch (OperationCanceledException) when (t.IsCancellationRequested) { throw; }
+            catch { secim = -1; }
+            if (secim > 0 && secim <= adaylar.Count)
+            {
+                Kaydet(adaylar[secim - 1].dosya, adaylar[secim - 1].url);
+                log($"     (yapay zekâ {adaylar.Count} resimden {secim}. resmi seçti)");
+            }
+            else if (secim < 0) Kaydet(adaylar[0].dosya, adaylar[0].url);
+            else
+            {
+                log($"     (yapay zekâ {adaylar.Count} resmi de uygun bulmadı, sonrakilere bakılıyor)");
+                foreach (var x in adaylar) kullanilan.Add(x.url);
+            }
+            foreach (var x in adaylar) try { if (File.Exists(x.dosya)) File.Delete(x.dosya); } catch { }
+            adaylar.Clear();
+            return kaydedilen >= adet;
+        }
+        bool kontrollu = dogrula != null && adet == 1;
+        int tur = 0;
         try
         {
             foreach (var r in await ResimAra(sorgu, adet, log, ad, t))
             {
-                if (kaydedilen >= adet) break;
+                if (kaydedilen >= adet || tur >= 3) break;
                 var url = r.GetValueOrDefault("image");
                 if (string.IsNullOrEmpty(url) || kullanilan.Contains(url)) continue;
                 byte[] veri;
@@ -398,18 +433,19 @@ public static class Arama
                     veri = await c.Content.ReadAsByteArrayAsync(cts.Token);
                 }
                 catch when (!t.IsCancellationRequested) { continue; }
-                var dosya = adet == 1 ? $"{ad}.jpg" : $"{ad}_{kaydedilen + 1}.jpg";
-                if (Resim.KareJpegKaydet(veri, gecici))
-                {
-                    if (kaydedilen == 0 && yenile)
-                        foreach (var f in mevcut) try { File.Delete(Path.Combine(klasor, f)); } catch { }
-                    File.Move(gecici, Path.Combine(klasor, dosya), true);
-                    kaydedilen++;
-                    kullanilan.Add(url);
-                }
+                var gecici = Path.Combine(klasor, $".yeni_{Guid.NewGuid():N}");
+                if (!Resim.KareJpegKaydet(veri, gecici)) continue;
+                if (!kontrollu) { Kaydet(gecici, url); continue; }
+                adaylar.Add((gecici, url));
+                if (adaylar.Count >= 3) { tur++; if (await AdaylariDegerlendir()) break; }
             }
+            if (kontrollu && kaydedilen < adet && adaylar.Count > 0) await AdaylariDegerlendir();
         }
-        finally { try { if (File.Exists(gecici)) File.Delete(gecici); } catch { } }
+        finally
+        {
+            foreach (var x in adaylar) try { if (File.Exists(x.dosya)) File.Delete(x.dosya); } catch { }
+            foreach (var f in Directory.EnumerateFiles(klasor, ".yeni_*")) try { File.Delete(f); } catch { }
+        }
         if (kaydedilen == 0 && yerel != null && YereldenKoy(yerel)) return (Durum.Yerel, 1);
         if (kaydedilen == 0)
         {
@@ -436,7 +472,8 @@ public static class Arama
     /// <summary>Tüm ürünlerin resimlerini indirir; her ürün için olay(kategori, ürün, durum, yol) çağrılır.</summary>
     public static async Task<List<string>> HepsiniIndir(List<Kategori> kategoriler, string cikti, int adet, string ek,
         Action<string> log, Action<string, Urun, Durum, string> olay, bool klasorArama, bool yenile,
-        Dictionary<string, Kirpma> kirpmalar, CancellationToken t, string surum, string yerelArsiv = null)
+        Dictionary<string, Kirpma> kirpmalar, CancellationToken t, string surum, string yerelArsiv = null,
+        Func<Kategori, Urun, List<string>, Task<int>> dogrula = null)
     {
         int toplam = kategoriler.Sum(k => k.Urunler.Count);
         Directory.CreateDirectory(cikti);
@@ -468,7 +505,8 @@ public static class Arama
                 var sorgu = Sorgu(u.Ad, u.Arama, k.Yol, ek, klasorArama);
                 var anahtar = $"{k.Yol.Replace('/', Path.DirectorySeparatorChar)}/{u.Ad}";
                 if (!kayit.TryGetValue(anahtar, out var liste)) kayit[anahtar] = liste = new();
-                var (durum, sayi) = await UrunIndir(u.Ad, sorgu, klasor, adet, log, liste, yenile, t, yerelArsiv, k.Yol);
+                var (durum, sayi) = await UrunIndir(u.Ad, sorgu, klasor, adet, log, liste, yenile, t, yerelArsiv, k.Yol,
+                    dogrula == null ? null : d => dogrula(k, u, d));
                 if (sayi <= 0) basarisiz.Add($"{k.Yol.Replace("/", " / ")} / {u.Ad}");
                 KullanilanYaz(cikti, kayit);
                 olay(k.Yol, u, durum, Sql.ResimBul(klasor, u.Ad));

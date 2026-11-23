@@ -432,7 +432,7 @@ function kartGuncelle(a, durum, resim) {
 async function resimYenile(yol, u, kart) {
   kart.classList.add('calisiyor');
   try {
-    const r = await motor('resim_yenile', { cikti: D.ayar.cikti, yol, ad: u.ad, arama: u.arama, ek: $('#ek').value, klasorArama: $('#klasorArama').checked, yerelArsiv: D.ayar.yerelArsiv || '' });
+    const r = await motor('resim_yenile', { cikti: D.ayar.cikti, yol, ad: u.ad, arama: u.arama, ek: $('#ek').value, klasorArama: $('#klasorArama').checked, yerelArsiv: D.ayar.yerelArsiv || '', resimKontrol: $('#resimKontrol').checked, saglayici: saglayici() });
     kartGuncelle(kartAnahtar(yol, u.ad), r.durum === 'yok' ? D.galeri.get(kartAnahtar(yol, u.ad))?.durum || 'yok' : r.durum, r.resim);
   } catch { kart.classList.remove('calisiyor'); }
 }
@@ -454,7 +454,7 @@ function urunOlayi(o) {
   sonraki?.classList.add('calisiyor');
 }
 
-for (const id of ['adet', 'ek', 'klasorArama', 'otomatikCikti']) {
+for (const id of ['adet', 'ek', 'klasorArama', 'otomatikCikti', 'resimKontrol']) {
   $('#' + id).addEventListener('change', () => {
     const e = $('#' + id);
     ayarKaydet({ [id]: e.type === 'checkbox' ? e.checked : e.type === 'number' ? Math.max(1, Math.min(10, +e.value || 1)) : e.value });
@@ -473,7 +473,7 @@ $('#btn-indir').onclick = async () => {
   try {
     const r = await motor('indir', {
       metin: $('#metin').value, cikti: D.ayar.cikti, adet: +$('#adet').value || 1, ek: $('#ek').value,
-      klasorArama: $('#klasorArama').checked, yenile: $('#yenile').checked, kirpmalar: D.kirpmalar, saglayici: saglayici(), yerelArsiv: D.ayar.yerelArsiv || '',
+      klasorArama: $('#klasorArama').checked, yenile: $('#yenile').checked, kirpmalar: D.kirpmalar, saglayici: saglayici(), yerelArsiv: D.ayar.yerelArsiv || '', resimKontrol: $('#resimKontrol').checked,
     }, { ad: 'Resimler indiriliyor' });
     $('#metin').value = r.metin;
     $('#yenile').checked = false;
@@ -646,6 +646,7 @@ function formuDoldur() {
   $('#ek').value = a.ek || '';
   $('#klasorArama').checked = !!a.klasorArama;
   $('#otomatikCikti').checked = a.otomatikCikti !== false;
+  $('#resimKontrol').checked = a.resimKontrol !== false;
   for (const id of ['sql', 'proDb', 'proKullanici', 'proOpsiyonlar']) $('#' + id).value = a[id] || '';
   $('#proIcecekOpsiyon').checked = !!a.proIcecekOpsiyon;
   $('#proDemoTemizle').checked = a.proDemoTemizle !== false;
