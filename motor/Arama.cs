@@ -284,7 +284,8 @@ public static class Arama
     public static string Sorgu(string ad, string arama, string yol, string ek, bool klasorArama)
     {
         var temel = AramaOlustur(ad, arama, yol);
-        if (Metin.Norm(temel) == Metin.Norm(ad))
+        bool ozelTerimYok = Metin.Norm(temel) == Metin.Norm(ad);
+        if (ozelTerimYok)
             // Türkçede "mayo" mayo (giysi) demek; İngilizce menü adlarını yemeğe çevir
             temel = string.Join(" ", Py.SplitWs(temel).Select(w => Metin.Norm(w) switch
             {
@@ -293,7 +294,7 @@ public static class Arama
         var parcalar = (yol ?? "").Split('/').Where(p => Py.Lower(p) is not ("genel" or "sadece yemek" or "hazır" or "diğer" or "menü")).ToList();
         string baglam = "";
         if (klasorArama) baglam = string.Join(" ", parcalar);
-        else if (Metin.Norm(temel) == Metin.Norm(ad) && parcalar.Count > 0)
+        else if (ozelTerimYok && parcalar.Count > 0)
         {
             var ust = parcalar[0];
             var adN = Metin.Norm(ad);
