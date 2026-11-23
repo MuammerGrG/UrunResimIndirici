@@ -498,7 +498,7 @@ public class SatisTestleri
             using var b = SkiaSharp.SKBitmap.Decode(jpeg);
             Assert.Equal(217, b.Width); Assert.Equal(123, b.Height);
             // fiyatı olmayan Çay: 5 TL
-            Assert.Matches(Metin.HexMetin("ÇAY") + ",NULL,'ADET',5,", m);
+            Assert.Contains(Metin.HexMetin("ÇAY") + ",NULL,'ADET',5,", m);
             Assert.Throws<HataMesaji>(() => Satis.Olustur(Fx.Yol("test_dump.sql"), k, tmp, cikti, 5));
         }
         finally { Directory.Delete(tmp, true); }
