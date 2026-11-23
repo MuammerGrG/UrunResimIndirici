@@ -103,6 +103,44 @@ public static class Komutlar
 
     static int Say(List<Kategori> k) => k.Sum(x => x.Urunler.Count);
 
+    static readonly string[] ManavKategori = { "sebze", "meyve", "yesillik", "kuruyemis" };
+
+    /// <summary>Kendine özel arama terimi olmayan ürünlere (ör. "Hot Chick") yapay zekâyla "acılı tavuk burger" gibi terim yazar.</summary>
+    static async Task<int> AramaTerimleriYaz(List<Kategori> k, Yapay.Saglayici s, Is c)
+    {
+        if (s.Ad == "ollama" || (string.IsNullOrWhiteSpace(s.GeminiAnahtar) && string.IsNullOrWhiteSpace(s.GroqAnahtar) && string.IsNullOrWhiteSpace(s.MistralAnahtar)))
+            return 0;
+        var eksik = new List<(Kategori kat, Urun u)>();
+        foreach (var kat in k)
+        {
+            var ust = Metin.Norm(kat.Yol.Split('/')[0]);
+            if (ManavKategori.Any(ust.Contains)) continue;
+            foreach (var u in kat.Urunler)
+                if (Metin.PorsNorm(u.Arama) == Metin.PorsNorm(u.Ad)) eksik.Add((kat, u));
+        }
+        if (eksik.Count == 0) return 0;
+        c.Log($"{eksik.Count} ürün için yapay zekâyla arama terimi yazılıyor (doğru resim için)...");
+        int n = 0;
+        try
+        {
+            for (int i = 0; i < eksik.Count; i += 120)
+            {
+                var grup = eksik.Skip(i).Take(120).ToList();
+                var terim = await Yapay.AramaTerimleri(grup.Select(x => (x.kat.Yol.Replace("/", " / "), x.u.Ad)).ToList(), s, c.Log, c.T);
+                for (int j = 0; j < grup.Count; j++)
+                    if (terim.TryGetValue(j + 1, out var t) && Py.Strip(t).Length > 0)
+                    {
+                        grup[j].u.Arama = Metin.GuvenliAd(t.Replace("|", " "));
+                        n++;
+                    }
+            }
+            c.Log($"  {n} ürüne arama terimi yazıldı.\n");
+        }
+        catch (OperationCanceledException) when (c.T.IsCancellationRequested) { throw; }
+        catch (Exception e) { c.Log($"  Arama terimleri yazılamadı ({(e.Message.Length > 120 ? e.Message[..120] : e.Message)}); kategori adıyla aranacak."); }
+        return n;
+    }
+
     public static async Task<JsonNode> Yurut(string komut, JsonObject a, Is c)
     {
         switch (komut)
@@ -174,6 +212,16 @@ public static class Komutlar
                 }
                 var k = Metin.ListeyiAyristir(yeni);
                 if (k.Count == 0) throw new HataMesaji("Önce menüyü okut veya ürün listesini yapıştır.");
+                if (B(a, "yapayZeka", true))
+                {
+                    var yazildi = await AramaTerimleriYaz(k, Saglayici(a), c);
+                    if (yazildi > 0)
+                    {
+                        var odemeSatirlari = Py.SplitLines(yeni).Select(Py.Strip).Where(Metin.OdemeSatiriMi).ToList();
+                        yeni = Metin.ListeYaz(k) + (odemeSatirlari.Count > 0 ? "\n\n" + string.Join("\n", odemeSatirlari) : "");
+                        c.Olay("metin", new JsonObject { ["metin"] = yeni });
+                    }
+                }
                 var cikti = S(a, "cikti");
                 if (cikti.Length == 0) throw new HataMesaji("Resim ana klasörü seçilmedi.");
                 int toplam = Say(k), sira = 0;
@@ -203,9 +251,8 @@ public static class Komutlar
                 var kayit = Arama.KullanilanOku(cikti);
                 var anahtar = $"{yol.Replace('/', Path.DirectorySeparatorChar)}/{ad}";
                 if (!kayit.TryGetValue(anahtar, out var liste)) kayit[anahtar] = liste = new();
-                var baglam = B(a, "klasorArama")
-                    ? string.Join(" ", yol.Split('/').Where(p => Py.Lower(p) is not ("genel" or "sadece yemek" or "hazır"))) : "";
-                var sorgu = string.Join(" ", new[] { baglam, Arama.AramaOlustur(ad, S(a, "arama", ad), yol), S(a, "ek") }.Where(x => x.Length > 0));
+
+                var sorgu = Arama.Sorgu(ad, S(a, "arama", ad), yol, S(a, "ek"), B(a, "klasorArama"));
                 var (durum, _) = await Arama.UrunIndir(ad, sorgu, klasor, 1, c.Log, liste, true, c.T, S(a, "yerelArsiv"), yol);
                 Arama.KullanilanYaz(cikti, kayit);
                 return new JsonObject { ["durum"] = durum.ToString().ToLowerInvariant(), ["resim"] = Sql.ResimBul(klasor, ad) };

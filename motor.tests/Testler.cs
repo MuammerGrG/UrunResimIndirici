@@ -436,3 +436,31 @@ public class YerelArsivTestleri
         Directory.Delete(kok, true);
     }
 }
+
+public class AramaBaglamTestleri
+{
+    [Fact]
+    public void KategoriVeTurkceDuzeltme()
+    {
+        Assert.Equal("Hot chicken Juicy Chicken Burgers", Arama.Sorgu("Hot Chick", "Hot Chick", "Juicy Chicken Burgers/Kızartma/Sadece Yemek", "", false));
+        Assert.Equal("Truffle mayonez Soslar", Arama.Sorgu("Truffle Mayo", "Truffle Mayo", "Soslar/Hazır/Sadece Yemek", "", false));
+        Assert.Equal("acılı tavuk burger", Arama.Sorgu("Hot Chick", "acılı tavuk burger", "Juicy Chicken Burgers", "", false));
+        Assert.Equal("Patates Kızartması", Arama.Sorgu("Patates Kızartması", "Patates Kızartması", "Patates/Kızartma", "", false));
+    }
+
+    [Fact]
+    public void AlakasizSonucElenir()
+    {
+        Assert.True(Arama.YemekPuani(new Dictionary<string, string> { ["title"] = "Galatasaray futbolcu Patty transfer", ["url"] = "https://haber.com/x" }) < 0);
+        Assert.True(Arama.YemekPuani(new Dictionary<string, string> { ["title"] = "Truffle mayo sauce recipe", ["url"] = "https://food.com/x" }) > 0);
+        Assert.Equal(0, Arama.YemekPuani(new Dictionary<string, string> { ["title"] = "Hot Chick", ["url"] = "https://x.com" }));
+    }
+
+    [Fact]
+    public void ListeYazGeriOkunur()
+    {
+        var m = "# Burger\n## Izgara\n### Sadece Yemek\nHot Chick | acılı tavuk burger | 250 | Duble=320\nPatty\n# İçecekler\nKola | kola | 40";
+        var k = Metin.ListeyiAyristir(m);
+        Assert.Equal(Fx.KatJson(k), Fx.KatJson(Metin.ListeyiAyristir(Metin.ListeYaz(k))));
+    }
+}

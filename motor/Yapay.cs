@@ -660,6 +660,44 @@ SADECE şu JSON'u döndür:
         return (await Sor(Array.Empty<string>(), s, ListePrompt + metin.Trim(), log, t)).Trim();
     }
 
+    // ------------------------------------------------------------------ arama terimleri
+    const string AramaPrompt = """
+Aşağıda bir işletmenin ürünleri numaralı olarak var (kategori yolu → ürün adı). Her ürün için internette o ürünün
+DOĞRU fotoğrafını bulduracak 2-6 kelimelik Türkçe görsel arama cümlesi yaz.
+
+Kurallar:
+- Ürün adı uydurma ya da İngilizce bir isim olabilir ("Hot Chick", "Munchy Chips", "Truffle Mayo"). Kategoriye bakıp ürünün
+  NE OLDUĞUNU yaz: "acılı tavuk burger", "baharatlı patates kızartması", "trüflü mayonez sos".
+- Her aramada yemeğin/ürünün türü mutlaka geçsin (burger, patates kızartması, sos, dürüm, içecek, tatlı...). İnsan, yer,
+  film, futbolcu, giysi ile karışabilecek kelimeleri tek başına bırakma ("mayo" yerine "mayonez").
+- Bilinen markalı ürünlerde markayı koru ("coca cola kutu", "ülker çikolatalı gofret", "efes pilsen şişe").
+
+SADECE şu JSON'u döndür: {"aramalar":[{"no":1,"arama":"..."}]}
+
+Ürünler:
+""";
+
+    public static async Task<Dictionary<int, string>> AramaTerimleri(IList<(string kategori, string ad)> urunler, Saglayici s,
+        Action<string> log, CancellationToken t)
+    {
+        var istem = AramaPrompt + string.Join("\n", urunler.Select((u, i) => $"{i + 1}. {u.kategori} → {u.ad}"));
+        Dictionary<int, string> Coz(string cevap)
+        {
+            var d = new Dictionary<int, string>();
+            if (JsonCoz(cevap)?["aramalar"] is JsonArray a)
+                foreach (var x in a)
+                    if (x is JsonObject o && PyInt(o["no"]) is int no && o["arama"] is JsonValue v && v.GetValueKind() == JsonValueKind.String)
+                        d[no] = v.GetValue<string>();
+            if (d.Count == 0) throw new HataMesaji("arama terimi gelmedi");
+            return d;
+        }
+        var bos = Array.Empty<string>();
+        return await Zincir(s, log, t,
+            async () => Coz(await Gemini(bos, s.GeminiAnahtar, s.Model, istem, log, t, jsonMod: true)),
+            async () => Coz(await Groq(bos, s.GroqAnahtar, istem, log, t, jsonMod: true)),
+            async () => Coz(await Mistral(bos, s.MistralAnahtar, istem, log, t, jsonMod: true)));
+    }
+
     // ------------------------------------------------------------------ broşür (JSON)
     public static JsonNode JsonCoz(string metin)
     {

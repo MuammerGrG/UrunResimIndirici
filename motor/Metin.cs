@@ -694,6 +694,34 @@ public static class Metin
     }
 
     // ------------------------------------------------------------------ yardımcı
+    /// <summary>Kategorileri arama terimleriyle birlikte liste metnine çevirir ("Ad | arama | fiyat | porsiyonlar").</summary>
+    public static string ListeYaz(List<Kategori> kategoriler)
+    {
+        var cikti = new List<string>();
+        string[] onceki = Array.Empty<string>();
+        foreach (var k in kategoriler)
+        {
+            var yol = k.Yol.Split('/');
+            for (int s = 0; s < yol.Length; s++)
+                if (!onceki.Take(s + 1).SequenceEqual(yol.Take(s + 1)))
+                {
+                    if (s == 0 && cikti.Count > 0) cikti.Add("");
+                    cikti.Add(new string('#', s + 1) + " " + yol[s]);
+                }
+            foreach (var u in k.Urunler)
+            {
+                var satir = u.Ad;
+                bool fv = u.Fiyat.HasValue && u.Fiyat.Value != 0;
+                if (fv || u.Porsiyonlar.Count > 0 || PorsNorm(u.Arama) != PorsNorm(u.Ad)) satir += " | " + u.Arama;
+                if (fv || u.Porsiyonlar.Count > 0) satir += " | " + (fv ? Py.G(u.Fiyat.Value) : "");
+                if (u.Porsiyonlar.Count > 0) satir += " | " + PorsiyonlariYaz(u.Porsiyonlar);
+                cikti.Add(satir);
+            }
+            onceki = yol;
+        }
+        return string.Join("\n", cikti);
+    }
+
     public static string KategorileriYaz(List<Kategori> kategoriler)
     {
         // Kategorileri yeniden liste metnine çevirir (klasör/zip taramasından gelenler için).
