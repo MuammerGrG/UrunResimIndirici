@@ -246,9 +246,60 @@ public static class Arama
             return sonuc;
         }
         if (ad != null)
-            sonuc = sonuc.Select((r, i) => (p: Puan(r, ad), i, r)).Where(x => x.p >= 0)
+            sonuc = sonuc.Select((r, i) => (p: Puan(r, ad) + YemekPuani(r), i, r)).Where(x => x.p >= 0)
                 .OrderByDescending(x => x.p).ThenBy(x => x.i).Select(x => x.r).ToList();
         return sonuc;
+    }
+
+    // Arama sonucunun yemekle ilgili olup olmadığı (başlık + sayfa adresi). Futbolcu, manzara, alet gibi
+    // alakasız sonuçlar elenir; yemek kelimesi geçenler öne alınır.
+    static readonly string[] YemekKelime =
+    {
+        "yemek", "food", "tarif", "recipe", "menu", "restoran", "restaurant", "burger", "tavuk", "chicken", "patates", "fries",
+        "sos", "sauce", "mayonez", "mayo", "kebap", "kebab", "doner", "pizza", "salata", "salad", "tatli", "dessert", "icecek",
+        "drink", "lezzet", "delicious", "sandvic", "sandwich", "wrap", "nugget", "cips", "chips", "kizartma", "fried", "porsiyon",
+        "tabak", "plate", "cafe", "kafe", "mutfak", "kitchen", "snack", "atistirmalik", "corba", "soup", "pide", "lahmacun",
+        "durum", "tost", "kofte", "et ", "steak", "ayran", "kola", "cola", "soda", "gazoz", "meze", "pilav", "makarna", "pasta",
+    };
+    static readonly string[] AlakasizKelime =
+    {
+        "futbol", "football", "soccer", "oyuncu", "player", "transfer", "galatasaray", "fenerbahce", "besiktas", "trabzonspor",
+        "manzara", "landscape", "beach", "plaj", "sahil", "sunset", "gun batimi", "selale", "waterfall", "wallpaper", "duvar kagidi",
+        "laptop", "notebook", "bilgisayar", "matkap", "makine", "machine", "tools", "hirdavat", "instagram", "tiktok", "youtube",
+        "film", "dizi", "movie", "series", "haber", "news", "siyaset", "model", "manken", "bikini", "mayo modelleri", "swimwear",
+        "ilac", "araba", "otomobil", "telefon", "phone", "kitap", "book", "oyun", "game", "anime", "meme", "caps",
+    };
+
+    public static int YemekPuani(IReadOnlyDictionary<string, string> r)
+    {
+        var metin = " " + Metin.Norm(string.Join(" ", new[] { "title", "url", "source" }.Select(k => r.TryGetValue(k, out var v) ? v ?? "" : ""))) + " ";
+        metin = Regex.Replace(metin, "[^a-z0-9]+", " ");
+        int yemek = YemekKelime.Count(k => metin.Contains(k.Trim().Length < 4 ? " " + k.Trim() + " " : k));
+        bool alakasiz = AlakasizKelime.Any(k => metin.Contains(" " + k));
+        if (alakasiz && yemek == 0) return -100;
+        return Math.Min(yemek, 2) * 2 - (alakasiz ? 3 : 0);
+    }
+
+    /// <summary>Arama cümlesi: ürüne özel arama terimi yoksa üst kategori adı eklenir ("Hot Chick" → "Hot Chick Burger").</summary>
+    public static string Sorgu(string ad, string arama, string yol, string ek, bool klasorArama)
+    {
+        var temel = AramaOlustur(ad, arama, yol);
+        if (Metin.Norm(temel) == Metin.Norm(ad))
+            // Türkçede "mayo" mayo (giysi) demek; İngilizce menü adlarını yemeğe çevir
+            temel = string.Join(" ", Py.SplitWs(temel).Select(w => Metin.Norm(w) switch
+            {
+                "mayo" => "mayonez", "chick" => "chicken", "fries" => "patates kızartması", "patty" => "burger köftesi", _ => w,
+            }));
+        var parcalar = (yol ?? "").Split('/').Where(p => Py.Lower(p) is not ("genel" or "sadece yemek" or "hazır" or "diğer" or "menü")).ToList();
+        string baglam = "";
+        if (klasorArama) baglam = string.Join(" ", parcalar);
+        else if (Metin.Norm(temel) == Metin.Norm(ad) && parcalar.Count > 0)
+        {
+            var ust = parcalar[0];
+            var adN = Metin.Norm(ad);
+            if (!Py.SplitWs(Metin.Norm(ust)).All(w => adN.Contains(w))) baglam = ust;
+        }
+        return string.Join(" ", new[] { temel, baglam, ek }.Where(x => !string.IsNullOrWhiteSpace(x)));
     }
 
     static int Puan(Dictionary<string, string> r, string ad) { try { return SonucPuani(r, ad); } catch { return 0; } }
@@ -396,9 +447,6 @@ public static class Arama
             var klasor = Sql.KlasorYolu(cikti, k.Yol);
             Directory.CreateDirectory(klasor);
             log($"[{k.Yol.Replace("/", " / ")}]");
-            var baglam = klasorArama
-                ? string.Join(" ", k.Yol.Split('/').Where(p => Py.Lower(p) is not ("genel" or "sadece yemek" or "hazır")))
-                : "";
             foreach (var u in k.Urunler)
             {
                 t.ThrowIfCancellationRequested();
@@ -416,7 +464,7 @@ public static class Arama
                     }
                     catch (Exception e) { log($"  {u.Ad}: broşürden kesilemedi ({e.GetType().Name}), internette aranıyor"); }
                 }
-                var sorgu = string.Join(" ", new[] { baglam, AramaOlustur(u.Ad, u.Arama, k.Yol), ek }.Where(x => !string.IsNullOrEmpty(x)));
+                var sorgu = Sorgu(u.Ad, u.Arama, k.Yol, ek, klasorArama);
                 var anahtar = $"{k.Yol.Replace('/', Path.DirectorySeparatorChar)}/{u.Ad}";
                 if (!kayit.TryGetValue(anahtar, out var liste)) kayit[anahtar] = liste = new();
                 var (durum, sayi) = await UrunIndir(u.Ad, sorgu, klasor, adet, log, liste, yenile, t, yerelArsiv, k.Yol);
