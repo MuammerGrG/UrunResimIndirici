@@ -698,6 +698,36 @@ SADECE şu JSON'u döndür: {"aramalar":[{"no":1,"arama":"..."}]}
             async () => Coz(await Mistral(bos, s.MistralAnahtar, istem, log, t, jsonMod: true)));
     }
 
+    // ------------------------------------------------------------------ resim kontrolü
+    /// <summary>Aday resimlerden ürünü gösterenin numarası (1..n); hiçbiri değilse 0; kontrol yapılamazsa -1.</summary>
+    public static async Task<int> ResimSec(IList<string> dosyalar, string ad, string arama, string kategori, Saglayici s, CancellationToken t)
+    {
+        if (s.Ad == "ollama" || dosyalar.Count == 0) return -1;
+        var istem = $"Bir restoran menüsüne ürün fotoğrafı seçiyorum. Ürün adı: \"{ad}\". Kategori: {kategori}. " +
+                    (Metin.Norm(arama) != Metin.Norm(ad) ? $"Ürün şu: {arama}. " : "") +
+                    $"Sana {dosyalar.Count} aday resim verdim (sırayla 1-{dosyalar.Count}). Bu ürünü (yemeği, içeceği ya da paketli ürünü) " +
+                    "en iyi gösteren resmin numarasını seç. İnsan, manzara, eşya, alet, logo, yazı ağırlıklı ya da BAŞKA bir yemeği " +
+                    "gösteren resimleri seçme. Hiçbiri uygun değilse 0 yaz.\nSADECE şu JSON'u döndür: {\"secim\": numara}";
+        int Coz(string cevap)
+        {
+            var n = PyInt(JsonCoz(cevap)?["secim"]);
+            if (n == null || n < 0 || n > dosyalar.Count) throw new HataMesaji("geçersiz seçim");
+            return n.Value;
+        }
+        Action<string> sessiz = _ => { };
+        var sira = new List<Func<Task<int>>>();
+        if (!string.IsNullOrWhiteSpace(s.GroqAnahtar)) sira.Add(async () => Coz(await Groq(dosyalar, s.GroqAnahtar, istem, sessiz, t, jsonMod: true)));
+        if (!string.IsNullOrWhiteSpace(s.GeminiAnahtar)) sira.Add(async () => Coz(await Gemini(dosyalar, s.GeminiAnahtar, s.Model, istem, sessiz, t, jsonMod: true, resimBoyu: 512)));
+        if (!string.IsNullOrWhiteSpace(s.MistralAnahtar)) sira.Add(async () => Coz(await Mistral(dosyalar, s.MistralAnahtar, istem, sessiz, t, jsonMod: true, resimBoyu: 512)));
+        foreach (var f in sira)
+        {
+            try { return await f(); }
+            catch (OperationCanceledException) when (t.IsCancellationRequested) { throw; }
+            catch (Exception) { }
+        }
+        return -1;
+    }
+
     // ------------------------------------------------------------------ broşür (JSON)
     public static JsonNode JsonCoz(string metin)
     {
