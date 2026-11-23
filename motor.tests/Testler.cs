@@ -464,3 +464,43 @@ public class AramaBaglamTestleri
         Assert.Equal(Fx.KatJson(k), Fx.KatJson(Metin.ListeyiAyristir(Metin.ListeYaz(k))));
     }
 }
+
+public class SatisTestleri
+{
+    [Fact]
+    public void SatisSqlYazilir()
+    {
+        var tmp = Fx.GeciciKlasor();
+        try
+        {
+            var k = Metin.ListeyiAyristir("# Fırın Ürünleri\nSimit | simit | 15\nPoğaça | poğaça | 20 | Küçük=12; 1,5=28\n# İçecekler\nAyran | ayran | 30\nÇay");
+            Resim.YedekGorsel("Simit", "x", Path.Combine(Sql.KlasorYolu(tmp, "Fırın Ürünleri"), "Simit.jpg"));
+            var cikti = Path.Combine(tmp, "out.sql");
+            var log = new List<string>();
+            var r = Satis.Olustur(Fx.Yol("test_satis.sql"), k, tmp, cikti, 5, 1, log.Add);
+            Assert.Equal(2, r.Kategori);
+            Assert.Equal(6, r.Urun);   // simit, poğaça, poğaça küçük, poğaça 1,5 porsiyon, ayran, çay
+            var ham = File.ReadAllBytes(cikti);
+            Assert.False(ham.Take(3).SequenceEqual(new byte[] { 0xEF, 0xBB, 0xBF }));
+            var m = Encoding.GetEncoding(1254).GetString(ham);
+            Assert.Contains("\r\n", m);
+            Assert.DoesNotContain("ESK", m.Split("CREATE TABLE").Skip(1).Aggregate("", (a, b) => a + b.Substring(b.IndexOf("# Data", StringComparison.Ordinal))));
+            Assert.Contains("'002063000001'", m);
+            Assert.Contains("'002063000006'", m);
+            Assert.Contains(Metin.HexMetin("POĞAÇA 1,5 PORSİYON"), m);
+            Assert.Contains(Metin.HexMetin("POĞAÇA KÜÇÜK"), m);
+            Assert.Contains(Metin.HexMetin("FIRIN ÜRÜNLERİ"), m);
+            Assert.Contains("AUTO_INCREMENT=7 ", m);
+            Assert.Equal(6, Regex.Matches(m, "INSERT INTO `tbl_hizlikategoriurun`").Count);
+            // butonda resim: 217x123 JPEG'in base64 metni
+            var x = Regex.Match(m, "X'([0-9A-F]+)'").Groups[1].Value;
+            var jpeg = Convert.FromBase64String(Encoding.ASCII.GetString(Convert.FromHexString(x)));
+            using var b = SkiaSharp.SKBitmap.Decode(jpeg);
+            Assert.Equal(217, b.Width); Assert.Equal(123, b.Height);
+            // fiyatı olmayan Çay: 5 TL
+            Assert.Contains(Metin.HexMetin("ÇAY") + ",NULL,'ADET',5,", m);
+            Assert.Throws<HataMesaji>(() => Satis.Olustur(Fx.Yol("test_dump.sql"), k, tmp, cikti, 5));
+        }
+        finally { Directory.Delete(tmp, true); }
+    }
+}
