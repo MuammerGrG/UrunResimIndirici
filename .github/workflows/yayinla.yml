@@ -158,11 +158,11 @@ jobs:
           }
           $rapor | Set-Content cilog/tani.txt -Encoding utf8
           $ua = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36"
-          foreach ($u in @("https://www.bing.com/images/async?q=tavuk+burger&async=1&first=1&count=35&mmasync=1&setlang=tr&cc=tr", "https://www.bing.com/images/search?q=tavuk+burger&form=HDRSC2&first=1&setlang=tr&cc=tr")) {
-            try { $h = (Invoke-WebRequest -Uri $u -UserAgent $ua -TimeoutSec 20).Content } catch { $h = "HATA $_" }
-            Add-Content cilog/bing.txt ("=== $u`nuzunluk=$($h.Length) iusc=$(([regex]::Matches($h,'iusc')).Count) murl=$(([regex]::Matches($h,'murl')).Count)")
-            $k = $h.IndexOf('iusc'); if ($k -lt 0) { $k = 0 }
-            Add-Content cilog/bing.txt $h.Substring($k, [Math]::Min(2500, $h.Length - $k))
+          $n = 0
+          foreach ($u in @("https://www.bing.com/images/search?q=tavuk+burger&form=HDRSC2&first=1", "https://www.bing.com/images/search?q=tavuk+burger&qft=+filterui:photo-photo&FORM=IRFLTR", "https://images.search.yahoo.com/search/images?p=tavuk+burger", "https://www.google.com/search?q=tavuk+burger&tbm=isch&hl=tr")) {
+            $n++
+            try { $h = (Invoke-WebRequest -Uri $u -UserAgent $ua -TimeoutSec 20 -Headers @{ "Accept-Language" = "tr-TR,tr;q=0.9" }).Content } catch { $h = "HATA $_" }
+            Set-Content "cilog/sayfa$n.html" $h -Encoding utf8
           }
 
       - name: Sonuçları ci-log dalına yaz
