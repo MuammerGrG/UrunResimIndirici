@@ -125,11 +125,45 @@ jobs:
           $istek | & $motor 2>&1 | Select-Object -First 60 | Tee-Object -FilePath derle.txt -Append
           Remove-Item Env:MOTOR_BEKLE
 
+      - name: Arama teşhisi
+        if: github.ref == 'refs/heads/v4' && steps.motor.outcome == 'success'
+        shell: pwsh
+        continue-on-error: true
+        run: |
+          New-Item -ItemType Directory -Force cilog/tani | Out-Null
+          $sorgular = @(
+            @("Hot Chick","Hot Chick"), @("Hot chicken Juicy Chicken Burgers","Hot Chick"), @("acılı tavuk burger","Hot Chick"),
+            @("Truffle mayonez Soslar","Truffle Mayo"), @("trüflü mayonez sos","Truffle Mayo"), @("Munchy Chips Patates","Munchy Chips"),
+            @("baharatlı patates cipsi","Munchy Chips"), @("Sweet chicken Juicy Chicken Burgers","Sweet Chick")
+          )
+          $i = 0
+          $istek = ($sorgular | ForEach-Object { $i++; @{ id = $i; komut = "arama_sonuclari"; arg = @{ sorgu = $_[0]; ad = $_[1] } } | ConvertTo-Json -Compress }) -join "`n"
+          $env:MOTOR_BEKLE = "1"
+          $cevaplar = $istek | ./motor-cikti/Motor.exe
+          $rapor = @()
+          foreach ($satir in $cevaplar) {
+            $c = $satir | ConvertFrom-Json
+            if ($c.olay -eq 'log') { $rapor += "LOG $($c.id): $($c.metin)"; continue }
+            if (-not $c.id) { continue }
+            $q = $sorgular[$c.id - 1][0]
+            $rapor += "=== $($c.id) $q (tamam=$($c.tamam) $($c.hata))"
+            $j = 0
+            foreach ($r in $c.sonuc) {
+              $j++
+              $rapor += "  $j p=$($r.puan) y=$($r.yemek) | $($r.baslik) | $($r.sayfa)"
+              if ($j -le 4) {
+                try { Invoke-WebRequest -Uri $r.resim -OutFile ("cilog/tani/{0}_{1}.img" -f $c.id, $j) -TimeoutSec 12 -UserAgent "Mozilla/5.0" } catch { $rapor += "     indirilemedi" }
+              }
+            }
+          }
+          $rapor | Set-Content cilog/tani.txt -Encoding utf8
+
       - name: Sonuçları ci-log dalına yaz
         if: always()
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force cilog | Out-Null
+          Get-ChildItem cilog/tani -ErrorAction SilentlyContinue | Where-Object { $_.Length -gt 1500000 } | Remove-Item
           foreach ($f in 'ci.txt','derle.txt','ekran.png') { if (Test-Path $f) { Copy-Item $f cilog/ } }
           "test=${{ steps.test.outcome }} motor=${{ steps.motor.outcome }} kurulum=${{ steps.kurulum.outcome }} deneme=${{ steps.deneme.outcome }} sha=${{ github.sha }}" | Set-Content cilog/durum.txt
           cd cilog

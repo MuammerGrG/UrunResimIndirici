@@ -383,6 +383,18 @@ public static class Komutlar
                 return new JsonObject { ["urun"] = n, ["hedef"] = S(a, "hedef") };
             }
 
+            case "arama_sonuclari":
+            {
+                // Teşhis: bir aramanın sıralanmış sonuçları ve puanları
+                var ad = S(a, "ad");
+                var sonuc = await Arama.ResimAra(S(a, "sorgu"), 1, c.Log, null, c.T);
+                return new JsonArray(sonuc.Take(15).Select(r => (JsonNode)new JsonObject
+                {
+                    ["puan"] = Arama.SonucPuani(r, ad), ["yemek"] = Arama.YemekPuani(r),
+                    ["baslik"] = r.GetValueOrDefault("title"), ["sayfa"] = r.GetValueOrDefault("url"), ["resim"] = r.GetValueOrDefault("image"),
+                }).ToArray());
+            }
+
             case "modeller":
                 return new JsonArray((await Yapay.GeminiModelleri(S(a, "anahtar"), c.T)).Select(x => (JsonNode)x).ToArray());
 
