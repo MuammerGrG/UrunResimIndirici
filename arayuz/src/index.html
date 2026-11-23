@@ -146,6 +146,7 @@
         <div class="anahtar" role="radiogroup" aria-label="Çıktı türü">
           <button role="radio" data-mod="sql">SiparişMatik (.sql)</button>
           <button role="radio" data-mod="pro">SiparişMatik Pro (siparismatik.db)</button>
+          <button role="radio" data-mod="satis">SiparişMatik Satış (.sql)</button>
         </div>
         <div class="cikti-izgara">
           <div class="kart">
@@ -153,6 +154,12 @@
               <label class="alan">SQL yedeği
                 <span class="dosya-sec"><input id="sql" placeholder="Müşterinin boş/eski SQL yedeği (.sql)"><button class="hafif" id="btn-sql-sec">Seç</button></span>
               </label>
+            </div>
+            <div data-mod-alan="satis">
+              <label class="alan">Satış programı SQL yedeği
+                <span class="dosya-sec"><input id="satisSql" placeholder="db_siparismatiksatis.sql"><button class="hafif" id="btn-satis-sec">Seç</button></span>
+              </label>
+              <p class="ipucu">Yedekteki eski ürünler, kategoriler ve hızlı satış butonları silinir; her ürün (porsiyonlar ayrı ürün olarak) kategorisine ve resimli hızlı satış butonuna yazılır. Barkodsuz ürünlerin barkodu 002063 ile başlar.</p>
             </div>
             <div data-mod-alan="pro">
               <label class="alan">Pro veritabanı

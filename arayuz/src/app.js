@@ -480,7 +480,7 @@ $('#btn-indir').onclick = async () => {
     await listeyiYenile();
     await galeriYukle();
     $('#ilerleme-yazi').textContent = r.basarisiz.length ? `bitti, ${r.basarisiz.length} ürünün resmi bulunamadı` : 'bitti';
-    if ($('#otomatikCikti').checked && (D.ayar.ciktiModu === 'pro' ? D.ayar.proDb : D.ayar.sql)) {
+    if ($('#otomatikCikti').checked && ({ pro: D.ayar.proDb, satis: D.ayar.satisSql }[D.ayar.ciktiModu] ?? D.ayar.sql)) {
       log('');
       await ciktiOlustur();
     }
@@ -497,7 +497,7 @@ async function firmaKlasoru() {
   let ad = firmaAdi();
   if (!ad) {
     try {
-      const r = await motor('firma_adi', D.ayar.ciktiModu === 'pro' ? { pro: D.ayar.proDb } : { sql: D.ayar.sql }, { sessiz: true });
+      const r = await motor('firma_adi', D.ayar.ciktiModu === 'pro' ? { pro: D.ayar.proDb } : { sql: D.ayar.ciktiModu === 'satis' ? D.ayar.satisSql : D.ayar.sql }, { sessiz: true });
       ad = guvenliAd(r.ad);
       if (ad) { $('#firma').value = ad; oturumKaydetG(); }
     } catch { /* */ }
@@ -506,15 +506,16 @@ async function firmaKlasoru() {
 }
 
 function modGoster() {
-  const mod = D.ayar.ciktiModu === 'pro' ? 'pro' : 'sql';
+  const mod = ['pro', 'satis'].includes(D.ayar.ciktiModu) ? D.ayar.ciktiModu : 'sql';
   for (const b of $$('[data-mod]')) b.setAttribute('aria-checked', String(b.dataset.mod === mod));
   for (const e of $$('[data-mod-alan]')) e.hidden = e.dataset.modAlan !== mod;
-  $('#btn-olustur').textContent = mod === 'pro' ? 'Pro veritabanını oluştur' : 'SQL oluştur';
-  $('#b-cikti').textContent = D.ciktiOk ? 'oluşturuldu' : mod === 'pro' ? 'SiparişMatik Pro' : 'SiparişMatik .sql';
+  $('#btn-olustur').textContent = mod === 'pro' ? 'Pro veritabanını oluştur' : mod === 'satis' ? 'Satış SQL\'ini oluştur' : 'SQL oluştur';
+  $('#b-cikti').textContent = D.ciktiOk ? 'oluşturuldu' : mod === 'pro' ? 'SiparişMatik Pro' : mod === 'satis' ? 'SiparişMatik Satış' : 'SiparişMatik .sql';
+  $('#kdv').closest('label').hidden = mod === 'satis';
 }
 for (const b of $$('[data-mod]')) b.onclick = () => { ayarKaydet({ ciktiModu: b.dataset.mod }); modGoster(); };
 
-const ciktiAlanlari = ['sql', 'proDb', 'proKullanici', 'proOpsiyonlar', 'proIcecekOpsiyon', 'proDemoTemizle', 'fiyat', 'kdv', 'seviye'];
+const ciktiAlanlari = ['sql', 'satisSql', 'proDb', 'proKullanici', 'proOpsiyonlar', 'proIcecekOpsiyon', 'proDemoTemizle', 'fiyat', 'kdv', 'seviye'];
 for (const id of ciktiAlanlari) {
   $('#' + id).addEventListener('change', () => {
     const e = $('#' + id);
@@ -524,6 +525,10 @@ for (const id of ciktiAlanlari) {
 $('#btn-sql-sec').onclick = async () => {
   const [y] = await api.dosya.ac({ baslik: 'SQL yedeği', yol: D.ayar.sql || undefined, filtre: [{ name: 'SQL', extensions: ['sql'] }, { name: 'Hepsi', extensions: ['*'] }] });
   if (y) { $('#sql').value = y; ayarKaydet({ sql: y }); }
+};
+$('#btn-satis-sec').onclick = async () => {
+  const [y] = await api.dosya.ac({ baslik: 'Satış programının SQL yedeği', yol: D.ayar.satisSql || undefined, filtre: [{ name: 'SQL', extensions: ['sql'] }, { name: 'Hepsi', extensions: ['*'] }] });
+  if (y) { $('#satisSql').value = y; ayarKaydet({ satisSql: y }); }
 };
 $('#btn-pro-sec').onclick = async () => {
   const [y] = await api.dosya.ac({ baslik: "Pro'nun siparismatik.db dosyası (AppData\\Roaming\\siparismatik-pro)", filtre: [{ name: 'Pro veritabanı', extensions: ['db'] }, { name: 'Hepsi', extensions: ['*'] }] });
@@ -535,10 +540,10 @@ $('#btn-klasor-sec').onclick = async () => { const [y] = await api.dosya.ac({ ba
 $('#btn-zip-sec').onclick = async () => { const [y] = await api.dosya.ac({ baslik: 'Resim zip dosyası', filtre: [{ name: 'Zip', extensions: ['zip'] }] }); if (y) $('#hazirKlasor').value = y; };
 
 async function ciktiOlustur() {
-  const pro = D.ayar.ciktiModu === 'pro';
-  const kaynak = pro ? $('#proDb').value.trim() : $('#sql').value.trim();
+  const pro = D.ayar.ciktiModu === 'pro', satis = D.ayar.ciktiModu === 'satis';
+  const kaynak = pro ? $('#proDb').value.trim() : satis ? $('#satisSql').value.trim() : $('#sql').value.trim();
   if (!kaynak || !(await api.dosya.var(kaynak))) {
-    log(pro ? "Önce Pro'nun siparismatik.db dosyasını seç (yeni kurulumun AppData\\Roaming\\siparismatik-pro klasöründen)." : 'Önce müşterinin SQL yedeğini seç.');
+    log(pro ? "Önce Pro'nun siparismatik.db dosyasını seç (yeni kurulumun AppData\\Roaming\\siparismatik-pro klasöründen)." : satis ? 'Önce satış programının SQL yedeğini seç.' : 'Önce müşterinin SQL yedeğini seç.');
     adimaGit('cikti');
     sonucGoster({ hata: pro ? 'Pro veritabanı seçilmedi.' : 'SQL yedeği seçilmedi.' });
     return;
@@ -557,6 +562,8 @@ async function ciktiOlustur() {
     if (pro) {
       r = await motor('pro', { ...ortak, db: kaynak, hedef: firma, kullanici: $('#proKullanici').value, opsiyonlar: $('#proOpsiyonlar').value,
         icecekOpsiyon: $('#proIcecekOpsiyon').checked, demoTemizle: $('#proDemoTemizle').checked }, { ad: 'Pro veritabanı yazılıyor' });
+    } else if (satis) {
+      r = await motor('satis', { ...ortak, dump: kaynak, hedef: await api.yol.birlestir(firma, await api.yol.ad(kaynak)) }, { ad: 'Satış SQL\'i yazılıyor' });
     } else {
       r = await motor('sql', { ...ortak, dump: kaynak, hedef: await api.yol.birlestir(firma, await api.yol.ad(kaynak)), sutunlar: D.ayar.sutunlar }, { ad: 'SQL yazılıyor' });
     }
@@ -647,7 +654,7 @@ function formuDoldur() {
   $('#klasorArama').checked = !!a.klasorArama;
   $('#otomatikCikti').checked = a.otomatikCikti !== false;
   $('#resimKontrol').checked = a.resimKontrol !== false;
-  for (const id of ['sql', 'proDb', 'proKullanici', 'proOpsiyonlar']) $('#' + id).value = a[id] || '';
+  for (const id of ['sql', 'satisSql', 'proDb', 'proKullanici', 'proOpsiyonlar']) $('#' + id).value = a[id] || '';
   $('#proIcecekOpsiyon').checked = !!a.proIcecekOpsiyon;
   $('#proDemoTemizle').checked = a.proDemoTemizle !== false;
   $('#fiyat').value = a.fiyat ?? 1;

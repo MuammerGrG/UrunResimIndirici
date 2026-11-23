@@ -311,6 +311,7 @@ public static class Komutlar
             }
 
             case "sql":
+            case "satis":
             case "pro":
             {
                 List<Kategori> k; Dictionary<string, string> gercek = null; string resimKok;
@@ -334,6 +335,15 @@ public static class Komutlar
                 double fiyat = D(a, "fiyat", 1), kdv = D(a, "kdv", 10);
                 int seviye = I(a, "seviye", 1);
                 c.Log($"Firma: {S(a, "firma", "Firmasiz")}");
+                if (komut == "satis")
+                {
+                    var r = Satis.Olustur(S(a, "dump"), k, resimKok, S(a, "hedef"), fiyat, seviye, c.Log, gercek, c.T);
+                    return new JsonObject
+                    {
+                        ["kategori"] = r.Kategori, ["urun"] = r.Urun, ["hedef"] = S(a, "hedef"),
+                        ["eksik"] = new JsonArray(r.Eksik.Select(x => (JsonNode)x).ToArray()),
+                    };
+                }
                 if (komut == "sql")
                 {
                     var elle = new Dictionary<string, Dictionary<string, string>>();

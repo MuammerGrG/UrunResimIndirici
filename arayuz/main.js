@@ -16,7 +16,7 @@ const VARSAYILAN = () => ({
   saglayici: 'gemini', geminiAnahtar: '', groqAnahtar: '', mistralAnahtar: '', model: '', ollamaModel: '',
   cikti: path.join(belgeler(), 'Urun_Resimleri'), yerelArsiv: '', firmalar: path.join(belgeler(), 'Firmalar'),
   ek: '', adet: 1, klasorArama: false, otomatikCikti: true,
-  ciktiModu: 'sql', sql: '', proDb: '', proKullanici: os.userInfo().username || '',
+  ciktiModu: 'sql', sql: '', satisSql: '', proDb: '', proKullanici: os.userInfo().username || '',
   proOpsiyonlar: 'Soğanlı, Soğansız, Domatesli, Domatessiz, Marullu, Marulsuz, Soslu, Sossuz, Patatesli, Patatessiz, Turşulu, Turşusuz, Mayonezli, Mayonezsiz, Ketçaplı, Ketçapsız, Acılı, Acısız',
   proIcecekOpsiyon: false, proDemoTemizle: true, fiyat: 1, kdv: 10, seviye: 1, sutunlar: null,
   tema: 'sistem', eskiAktarildi: false,
