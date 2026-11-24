@@ -1,0 +1,93 @@
+  Determining projects to restore...
+  Restored D:\a\UrunResimIndirici\UrunResimIndirici\motor.tests\Motor.Tests.csproj (in 25.32 sec).
+  Restored D:\a\UrunResimIndirici\UrunResimIndirici\motor\Motor.csproj (in 25.32 sec).
+D:\a\UrunResimIndirici\UrunResimIndirici\motor\Excel.cs(66,14): warning CS0219: The variable 'kategorili' is assigned but its value is never used [D:\a\UrunResimIndirici\UrunResimIndirici\motor\Motor.csproj]
+  Motor -> D:\a\UrunResimIndirici\UrunResimIndirici\motor\bin\Release\net8.0\Motor.dll
+  Motor.Tests -> D:\a\UrunResimIndirici\UrunResimIndirici\motor.tests\bin\Release\net8.0\Motor.Tests.dll
+Test run for D:\a\UrunResimIndirici\UrunResimIndirici\motor.tests\bin\Release\net8.0\Motor.Tests.dll (.NETCoreApp,Version=v8.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v2.8.2+699d445a1a (64-bit .NET 8.0.34)
+[xUnit.net 00:00:00.26]   Discovering: Motor.Tests
+[xUnit.net 00:00:00.47]   Discovered:  Motor.Tests
+[xUnit.net 00:00:00.47]   Starting:    Motor.Tests
+  Passed Motor.Tests.SqlTestleri.DumpYardimcilari [106 ms]
+  Passed Motor.Tests.BrosurTestleri.JsonCoz [119 ms]
+  Passed Motor.Tests.BrosurTestleri.JsonMetne [22 ms]
+  Passed Motor.Tests.BrosurTestleri.EksikKontrol [3 ms]
+  Passed Motor.Tests.ResimTestleri.KareVeHex [329 ms]
+  Passed Motor.Tests.ProTestleri.FirmaVeDemo [184 ms]
+  Passed Motor.Tests.SatisTestleri.SatisSqlYazilir [43 ms]
+  Passed Motor.Tests.SqlTestleri.SqlCiktisi(i: 1) [278 ms]
+  Passed Motor.Tests.SqlTestleri.SqlCiktisi(i: 0) [106 ms]
+  Passed Motor.Tests.AramaTestleri.AramaCumlesi [132 ms]
+  Passed Motor.Tests.AramaTestleri.Puan [3 ms]
+  Passed Motor.Tests.ProTestleri.ProDb(i: 0) [183 ms]
+  Passed Motor.Tests.ProTestleri.ProDb(i: 1) [118 ms]
+  Passed Motor.Tests.SqlTestleri.SqlCiktisi(i: 2) [143 ms]
+  Passed Motor.Tests.MetinTestleri.Satir(i: 33) [4 ms]
+  Passed Motor.Tests.MetinTestleri.Satir(i: 21) [3 ms]
+  Passed Motor.Tests.MetinTestleri.Satir(i: 20) [< 1 ms]
+  Passed Motor.Tests.MetinTestleri.Satir(i: 37) [2 ms]
+  Passed Motor.Tests.MetinTestleri.Satir(i: 11) [< 1 ms]
+  Passed Motor.Tests.MetinTestleri.Satir(i: 40) [< 1 ms]
+  Passed Motor.Tests.MetinTestleri.Satir(i: 26) [< 1 ms]
+  Passed Motor.Tests.MetinTestleri.Satir(i: 8) [< 1 ms]
+  Passed Motor.Tests.MetinTestleri.Satir(i: 29) [< 1 ms]
+  Passed Motor.Tests.MetinTestleri.Satir(i: 13) [< 1 ms]
+  Passed Motor.Tests.MetinTestleri.Satir(i: 1) [< 1 ms]
+  Passed Motor.Tests.MetinTestleri.Satir(i: 34) [< 1 ms]
+  Passed Motor.Tests.MetinTestleri.Satir(i: 19) [< 1 ms]
+  Passed Motor.Tests.MetinTestleri.Satir(i: 18) [< 1 ms]
+  Passed Motor.Tests.MetinTestleri.Satir(i: 27) [< 1 ms]
+  Passed Motor.Tests.MetinTestleri.Satir(i: 28) [< 1 ms]
+  Passed Motor.Tests.MetinTestleri.Satir(i: 30) [< 1 ms]
+  Passed Motor.Tests.MetinTestleri.Satir(i: 41) [< 1 ms]
+  Passed Motor.Tests.MetinTestleri.Satir(i: 10) [< 1 ms]
+  Passed Motor.Tests.MetinTestleri.Satir(i: 17) [< 1 ms]
+  Passed Motor.Tests.MetinTestleri.Satir(i: 35) [< 1 ms]
+  Passed Motor.Tests.MetinTestleri.Satir(i: 39) [< 1 ms]
+  Passed Motor.Tests.MetinTestleri.Satir(i: 0) [< 1 ms]
+  Passed Motor.Tests.MetinTestleri.Satir(i: 23) [< 1 ms]
+  Passed Motor.Tests.MetinTestleri.Satir(i: 24) [< 1 ms]
+  Passed Motor.Tests.MetinTestleri.Satir(i: 12) [< 1 ms]
+  Passed Motor.Tests.MetinTestleri.Satir(i: 7) [< 1 ms]
+  Passed Motor.Tests.MetinTestleri.Satir(i: 15) [< 1 ms]
+  Passed Motor.Tests.MetinTestleri.Satir(i: 6) [4 ms]
+  Passed Motor.Tests.MetinTestleri.Satir(i: 2) [< 1 ms]
+  Passed Motor.Tests.MetinTestleri.Satir(i: 36) [< 1 ms]
+  Passed Motor.Tests.MetinTestleri.Satir(i: 38) [< 1 ms]
+  Passed Motor.Tests.MetinTestleri.Satir(i: 31) [< 1 ms]
+  Passed Motor.Tests.MetinTestleri.Satir(i: 22) [< 1 ms]
+  Passed Motor.Tests.MetinTestleri.Satir(i: 3) [< 1 ms]
+  Passed Motor.Tests.MetinTestleri.Satir(i: 9) [< 1 ms]
+{"olay":"log","id":1,"metin":"Yerlesik siniflandirici ile kategorilere ayriliyor..."}
+{"olay":"log","id":1,"metin":"Kategoriler hazir (listeyi kutuda g�rebilirsin).\n"}
+  Passed Motor.Tests.MetinTestleri.Satir(i: 25) [< 1 ms]
+  Passed Motor.Tests.MetinTestleri.Satir(i: 5) [< 1 ms]
+  Passed Motor.Tests.MetinTestleri.Satir(i: 16) [< 1 ms]
+  Passed Motor.Tests.MetinTestleri.Satir(i: 4) [< 1 ms]
+  Passed Motor.Tests.MetinTestleri.Satir(i: 32) [< 1 ms]
+  Passed Motor.Tests.MetinTestleri.Satir(i: 14) [< 1 ms]
+  Passed Motor.Tests.MetinTestleri.FiyatSayiBicim [2 ms]
+  Passed Motor.Tests.ProtokolTestleri.Komutlar [77 ms]
+  Passed Motor.Tests.AramaBaglamTestleri.AlakasizSonucElenir [< 1 ms]
+  Passed Motor.Tests.AramaBaglamTestleri.KategoriVeTurkceDuzeltme [< 1 ms]
+  Passed Motor.Tests.KatalogTestleri.NalburKatalogu [116 ms]
+  Passed Motor.Tests.AramaBaglamTestleri.ListeYazGeriOkunur [2 ms]
+  Passed Motor.Tests.ListeTestleri.Liste(i: 4) [< 1 ms]
+  Passed Motor.Tests.ListeTestleri.Liste(i: 3) [< 1 ms]
+  Passed Motor.Tests.ListeTestleri.Liste(i: 0) [4 ms]
+  Passed Motor.Tests.ListeTestleri.Liste(i: 1) [19 ms]
+  Passed Motor.Tests.ListeTestleri.Liste(i: 2) [< 1 ms]
+  Passed Motor.Tests.ListeTestleri.Liste(i: 5) [2 ms]
+  Passed Motor.Tests.ListeTestleri.OdemeSatirlari [1 ms]
+  Passed Motor.Tests.YerelArsivTestleri.DosyaAdindanBulur [50 ms]
+[xUnit.net 00:00:04.18]   Finished:    Motor.Tests
+  Passed Motor.Tests.ExcelKlasorTestleri.ExcelOku [2 s]
+  Passed Motor.Tests.ExcelKlasorTestleri.ExcelYazOku [329 ms]
+  Passed Motor.Tests.ExcelKlasorTestleri.ZipTara [19 ms]
+
+Test Run Successful.
+Total tests: 73
+     Passed: 73
+ Total time: 6.7189 Seconds
