@@ -516,7 +516,8 @@ public class KatalogTestleri
         Assert.Equal(12, k.Select(x => x.Yol.Split('/')[0]).Distinct().Count());
         var vida = k.First(x => x.Yol == "Bağlantı Elemanları ve Sabitleyiciler/Vidalar");
         Assert.Equal("Sunta vidası (YHB, RYSB)", vida.Urunler[0].Ad);
-        Assert.Contains(vida.Urunler, u => u.Ad == "Plastik/fiber vida" || u.Ad == "Plastikfiber vida");
+        Assert.Contains(vida.Urunler, u => u.Ad == "Plastik-fiber vida");
+        Assert.Contains(k, x => x.Yol.StartsWith("Su, Doğalgaz, Isıtma Tesisatı ve Bahçe-Tarım/", StringComparison.Ordinal));
         Assert.Contains(k, x => x.Yol == "Ölçü, Hassas Kontrol ve Lazer Aletleri" && x.Urunler.Any(u => u.Ad.StartsWith("Şerit metreler")));
         Assert.Contains(k, x => x.Yol.StartsWith("Kaba İnşaat") && x.Urunler.Any(u => u.Ad == "Çimento"));
         Assert.True(k.Sum(x => x.Urunler.Count) > 400);

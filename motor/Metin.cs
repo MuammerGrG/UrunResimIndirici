@@ -457,6 +457,7 @@ public static class Metin
     // ------------------------------------------------------------------ katalog metni
     static readonly Regex AnaBaslik = new(@"^\s*(\d{1,2})[.)]\s+(\S.{1,90})$", RegexOptions.CultureInvariant);
     static readonly Regex AltBaslik = new(@"^\s*([^:,;|#()]{2,70}?)\s*:\s*(.+)$", RegexOptions.CultureInvariant);
+    static readonly Regex EgikCizgi = new(@"(?<=\p{L})\s*/\s*(?=\p{L})", RegexOptions.CultureInvariant);
     static readonly Regex SondakiParantez = new(@"\s*\([^()]*\)\s*$", RegexOptions.CultureInvariant);
 
     /// <summary>Virgül / noktalı virgülle ayrılmış parçalar (parantez içindeki virgüller bölmez).</summary>
@@ -495,8 +496,9 @@ public static class Metin
             var x = Py.Strip(ham);
             if (x.Length == 0) continue;
             if (x.StartsWith("#", StringComparison.Ordinal) || OdemeSatiriMi(x) || x.Contains('|')) { cikti.Add(x); continue; }
+            x = EgikCizgi.Replace(x, "-");   // "Plastik/fiber" → "Plastik-fiber" (klasör adında / olamaz)
             var mb = AnaBaslik.Match(x);
-            if (mb.Success && VirgulleBol(mb.Groups[2].Value).Count < 3)
+            if (mb.Success && !mb.Groups[2].Value.Contains(':') && VirgulleBol(mb.Groups[2].Value).Count < 6)
             {
                 if (cikti.Count > 0) cikti.Add("");
                 cikti.Add("# " + Py.RStrip(SondakiParantez.Replace(mb.Groups[2].Value, "").Trim(), ".:"));
