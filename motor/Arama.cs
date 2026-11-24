@@ -192,7 +192,7 @@ public static class Arama
     static DateTime _ddgAtla = DateTime.MinValue;
     static readonly object AramaKilit = new();
 
-    public static async Task<List<Dictionary<string, string>>> ResimAra(string sorgu, int adet, Action<string> log, string ad, CancellationToken t)
+    public static async Task<List<Dictionary<string, string>>> ResimAra(string sorgu, int adet, Action<string> log, string ad, CancellationToken t, bool yemek = true)
     {
         List<Dictionary<string, string>> sonuc = new();
         var hatalar = new List<string>();
@@ -246,7 +246,7 @@ public static class Arama
             return sonuc;
         }
         if (ad != null)
-            sonuc = sonuc.Select((r, i) => (p: Puan(r, ad) + YemekPuani(r), i, r)).Where(x => x.p >= 0)
+            sonuc = sonuc.Select((r, i) => (p: Puan(r, ad) + (yemek ? YemekPuani(r) : 0), i, r)).Where(x => x.p >= 0)
                 .OrderByDescending(x => x.p).ThenBy(x => x.i).Select(x => x.r).ToList();
         return sonuc;
     }
@@ -344,7 +344,7 @@ public static class Arama
     /// <summary>Bir ürünün resmini indirir. kullanilan: daha önce indirilmiş adresler (tekrar gelmesin).</summary>
     public static async Task<(Durum durum, int sayi)> UrunIndir(string ad, string sorgu, string klasor, int adet, Action<string> log,
         List<string> kullanilan, bool yenile, CancellationToken t, string yerelArsiv = null, string kategoriYolu = null,
-        Func<List<string>, Task<int>> dogrula = null)
+        Func<List<string>, Task<int>> dogrula = null, bool yemek = true)
     {
         kullanilan ??= new();
         Directory.CreateDirectory(klasor);
@@ -415,7 +415,7 @@ public static class Arama
         int tur = 0;
         try
         {
-            foreach (var r in await ResimAra(sorgu, adet, log, ad, t))
+            foreach (var r in await ResimAra(sorgu, adet, log, ad, t, yemek))
             {
                 if (kaydedilen >= adet || tur >= 3) break;
                 var url = r.GetValueOrDefault("image");
@@ -475,6 +475,15 @@ public static class Arama
         Dictionary<string, Kirpma> kirpmalar, CancellationToken t, string surum, string yerelArsiv = null,
         Func<Kategori, Urun, List<string>, Task<int>> dogrula = null)
     {
+        return await HepsiniIndir(kategoriler, cikti, adet, ek, log, olay, klasorArama, yenile, kirpmalar, t, surum, yerelArsiv, dogrula,
+            Metin.YemekListesiMi(kategoriler));
+    }
+
+    public static async Task<List<string>> HepsiniIndir(List<Kategori> kategoriler, string cikti, int adet, string ek,
+        Action<string> log, Action<string, Urun, Durum, string> olay, bool klasorArama, bool yenile,
+        Dictionary<string, Kirpma> kirpmalar, CancellationToken t, string surum, string yerelArsiv,
+        Func<Kategori, Urun, List<string>, Task<int>> dogrula, bool yemek)
+    {
         int toplam = kategoriler.Sum(k => k.Urunler.Count);
         Directory.CreateDirectory(cikti);
         var kayit = KullanilanOku(cikti);
@@ -506,7 +515,7 @@ public static class Arama
                 var anahtar = $"{k.Yol.Replace('/', Path.DirectorySeparatorChar)}/{u.Ad}";
                 if (!kayit.TryGetValue(anahtar, out var liste)) kayit[anahtar] = liste = new();
                 var (durum, sayi) = await UrunIndir(u.Ad, sorgu, klasor, adet, log, liste, yenile, t, yerelArsiv, k.Yol,
-                    dogrula == null ? null : d => dogrula(k, u, d));
+                    dogrula == null ? null : d => dogrula(k, u, d), yemek);
                 if (sayi <= 0) basarisiz.Add($"{k.Yol.Replace("/", " / ")} / {u.Ad}");
                 KullanilanYaz(cikti, kayit);
                 olay(k.Yol, u, durum, Sql.ResimBul(klasor, u.Ad));

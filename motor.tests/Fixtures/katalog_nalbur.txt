@@ -1,0 +1,81 @@
+1. Bağlantı Elemanları ve Sabitleyiciler (Endüstriyel & İnşaat)
+Vidalar: Sunta vidası (YHB, RYSB), akıllı vida (matkap uçlu sac/profil), trapez/sandviç panel vidası (epdm pullu), alçıpan vidası (siyah ince/kalın diş, borazan kafa), buldex beton vidası, trifon vida, metrik vidalar (M2 - M36 arası), setskur (düz/konik/çanak uçlu), kelebek vida, gözlü vida (piton), kancalı vida (L/C/J tip), pul başlı vida, plastik/fiber vida.
+
+Cıvata, Somun ve Saplama: Altıköşe başlı (AKB) cıvata (8.8, 10.9, 12.9 kalite ve paslanmaz A2/A4), imbus (silindir başlı) cıvata, havşa başlı imbus cıvata, bombe başlı (taşıyıcı/kasa) cıvata, flanşlı cıvata, paslanmaz cıvatalar, tij/gijon (1m - 3m tam dişli saplamalar), standart altıköşe somun, fiberli (emniyet) somun, flanşlı somun, kelebek somun, kör somun, uzatma somunu, kaynak somunu, perçin somun, tırnaklı ağaç somunu.
+
+Pul, Pim ve Segmanlar: Düz pul (rondela), geniş (karoser) pul, yaylı rondela, tırtıllı/yelpaze pul, konik pul, iç segman, dış segman, ay segman, kopilya (maşalı pim), yarık pim, konik pim, yaylı pim.
+
+Çivi ve Zımba Grubu: İnşaat teli çivisi, çelik beton çivisi (siyah/galvaniz), alçıpan çivisi, rabıta çivisi, döşeme/raptiye çivisi, kablo kroşesi, U çivi (çit çivisi), havalı tabanca çivileri (rulo/şerit), mobilya/döşeme zımba telleri (Tip 53, 140, 80, 90 vb.).
+
+Dübeller ve Ağır Yük Ankrajları: Standart plastik dübel (5'lik - 16'lık), çekmeli çelik dübel, gömlekli çelik dübel, kancalı/gözlü çelik dübel, alçıpan kelebek dübel (plastik/metal), alçıpan burgulu (driva) dübel, gazbeton (Ytong) dübeli, mantolama dübeli, roket (çerçeve) dübeli, klipsli dübel, kimyasal dübel kartuşları ve kovanları.
+
+Halat, Zincir ve Yük Kaldırma Aksesuarları: Çelik halat klemensi, radansa, gerdirme (kanca-kanca, göz-kanca, çatal-çatal), mapa (erkek/dişi), karabina (vidalı/yaylı/paslanmaz), fırdöndü, S kanca, zincir ekleme baklası, kilitli mapa (şekil / U kilit).
+
+2. El Aletleri (Tüm Branşlar)
+Sıkma ve Tork Aletleri: Düz, yıldız (PH), pozidriv (PZ), torx, lokma uçlu ve saatçi tornavidaları, 1000V izoleli elektrikçi tornavidaları, kontrol kalemi (neon/dijital), cırcırlı tornavida, esnek uçlu tornavida, darbeli tornavida, bits uç setleri ve adaptörleri, açık ağız/yıldız/kombine anahtar takımları, cırcırlı kombine anahtar, yarım ay/kavisli anahtar, boru anahtarı (iki ağız, maşalı, zincirli), lokma takımları (1/4" - 1"), cırcır kolu, T kol, mafsal, uzatma kolları, tork anahtarı (klikli/dijital), L ve T alyan takımı.
+
+Pense, Keski ve Makaslar: Kombine pense, kargaburun, yan keski, kerpeten, papağan/fort/ayarlı/grip pense, segman pensesi, kablo soyma pensesi, pabuç/yüksük sıkma pensesi, pop perçin tabancası, somun perçin tabancası, silikon ve kimyasal dübel tabancaları, teneke makası, demir kesme makası, çelik halat makası, PPRC boru kesme makası, bakır/alüminyum boru kesici, kablo kesici.
+
+Vurma, Kırma ve İşkence Grubu: Tesviyeci çekiçleri, marangoz çekiçleri, lastik/plastik/poliüretan/bakır tokmaklar, balyozlar, soğuk keski, taşçı keskisi, kanal keskisi, murç, nokta/pim/delik zımbası, levye (domuz tırnağı), marangoz işkenceleri (F, C, hızlı tetikli, gönye), tezgah mengenesi, boru mengenesi, el mengenesi.
+
+Kesme, Şekillendirme ve Aşındırma: Demir testeresi ve lamaları, pala testere, tilki kuyruğu/alçıpan/kıl testereler, elmas cam kesici, maket bıçağı ve uçları, raspa, metal eğeler, ağaç törpüsü, iğne eğe takımı, rayba, kılavuz ve pafta takımları, su zımparaları, bez/rulo/sünger zımparalar, zımpara takozu.
+
+3. Elektrikli, Akülü ve Havalı Makineler & Sarf
+Elektrikli ve Akülü Makineler: Darbeli/darbesiz matkap, akülü vidalama (12V-36V), darbeli somun sıkma, SDS-Plus kırıcı-delici, SDS-Max kırıcı (hilti), karot makinesi, avuç ve büyük taşlama makineleri, dekupaj, daire, gönye kesme, tilki kuyruğu ve şerit testereler, planya, freze, lamel makinesi, eksantrik/titreşimli/tank zımpara, polisaj, sıcak hava tabancası, elektrikli boya tabancası, mikser (boya/harç karıştırıcı), kanal açma, PPRC boru kaynak makinesi, lehim havyası.
+
+Kaynak Makineleri ve Sarf: İnverter ark, gazaltı (MIG/MAG), TIG (argon) kaynak makineleri, plazma kesme makinesi, kaynak elektrotları (rutil/bazik/paslanmaz/döküm), gazaltı kaynak teli, kaynak ve şase pensesi, cüruf çekici, gaz regülatörü.
+
+Havalı (Pnömatik) Aletler ve Kompresör: Hava kompresörü (25L - 500L), havalı somun sıkma, cırcır, taşlama (kalıpçı), zımpara, boya tabancası, zımba/çivi tabancası, hava üfleme tabancası, spiral hava hortumu, şartlandırıcı.
+
+Delici, Kesici ve Aşındırıcı Uçlar: HSS metal, elmas beton, cam/seramik matkap uçları, ahşap uçları, SDS uçlar ve keskiler, karot uçları, kademeli matkap ucu, metal/inox kesici taşlar, elmas testereler, çanak taş, flap zımpara diski, cırtlı zımpara, panç seti, dairesel testere tepsileri, spiral tel fırçalar.
+
+4. Ölçü, Hassas Kontrol ve Lazer Aletleri
+Şerit metreler (3m - 100m arası), katlanır metre, çelik cetvel, mekanik/dijital/saatli kumpaslar, iç/dış çap mikrometresi, komparatör saati ve manyetik ayağı, sentil çakısı, diş tarağı, su terazisi, hortum su terazisi, çizgi lazeri, lazer metre, optik nivo ve mira, marangoz ve şapka gönyeleri, dijital açı ölçer, şakul, çırpı ipi ve tozu, marangoz/taşçı kalemi, metal çizici.
+
+5. Yapıştırıcılar, Dolgular ve Endüstriyel Kimyasallar
+Yapıştırıcılar: Hızlı yapıştırıcı, şırınga epoksi, çelik macun epoksi, ahşap tutkalları (D2, D3, D4), poliüretan köpük tutkal, bali (kontak), PVC/PPRC/ABS boru yapıştırıcısı, duvar kağıdı tutkalı, seramik/granit yapıştırıcısı, sıcak silikon mumları, cıvata ve rulman sabitleyiciler, sıvı conta.
+
+Dolgu ve İzolasyon: Nötr/asetik silikonlar, yüksek ısı silikonu (300°C), akvaryum silikonu, akrilik/poliüretan mastikler, MS polimer, poliüretan montaj köpükleri, B1 yanmaz köpük, kimyasal dübel, alçılar, derz dolgusu, hazır tamir macunu, ahşap macunu, çelik macun.
+
+Teknik Spreyler, Yağlar ve Temizleyiciler: Pas sökücü ve yağlayıcı (WD-40), balata/kontak temizleme spreyleri, silikon/teflon/sıvı gres/kayış/kaynak çapak önleyici spreyler, kesme ve delme yağı, gres yağları, gres pompası, makine/kompresör/hidrolik yağlar, kireç/çimento/pas sökücüler, el temizleme kremi.
+
+6. Boya, Vernik ve Yüzey Hazırlık Ekipmanları
+Boyalar ve Çözücüler: Akrilik sprey boyalar, ısıya dayanıklı/jant/çinko/fosforlu sprey boyalar, sprey vernik, antipas, epoksi astar ve boya, sentetik yağlı boya, hızlı kuruyan endüstriyel boya, plastik/silikonlu duvar boyası, ahşap koruyucu, yat verniği, tiner çeşitleri (selülozik, sentetik, epoksi), bezir yağı.
+
+Uygulama Araçları: Kestirme ve yağlı boya fırçaları, ipek/samur fırça, rulo çeşitleri (parmak, saten, plastik, epoksi, mercan), boya rulo tavası ve eleği, teleskopik boyacı sırığı, spatula, malalar, hışır koruma örtüsü, branda.
+
+7. Bant Çeşitleri
+PVC elektrik izole bandı, yüksek gerilim kauçuk bant, kağıt maskeleme bandı (oto maskeleme), çift taraflı bantlar (VHB şeffaf, köpük), halı bandı, tamir bandı (duct tape), alüminyum folyo bant, PTFE teflon bant, sıvı teflon, kaydırmaz zemin bandı, reflektörlü ikaz bandı, emniyet şeridi, derz bandı, ambalaj kolileme bandı.
+
+8. Kilit, Kapı, Pencere, Mobilya ve Yük Taşıma Donanımları
+Kilit Grubu: Barel/silindirler, gömme kapı kilitleri, tirajlı kilit, asma kilitler (demir, pirinç, zırhlı, şifreli), cam, çekmece, dolap ve pano kilitleri.
+
+Kapı ve Pencere Donanımları: Kapı kolları (rozetli/aynalı), PVC pencere kolu, çift açılım mekanizmaları, ispanyolet, kapı hidroliği, kapı stoperleri, emniyet zinciri/mandalı, kapı dürbünü, posta kutusu, bina/daire rakamları.
+
+Menteşe, Ray ve Mobilya: Yaprak ve tas menteşeler, yaylı/kaynaklı/piyano menteşeler, bilyalı teleskopik raylar, L gönye köşebentler, düz birleştirme lamaları, minifiks/rafix bağlantı elemanları, raf pimi, kavela, mobilya kulpları, baza/masa ayakları, ağır yük ve sanayi tekerlekleri, mobilya keçeleri.
+
+Yalıtım ve Sineklik: Kapı/pencere fitilleri (D, E, P profil), sünger fitil, kapı altı fırçası/rüzgarlığı, fiberglas/alüminyum sineklik tülü ve aksesuarları.
+
+9. Su, Doğalgaz, Isıtma Tesisatı ve Bahçe/Tarım
+Armatür, Vana ve Sayaç Grubu: Musluklar (kısa, uzun, çamaşır, taharet), küresel/şiber/kelebek vanalar, çekvalf, basınç düşürücü, pislik tutucu, hava tahliye purjörü, radyatör vanaları, doğalgaz vanası ve fleks hortumu, su sayacı rekoru, şamandıra ve rezervuar iç takımı.
+
+Boru ve Ek Parçalar: PPRC boru ve ek parçaları (dirsek, te, manşon, rakor), sarı/pirinç ve galvaniz fittingler (nipel, manşon, dirsek, te), siyah çelik boru ve kaynaklı fittingler, PVC atık su borusu ve ekleri, kangal (PE) boru ve kaplinler.
+
+Sifon, Hortum ve Sarf: Lavabo/evye sifonu, körüklü gider borusu, yer süzgeci, fleks hortumlar, duş spirali, tesisat keteni, conta çeşitleri (fiber, klingerit, EPDM, O-ring), lavabo açıcı susta ve pompa, hortum kelepçeleri.
+
+Bahçe ve Tarım: Örgülü sulama hortumları, damlama sulama boru ve ekleri, çabuk bağlantı (jak), sulama tabancası, fıskiye/sprinkler, budama ve çit makasları, el aletleri (çapa, tırmığı, kürek), tırpan misinası, ilaçlama pompası.
+
+10. Elektrik, Otomasyon ve Aydınlatma
+Kablo ve İletkenler: NYA, NYM (antigron), TTR (esnek), NYY (yeraltı), halogen-free, kaynak, akü takviye, uydu (RG6), internet (CAT5/CAT6/CAT7), kamera ve hoparlör kabloları.
+
+Bağlantı, Pano ve Koruma: Sıra/buat/porselen/ray klemensler, kablo bağı (cırt kelepçe), yapışkanlı/çivili kroşe, kablo kanalı, spiral borular, makaronlar, kablo pabuçları ve yüksükleri, buat kapakları, sigorta kutuları ve elektrik panoları.
+
+Anahtar, Priz, Şalt ve Aydınlatma: Anahtar, komütatör, vaviyen, prizler (topraklı, çocuk korumalı, grup prizler), fişler (kauçuk, sanayi tipi), duy çeşitleri, LED ampul, projektör ve şerit LED, seyyar lamba/el feneri, otomat sigortalar, kaçak akım rölesi, kontaktör, zaman saati, piller.
+
+11. İş Güvenliği (KKD) ve Atölye Düzenleme
+Kişisel Koruyucu Donanım: İş eldivenleri (nitril, kesilmeye dayanıklı, kaynakçı, elektrikçi izole vb.), iş gözlükleri, yüz siperliği, otomatik kararan kaynak maskesi, toz/gaz maskeleri, kulak tıkacı/manşon, baret, kaynakçı önlüğü/tozluk, dizlik, çelik burunlu iş ayakkabısı, yağmurluk, fosforlu yelek, emniyet kemeri (paraşüt tip) ve lanyard, trafik konisi ve levhaları.
+
+Düzenleme, Rulman ve Taşıma: Takım çantaları, bel alet kemeri, çekmeceli avadanlık, vida kutuları, takım arabası, kendir/polipropilen/çelik halatlar, zincirler, yük gerdirme spanzeti, ahtapot lastik, bilyalı rulmanlar (6000, 6200, 6300 serisi), el arabası tekerlekleri ve milleri.
+
+12. Kaba İnşaat, Yalıtım ve Nalburiye
+İnşaat küreği, kazma ve gürgen sapları, çekiç/balyoz sapları, el arabası, harç teknesi, plastik inşaat kovası, süpürgeler (çalı, sanayi), üstüpü, el tel fırçası, alüminyum merdivenler (ev tipi, akrobat, sürgülü), moloz çuvalı, çimento, sönmüş kireç, sıva/saten/kartonpiyer alçısı, dere/sıva kumu, çakıl, bims/tuğla/gazbeton, sıva filesi, bitümlü su yalıtım bandı, sıvı membran.

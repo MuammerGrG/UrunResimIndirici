@@ -454,8 +454,80 @@ public static class Metin
     // ------------------------------------------------------------------ liste
     static readonly Regex Baslik = new(@"^(#+)\s*(.*)$", RegexOptions.CultureInvariant);
 
+    // ------------------------------------------------------------------ katalog metni
+    static readonly Regex AnaBaslik = new(@"^\s*(\d{1,2})[.)]\s+(\S.{1,90})$", RegexOptions.CultureInvariant);
+    static readonly Regex AltBaslik = new(@"^\s*([^:,;|#()]{2,70}?)\s*:\s*(.+)$", RegexOptions.CultureInvariant);
+    static readonly Regex EgikCizgi = new(@"(?<=\p{L})\s*/\s*(?=\p{L})", RegexOptions.CultureInvariant);
+    static readonly Regex SondakiParantez = new(@"\s*\([^()]*\)\s*$", RegexOptions.CultureInvariant);
+
+    /// <summary>Virgül / noktalı virgülle ayrılmış parçalar (parantez içindeki virgüller bölmez).</summary>
+    public static List<string> VirgulleBol(string metin)
+    {
+        var parca = new List<string>();
+        var sb = new StringBuilder();
+        int derinlik = 0;
+        foreach (var c in metin)
+        {
+            if (c is '(' or '[') derinlik++;
+            else if (c is ')' or ']') derinlik = Math.Max(0, derinlik - 1);
+            if ((c == ',' || c == ';') && derinlik == 0) { parca.Add(sb.ToString()); sb.Clear(); }
+            else sb.Append(c);
+        }
+        parca.Add(sb.ToString());
+        return parca.Select(x => Py.Strip(Py.RStrip(Py.Strip(x), ".")).Trim()).Where(x => x.Length > 0).ToList();
+    }
+
+    /// <summary>
+    /// "1. Ana Kategori" / "Alt Kategori: ürün, ürün (çeşit, çeşit), ürün." biçimindeki katalog metnini
+    /// "# Ana / ## Alt / ürün" listesine çevirir. Bu biçimde değilse metni olduğu gibi döner.
+    /// </summary>
+    static string IlkHarfBuyuk(string s) => s.Length == 0 ? s : TrBuyuk(s[..1]) + s[1..];
+
+    public static string KatalogDuzenle(string metin)
+    {
+        var satirlar = Py.SplitLines(metin ?? "");
+        // Katalog sayılması için en az iki satırda 3+ virgüllü ürün dizisi olmalı
+        int dizi = satirlar.Count(x => !OdemeSatiriMi(x) && !x.Contains('|') && VirgulleBol(AltBaslik.Match(x) is { Success: true } m ? m.Groups[2].Value : x).Count >= 4);
+        if (dizi < 2) return metin;
+        var cikti = new List<string>();
+        bool ana = false, alt = false;
+        foreach (var ham in satirlar)
+        {
+            var x = Py.Strip(ham);
+            if (x.Length == 0) continue;
+            if (x.StartsWith("#", StringComparison.Ordinal) || OdemeSatiriMi(x) || x.Contains('|')) { cikti.Add(x); continue; }
+            x = EgikCizgi.Replace(x, "-");   // "Plastik/fiber" → "Plastik-fiber" (klasör adında / olamaz)
+            var mb = AnaBaslik.Match(x);
+            if (mb.Success && !mb.Groups[2].Value.Contains(':') && VirgulleBol(mb.Groups[2].Value).Count < 6)
+            {
+                if (cikti.Count > 0) cikti.Add("");
+                cikti.Add("# " + Py.RStrip(SondakiParantez.Replace(mb.Groups[2].Value, "").Trim(), ".:"));
+                ana = true; alt = false;
+                continue;
+            }
+            var ma = AltBaslik.Match(x);
+            if (ma.Success && VirgulleBol(ma.Groups[2].Value).Count >= 2)
+            {
+                cikti.Add((ana ? "## " : "# ") + Py.Strip(ma.Groups[1].Value));
+                alt = ana;
+                cikti.AddRange(VirgulleBol(ma.Groups[2].Value).Select(IlkHarfBuyuk));
+                continue;
+            }
+            var parca = VirgulleBol(x);
+            if (parca.Count >= 3)
+            {
+                if (alt) { cikti.Add("## Diğer"); alt = false; }
+                if (!ana) { cikti.Add("# Genel"); ana = true; }
+                cikti.AddRange(parca.Select(IlkHarfBuyuk));
+            }
+            else cikti.Add(x);
+        }
+        return string.Join("\n", cikti);
+    }
+
     public static bool BasliksizMi(string metin)
     {
+        metin = KatalogDuzenle(metin);
         var satirlar = Py.SplitLines(metin ?? "").Select(Py.Strip).Where(x => x.Length > 0).ToList();
         return satirlar.Count > 0 && !satirlar.Any(x => x.StartsWith("#", StringComparison.Ordinal));
     }
@@ -463,6 +535,7 @@ public static class Metin
     /// <summary>Liste metni → sıralı kategoriler (porsiyonlar gruplanmış).</summary>
     public static List<Kategori> ListeyiAyristir(string metin)
     {
+        metin = KatalogDuzenle(metin);
         var kategoriler = new List<Kategori>();
         var yigin = new List<string>();
         foreach (var satir in Py.SplitLines(metin ?? ""))
@@ -558,6 +631,21 @@ public static class Metin
         ("Tava", new[] { "tava", "wok", "menemen", "omlet", "sote" }),
         ("Soğuk", new[] { "salata", "sezar", "cacik", "humus", "meze", "sushi" }),
     };
+
+    /// <summary>Liste yiyecek/içecek mi (restoran, kafe, manav)? Nalbur, mağaza gibi listelerde yemek odaklı
+    /// arama filtreleri kapatılır.</summary>
+    public static bool YemekListesiMi(List<Kategori> kategoriler)
+    {
+        int toplam = 0, yemek = 0;
+        foreach (var k in kategoriler)
+            foreach (var u in k.Urunler)
+            {
+                toplam++;
+                var n = Norm(u.Ad + " " + k.Yol.Replace('/', ' '));
+                if (EnUzun(n, Restoran).Item1 != null || EnUzun(n, Manav).Item1 != null || EnUzun(n, Pisme).Item1 != null) yemek++;
+            }
+        return toplam == 0 || yemek * 10 >= toplam * 3;
+    }
 
     static (string, int) EnUzun(string urunN, (string, string[])[] sozluk)
     {

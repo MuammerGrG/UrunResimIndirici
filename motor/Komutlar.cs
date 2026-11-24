@@ -104,13 +104,13 @@ public static class Komutlar
     static int Say(List<Kategori> k) => k.Sum(x => x.Urunler.Count);
 
     /// <summary>Resim kontrolü açık ve yapay zekâ anahtarı varsa: adaylardan ürünü gösteren resmi seçtiren işlev.</summary>
-    static Func<List<string>, string, string, string, Task<int>> Dogrulayici(JsonObject a, Is c)
+    static Func<List<string>, string, string, string, Task<int>> Dogrulayici(JsonObject a, Is c, bool yemek = true)
     {
         if (!B(a, "resimKontrol", true)) return null;
         var s = Saglayici(a);
         if (s.Ad == "ollama" || (string.IsNullOrWhiteSpace(s.GeminiAnahtar) && string.IsNullOrWhiteSpace(s.GroqAnahtar) && string.IsNullOrWhiteSpace(s.MistralAnahtar)))
             return null;
-        return (dosyalar, ad, arama, yol) => Yapay.ResimSec(dosyalar, ad, arama, yol.Replace("/", " / "), s, c.T);
+        return (dosyalar, ad, arama, yol) => Yapay.ResimSec(dosyalar, ad, arama, yol.Replace("/", " / "), s, c.T, yemek);
     }
 
     static readonly string[] ManavKategori = { "sebze", "meyve", "yesillik", "kuruyemis" };
@@ -246,7 +246,7 @@ public static class Komutlar
                         });
                     },
                     B(a, "klasorArama"), B(a, "yenile"), Kirpmalar(a), c.T, Program.Surum, S(a, "yerelArsiv"),
-                    Dogrulayici(a, c) is { } dg ? (kat, u, d) => dg(d, u.Ad, u.Arama, kat.Yol) : null);
+                    Dogrulayici(a, c, Metin.YemekListesiMi(k)) is { } dg ? (kat, u, d) => dg(d, u.Ad, u.Arama, kat.Yol) : null);
                 return new JsonObject
                 {
                     ["metin"] = yeni, ["basarisiz"] = new JsonArray(basarisiz.Select(x => (JsonNode)x).ToArray()),
@@ -264,8 +264,9 @@ public static class Komutlar
                 if (!kayit.TryGetValue(anahtar, out var liste)) kayit[anahtar] = liste = new();
 
                 var sorgu = Arama.Sorgu(ad, S(a, "arama", ad), yol, S(a, "ek"), B(a, "klasorArama"));
+                var yemek = S(a, "metin").Length == 0 || Metin.YemekListesiMi(Metin.ListeyiAyristir(S(a, "metin")));
                 var (durum, _) = await Arama.UrunIndir(ad, sorgu, klasor, 1, c.Log, liste, true, c.T, S(a, "yerelArsiv"), yol,
-                    Dogrulayici(a, c) is { } dg ? d => dg(d, ad, S(a, "arama", ad), yol) : null);
+                    Dogrulayici(a, c, yemek) is { } dg ? d => dg(d, ad, S(a, "arama", ad), yol) : null, yemek);
                 Arama.KullanilanYaz(cikti, kayit);
                 return new JsonObject { ["durum"] = durum.ToString().ToLowerInvariant(), ["resim"] = Sql.ResimBul(klasor, ad) };
             }
