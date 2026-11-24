@@ -504,3 +504,26 @@ public class SatisTestleri
         finally { Directory.Delete(tmp, true); }
     }
 }
+
+public class KatalogTestleri
+{
+    [Fact]
+    public void NalburKatalogu()
+    {
+        var metin = File.ReadAllText(Fx.Yol("katalog_nalbur.txt"));
+        Assert.False(Metin.BasliksizMi(metin));
+        var k = Metin.ListeyiAyristir(metin);
+        Assert.Equal(12, k.Select(x => x.Yol.Split('/')[0]).Distinct().Count());
+        var vida = k.First(x => x.Yol == "Bağlantı Elemanları ve Sabitleyiciler/Vidalar");
+        Assert.Equal("Sunta vidası (YHB, RYSB)", vida.Urunler[0].Ad);
+        Assert.Contains(vida.Urunler, u => u.Ad == "Plastik/fiber vida" || u.Ad == "Plastikfiber vida");
+        Assert.Contains(k, x => x.Yol == "Ölçü, Hassas Kontrol ve Lazer Aletleri" && x.Urunler.Any(u => u.Ad.StartsWith("Şerit metreler")));
+        Assert.Contains(k, x => x.Yol.StartsWith("Kaba İnşaat") && x.Urunler.Any(u => u.Ad == "Çimento"));
+        Assert.True(k.Sum(x => x.Urunler.Count) > 400);
+        Assert.False(Metin.YemekListesiMi(k));
+        // normal listeler değişmez
+        var normal = "# Döner\nTavuk Döner | tavuk döner | 200\nAyran 30\nÖDEME: Sodexo, Multinet, Ticket, Setcard";
+        Assert.Equal(normal, Metin.KatalogDuzenle(normal));
+        Assert.True(Metin.YemekListesiMi(Metin.ListeyiAyristir(normal)));
+    }
+}

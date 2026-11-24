@@ -662,8 +662,8 @@ SADECE şu JSON'u döndür:
 
     // ------------------------------------------------------------------ arama terimleri
     const string AramaPrompt = """
-Aşağıda bir işletmenin ürünleri numaralı olarak var (kategori yolu → ürün adı). Her ürün için internette o ürünün
-DOĞRU fotoğrafını bulduracak 2-6 kelimelik Türkçe görsel arama cümlesi yaz.
+Aşağıda bir işletmenin (restoran, kafe, market, nalbur, mağaza…) ürünleri numaralı olarak var (kategori yolu → ürün adı).
+Her ürün için internette o ürünün DOĞRU fotoğrafını bulduracak 2-6 kelimelik Türkçe görsel arama cümlesi yaz.
 
 Kurallar:
 - Ürün adı uydurma ya da İngilizce bir isim olabilir ("Hot Chick", "Munchy Chips", "Truffle Mayo"). Kategoriye bakıp ürünün
@@ -671,6 +671,9 @@ Kurallar:
 - Her aramada yemeğin/ürünün türü mutlaka geçsin (burger, patates kızartması, sos, dürüm, içecek, tatlı...). İnsan, yer,
   film, futbolcu, giysi ile karışabilecek kelimeleri tek başına bırakma ("mayo" yerine "mayonez").
 - Bilinen markalı ürünlerde markayı koru ("coca cola kutu", "ülker çikolatalı gofret", "efes pilsen şişe").
+- Yiyecek değilse (hırdavat, elektrik, inşaat malzemesi…) ürünün ne olduğunu açıkça yaz ki ürün fotoğrafı gelsin:
+  "Sunta vidası (YHB, RYSB)" → "sunta vidası yıldız başlı", "kelebek somun" → "kelebek somun metal",
+  "Kontrol kalemi (neon/dijital)" → "elektrikçi kontrol kalemi tornavida".
 
 SADECE şu JSON'u döndür: {"aramalar":[{"no":1,"arama":"..."}]}
 
@@ -700,14 +703,17 @@ SADECE şu JSON'u döndür: {"aramalar":[{"no":1,"arama":"..."}]}
 
     // ------------------------------------------------------------------ resim kontrolü
     /// <summary>Aday resimlerden ürünü gösterenin numarası (1..n); hiçbiri değilse 0; kontrol yapılamazsa -1.</summary>
-    public static async Task<int> ResimSec(IList<string> dosyalar, string ad, string arama, string kategori, Saglayici s, CancellationToken t)
+    public static async Task<int> ResimSec(IList<string> dosyalar, string ad, string arama, string kategori, Saglayici s, CancellationToken t,
+        bool yemek = true)
     {
         if (s.Ad == "ollama" || dosyalar.Count == 0) return -1;
-        var istem = $"Bir restoran menüsüne ürün fotoğrafı seçiyorum. Ürün adı: \"{ad}\". Kategori: {kategori}. " +
+        var istem = (yemek ? "Bir restoran menüsüne" : "Bir mağazanın satış programına") + $" ürün fotoğrafı seçiyorum. Ürün adı: \"{ad}\". Kategori: {kategori}. " +
                     (Metin.Norm(arama) != Metin.Norm(ad) ? $"Ürün şu: {arama}. " : "") +
-                    $"Sana {dosyalar.Count} aday resim verdim (sırayla 1-{dosyalar.Count}). Bu ürünü (yemeği, içeceği ya da paketli ürünü) " +
-                    "en iyi gösteren resmin numarasını seç. İnsan, manzara, eşya, alet, logo, yazı ağırlıklı ya da BAŞKA bir yemeği " +
-                    "gösteren resimleri seçme. Hiçbiri uygun değilse 0 yaz.\nSADECE şu JSON'u döndür: {\"secim\": numara}";
+                    $"Sana {dosyalar.Count} aday resim verdim (sırayla 1-{dosyalar.Count}). " +
+                    (yemek
+                        ? "Bu ürünü (yemeği, içeceği ya da paketli ürünü) en iyi gösteren resmin numarasını seç. İnsan, manzara, eşya, alet, logo, yazı ağırlıklı ya da BAŞKA bir yemeği gösteren resimleri seçme."
+                        : "Bu ürünü en iyi gösteren (tercihen düz zeminde ürün fotoğrafı) resmin numarasını seç. İnsan, manzara, logo, yazı ağırlıklı ya da BAŞKA bir ürünü gösteren resimleri seçme.") +
+                    " Hiçbiri uygun değilse 0 yaz.\nSADECE şu JSON'u döndür: {\"secim\": numara}";
         int Coz(string cevap)
         {
             var n = PyInt(JsonCoz(cevap)?["secim"]);

@@ -432,7 +432,7 @@ function kartGuncelle(a, durum, resim) {
 async function resimYenile(yol, u, kart) {
   kart.classList.add('calisiyor');
   try {
-    const r = await motor('resim_yenile', { cikti: D.ayar.cikti, yol, ad: u.ad, arama: u.arama, ek: $('#ek').value, klasorArama: $('#klasorArama').checked, yerelArsiv: D.ayar.yerelArsiv || '', resimKontrol: $('#resimKontrol').checked, saglayici: saglayici() });
+    const r = await motor('resim_yenile', { cikti: D.ayar.cikti, yol, ad: u.ad, arama: u.arama, metin: $('#metin').value, ek: $('#ek').value, klasorArama: $('#klasorArama').checked, yerelArsiv: D.ayar.yerelArsiv || '', resimKontrol: $('#resimKontrol').checked, saglayici: saglayici() });
     kartGuncelle(kartAnahtar(yol, u.ad), r.durum === 'yok' ? D.galeri.get(kartAnahtar(yol, u.ad))?.durum || 'yok' : r.durum, r.resim);
   } catch { kart.classList.remove('calisiyor'); }
 }
